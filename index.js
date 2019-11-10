@@ -23,7 +23,7 @@ const RpkiValidator = function () {
             const roa = this._getPrefixMatch(prefix);
             if (roa) {
                 const sameOrigin = roa.origin.toString() === origin;
-                const validLength = roa.maxLength <= parseInt(prefix.split("/")[1]);
+                const validLength = parseInt(prefix.split("/")[1]) <= roa.maxLength;
 
                 resolve(this.createOutput(sameOrigin, validLength, verbose));
             } else {
@@ -128,14 +128,15 @@ const RpkiValidator = function () {
         if (everyMinutes) {
             if (everyMinutes < 15) {
                 throw new Error("The VRP list can be updated at most once every 15 minutes.");
-                if (this.cacheTimer) {
-                    clearInterval(this.cacheTimer);
-                }
-
-                this.cacheTimer = setInterval(() => {
-                    this.getValidatedPrefixes(true)
-                }, everyMinutes * 60 * 1000);
             }
+
+            if (this.cacheTimer) {
+                clearInterval(this.cacheTimer);
+            }
+
+            this.cacheTimer = setInterval(() => {
+                this.getValidatedPrefixes(true)
+            }, everyMinutes * 60 * 1000);
         } else {
             if (this.cacheTimer) {
                 clearInterval(this.cacheTimer);
@@ -170,7 +171,7 @@ const RpkiValidator = function () {
                         .filter(item => !item.ongoing)
                         .map(item => {
                             item.ongoing = true;
-                            return `${item.key}:validation(prefix:"${item.prefix}", asn:${item.origin}) {state}`;
+                            return `${item.key}:validation(prefix:"${item.prefix}", asn:${item.origin}) {state, covering { asn, prefix { prefix, maxLength } }}`;
                         })
                         .join("") + '}'
             };
@@ -192,6 +193,7 @@ const RpkiValidator = function () {
                         const aliases = Object.keys(results);
                         let output;
                         for (let alias of aliases) {
+
                             if (results[alias].state === 'NotFound') {
                                 output = this.createOutput(null, null, this.queue[alias].verbose);
                                 this.queue[alias].resolve(output);
@@ -200,8 +202,20 @@ const RpkiValidator = function () {
                                 this.queue[alias]
                                     .resolve(output);
                             } else {
-                                output = this.createOutput(false, false, this.queue[alias].verbose);
-                                output.reason = null;
+                                let sameOrigin,validLength;
+
+                                try {
+                                    sameOrigin = this.queue[alias]["origin"] == results[alias].covering[0]["asn"];
+                                } catch(e) {
+                                    sameOrigin = false;
+                                }
+
+                                try {
+                                    validLength = parseInt(this.queue[alias]["prefix"].split("/")[1]) <= results[alias].covering[0]["prefix"]["maxLength"];
+                                } catch(e) {
+                                    validLength = false;
+                                }
+                                output = this.createOutput(sameOrigin, validLength, this.queue[alias].verbose);
                                 this.queue[alias]
                                     .resolve(output);
                             }
@@ -212,7 +226,7 @@ const RpkiValidator = function () {
         }
     };
 
-    setTimeout(this._validateBundle, 5000);
+    setInterval(this._validateBundle, 500);
 };
 
 

@@ -1,16 +1,30 @@
 {
   "name": "rpki-validator",
   "version": "1.0.0",
-  "description": "",
+  "description": "A RPKI validator that works also in the browser.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Massimo Candela",
+  "license": "BSD-3-Clause",
   "dependencies": {
     "axios": "^0.19.0",
     "brembo": "^2.0.3",
     "ip-sub": "^1.0.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/massimocandela/rpki-validator.git"
+  },
+  "keywords": [
+    "rpki",
+    "bgp",
+    "validator"
+  ],
+  "bugs": {
+    "url": "https://github.com/massimocandela/rpki-validator/issues"
+  },
+  "homepage": "https://github.com/massimocandela/rpki-validator#readme"
 }
