@@ -74,7 +74,7 @@ const RpkiValidator = function () {
             return {
                 valid,
                 reason
-            }
+            };
         } else {
             return valid;
         }
@@ -146,11 +146,11 @@ const RpkiValidator = function () {
     };
 
     this.validate = (prefix, origin, verbose) => {
-        if (!origin) {
+        if (origin == null) {
             throw new Error("Origin AS missing");
         }
 
-        if (!prefix || typeof(prefix) !== "string" || !ip.isValidPrefix(prefix)) {
+        if (prefix == null || typeof(prefix) !== "string" || !ip.isValidPrefix(prefix)) {
             throw new Error("Prefix missing or not valid");
         }
 
