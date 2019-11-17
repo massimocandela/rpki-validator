@@ -1,35 +1,46 @@
 let axios = require("axios");
 let brembo = require("brembo");
+let fs = require("fs");
 let ip = require("ip-sub");
+const RadixTrie = require("radix-trie-js");
 
 const RpkiValidator = function () {
     this.queue = {};
+    this.preCached = false;
+    this.roas = {
+        v4 : new RadixTrie(),
+        v6 : new RadixTrie()
+    };
 
-    this._getPrefixMatch = (prefix) => {
-        for (let key in this.queue) {
-            const roa = this.queue[key];
-            const roaPrefix = roa.prefix;
+    this.keySizes = {
+        v4: 12,
+        v6: 24
+    };
 
-            if (roaPrefix === prefix || ip.isSubnet(roaPrefix, prefix)) {
-                return roa;
+    this._getPrefixMatches = (prefix) => {
+        const roas = this._getRoas(prefix) || [];
+
+        for (let roa of roas) {
+            const binaryPrefix = ip.getNetmask(prefix);
+            if (roa.binaryPrefix === binaryPrefix || ip.isSubnetBinary(roa.binaryPrefix, binaryPrefix)) {
+                return roas;
             }
-
-            return null;
         }
+
+        return null;
     };
 
     this._validateFromCache = (prefix, origin, verbose) => {
         return new Promise((resolve, reject) => {
-            const roa = this._getPrefixMatch(prefix);
-            if (roa) {
-                const sameOrigin = roa.origin.toString() === origin;
-                const validLength = parseInt(prefix.split("/")[1]) <= roa.maxLength;
+            const roas = this._getPrefixMatches(prefix);
 
+            if (roas === null) {
+                resolve(this.createOutput(null, null, verbose));
+            }  else {
+                const sameAsRoas = roas.filter(roa => roa.origin.toString() === origin);
+                const sameOrigin = sameAsRoas.length > 0;
+                const validLength = sameAsRoas.some(roa => parseInt(prefix.split("/")[1]) <= roa.maxLength);
                 resolve(this.createOutput(sameOrigin, validLength, verbose));
-            } else {
-                const output = this.createOutput(false, false, verbose);
-                output.reason = null;
-                resolve(output);
             }
         });
     };
@@ -81,8 +92,11 @@ const RpkiValidator = function () {
     };
 
     this.getValidatedPrefixes = (force) => {
-        if (!force && this.roas) {
-            return Object.values(this.roas);
+
+        if (!force && this.preCached) {
+            return new Promise((resolve, reject) => {
+                resolve(true);
+            });
         } else {
             const url = brembo.build("https://stat.ripe.net/", {
                 path: ["data", "rpki-roas", "data.json"],
@@ -113,13 +127,13 @@ const RpkiValidator = function () {
                     }
                 })
                 .then(list => {
-                    this.roas = {};
+                    this.preCached = true;
 
                     for (let roa of list) {
-                        this.roas[roa.prefix] = roa;
+                        this._addRoa(roa.prefix, roa);
                     }
 
-                    return list;
+                    return true;
                 });
         }
     };
@@ -142,7 +156,7 @@ const RpkiValidator = function () {
                 clearInterval(this.cacheTimer);
             }
         }
-        return this.getValidatedPrefixes().then(() => true);
+        return this.getValidatedPrefixes();
     };
 
     this.validate = (prefix, origin, verbose) => {
@@ -155,10 +169,43 @@ const RpkiValidator = function () {
         }
 
 
-        if (this.roas) {
+        if (this.preCached) {
             return this._validateFromCache(prefix, origin, verbose);
         } else {
             return this._validateOnline(prefix, origin, verbose);
+        }
+    };
+
+    this._getRoas = (prefix) => {
+        const isV4 = (prefix.indexOf(":") === -1);
+        const binaryNetmask = ip.getNetmask(prefix);
+
+        if (isV4) {
+            const key = binaryNetmask.slice(0, this.keySizes.v4); // Key is only the first 16 bits
+            return this.roas.v4.get(key);
+        } else {
+            const key = binaryNetmask.slice(0, this.keySizes.v6); // Key is only the first 16 bits
+            return this.roas.v6.get(key);
+        }
+    };
+
+    this._addRoa = (prefix, value) => {
+        const isV4 = (prefix.indexOf(":") === -1);
+        const binaryNetmask = ip.getNetmask(prefix);
+        value.binaryPrefix = binaryNetmask;
+
+        if (isV4) {
+            const key = binaryNetmask.slice(0, this.keySizes.v4); // Key is only the first 16 bits
+            if (!this.roas.v4.has(key)) {
+                this.roas.v4.add(key, []);
+            }
+            this.roas.v4.get(key).push(value);
+        } else {
+            const key = binaryNetmask.slice(0, this.keySizes.v6); // Key is only the first 32 bits
+            if (!this.roas.v6.has(key)) {
+                this.roas.v6.add(key, []);
+            }
+            this.roas.v6.get(key).push(value);
         }
     };
 
