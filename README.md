@@ -1,3 +1,5 @@
+![Dependabot Status](https://badgen.net/dependabot/massimocandela/rpki-validator/?icon=dependabot)
+
 # rpki-validator
 
 This is a JavaScript tool which provides some basic rpki validation functionalities.
