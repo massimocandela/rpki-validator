@@ -27,7 +27,7 @@ rpki.validate(prefix, origin, verbose)
     })
 ```
 
-The parameter `verbose` defines the amount of information provided as result.
+The parameter `verbose` defines the amount of information provided as a result.
 
 If `verbose` is `false` or missing, the result will be one of:
 * `true` - if rpki valid
@@ -35,7 +35,7 @@ If `verbose` is `false` or missing, the result will be one of:
 * `null` - if no ROA was found for this prefix
 
 
-If `verbose` is `true`, the result will be an object as:
+If `verbose` is `true`, the result will be an object like:
 
 ```
 {
