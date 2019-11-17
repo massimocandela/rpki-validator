@@ -1,4 +1,5 @@
 ![Dependabot Status](https://badgen.net/dependabot/massimocandela/rpki-validator/?icon=dependabot)
+[![Known Vulnerabilities](https://snyk.io/test/github/massimocandela/rpki-validator/badge.svg?targetFile=package.json)](https://snyk.io/test/github/massimocandela/rpki-validator?targetFile=package.json)
 
 # rpki-validator
 
