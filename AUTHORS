@@ -1,0 +1,21 @@
+rpki-validator is a lib developed in 2019 by Massimo Candela
+
+Here is a list of authors and contributors who patched or extended the code.
+If this list is not up to date, please contact one of the authors.
+
+- AUTHORS -
+
+    Massimo Candela
+    https://massimocandela.com/
+
+
+- CONTRIBUTORS -
+
+
+A special THANK YOU goes to:
+
+   Louis Poinsignon for the Cloudflare RPKI validation API
+
+   Agustín Formoso and Mikhail Puzanov for the RIPE NCC VRP lists API
+
+
