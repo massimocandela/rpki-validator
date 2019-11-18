@@ -21,6 +21,10 @@ Place in your code: `var rpki = require("rpki-validator");`
 To validate the a `<prefix, origin>` pair:
 
 ```
+const prefix = "202.153.208.0/21";
+const origin = "4764";
+const verbose = true;
+
 rpki.validate(prefix, origin, verbose)
     .then((result) => {
         // Do something with "result"
