@@ -10,7 +10,7 @@ The tool is designed to be used for data analysis and visualization, both server
 This tool is not designed for routing security implementation.
 There is no cryptography involved in this tool, the validation is based on the Validated ROA Prefixes (VRPs) lists provided by [RIPE NCC](https://www.ripe.net) and [Cloudflare](https://cloudflare.com).
 
-## Install it
+## Install
 Run: 
 `npm install rpki-validator`
 
