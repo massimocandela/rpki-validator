@@ -23,7 +23,7 @@ To validate the a `<prefix, origin>` pair:
 ```
 rpki.validate(prefix, origin, verbose)
     .then((result) => {
-        // Do something with result
+        // Do something with "result"
     })
 ```
 
@@ -62,7 +62,7 @@ rpki.preCache()
 
         rpki.validate(prefix, origin, verbose)
             .then((result) => {
-                // Do something with result
+                // Do something with "result"
             })
     })
 
@@ -73,4 +73,4 @@ If you instead do validations outside the `.then`, these will be executed online
 
 The `.preCache()` method can take an optional parameter indicating after how many minutes (>15) the cache will be automatically refreshed. E.g. `prki.preCache(60)` to refresh the cache every hour.
 
-IMPORTANT: `preCache` uses a good amount of memory (at the moment ~20Mb, but this will grow in the future) to store the cache. This may be less suitable for running in a browser.
+> IMPORTANT: `preCache` uses a good amount of memory (at the moment ~20Mb, but this will grow in the future) to store the cache. This may be less suitable for running in a browser.
