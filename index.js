@@ -35,12 +35,18 @@ const RpkiValidator = function () {
             const roas = this._getPrefixMatches(prefix);
 
             if (roas === null) {
-                resolve(this.createOutput(null, null, verbose));
+                resolve(this.createOutput(null, null, verbose, null));
             }  else {
                 const sameAsRoas = roas.filter(roa => roa.origin.toString() === origin);
                 const sameOrigin = sameAsRoas.length > 0;
                 const validLength = sameAsRoas.some(roa => parseInt(prefix.split("/")[1]) <= roa.maxLength);
-                resolve(this.createOutput(sameOrigin, validLength, verbose));
+                resolve(this.createOutput(sameOrigin, validLength, verbose, roas.map(i => {
+                    return {
+                        prefix: i.prefix,
+                        maxLength: i.maxLength,
+                        origin: i.origin
+                    };
+                })));
             }
         });
     };
@@ -71,7 +77,7 @@ const RpkiValidator = function () {
 
     };
 
-    this.createOutput = (sameOrigin, validLength, verbose) => {
+    this.createOutput = (sameOrigin, validLength, verbose, covering) => {
         let valid = sameOrigin && validLength;
         let reason = (!sameOrigin) ? "Not valid origin" :
             ((!validLength) ? "Not valid prefix length" : null);
@@ -84,7 +90,8 @@ const RpkiValidator = function () {
         if (verbose) {
             return {
                 valid,
-                reason
+                reason,
+                covering: covering || []
             };
         } else {
             return valid;
@@ -181,10 +188,10 @@ const RpkiValidator = function () {
         const binaryNetmask = ip.getNetmask(prefix);
 
         if (isV4) {
-            const key = binaryNetmask.slice(0, this.keySizes.v4); // Key is only the first 16 bits
+            const key = binaryNetmask.slice(0, this.keySizes.v4);
             return this.roas.v4.get(key);
         } else {
-            const key = binaryNetmask.slice(0, this.keySizes.v6); // Key is only the first 16 bits
+            const key = binaryNetmask.slice(0, this.keySizes.v6);
             return this.roas.v6.get(key);
         }
     };
@@ -195,13 +202,13 @@ const RpkiValidator = function () {
         value.binaryPrefix = binaryNetmask;
 
         if (isV4) {
-            const key = binaryNetmask.slice(0, this.keySizes.v4); // Key is only the first 16 bits
+            const key = binaryNetmask.slice(0, this.keySizes.v4);
             if (!this.roas.v4.has(key)) {
                 this.roas.v4.add(key, []);
             }
             this.roas.v4.get(key).push(value);
         } else {
-            const key = binaryNetmask.slice(0, this.keySizes.v6); // Key is only the first 32 bits
+            const key = binaryNetmask.slice(0, this.keySizes.v6);
             if (!this.roas.v6.has(key)) {
                 this.roas.v6.add(key, []);
             }
@@ -242,14 +249,34 @@ const RpkiValidator = function () {
                         for (let alias of aliases) {
 
                             if (results[alias].state === 'NotFound') {
-                                output = this.createOutput(null, null, this.queue[alias].verbose);
+
+                                output = this.createOutput(null, null, this.queue[alias].verbose, null);
                                 this.queue[alias].resolve(output);
+
                             } else if (results[alias].state === 'Valid') {
-                                output = this.createOutput(true, true, this.queue[alias].verbose);
-                                this.queue[alias]
-                                    .resolve(output);
+
+                                const covering = results[alias].covering
+                                    .map(i => {
+                                        return {
+                                            origin: i.asn,
+                                            prefix: i.prefix.prefix,
+                                            maxLength: i.prefix.maxLength
+                                        };
+                                    });
+                                output = this.createOutput(true, true, this.queue[alias].verbose, covering);
+                                this.queue[alias].resolve(output);
+
                             } else {
-                                let sameOrigin,validLength;
+
+                                let sameOrigin, validLength;
+                                const covering = results[alias].covering
+                                    .map(i => {
+                                        return {
+                                            origin: i.asn,
+                                            prefix: i.prefix.prefix,
+                                            maxLength: i.prefix.maxLength
+                                        };
+                                    });
 
                                 try {
                                     sameOrigin = this.queue[alias]["origin"] == results[alias].covering[0]["asn"];
@@ -262,9 +289,8 @@ const RpkiValidator = function () {
                                 } catch(e) {
                                     validLength = false;
                                 }
-                                output = this.createOutput(sameOrigin, validLength, this.queue[alias].verbose);
-                                this.queue[alias]
-                                    .resolve(output);
+                                output = this.createOutput(sameOrigin, validLength, this.queue[alias].verbose, covering);
+                                this.queue[alias].resolve(output);
                             }
                             delete this.queue[alias];
                         }

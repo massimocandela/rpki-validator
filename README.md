@@ -44,7 +44,12 @@ If `verbose` is `true`, the result will be an object like:
 ```
 {
     valid: true|false|null,
-    reason: "A string describing the reason"
+    reason: "A string describing the reason",
+    covering: [{
+        origin: "4760",
+        prefix: "218.103.32.0/19",
+        maxLength: 23
+    }]
 }
 ```
 
@@ -53,6 +58,8 @@ Possible `reason` values are:
 * Not valid prefix length
 * No ROA available for this prefix
 * `null` (when `valid` is `true`)
+
+The `covering` array is the list of ROAs covering the queried prefix.
 
 
 ## Multiple validations
