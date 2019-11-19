@@ -21,8 +21,8 @@ Place in your code: `var rpki = require("rpki-validator");`
 To validate the a `<prefix, origin>` pair:
 
 ```
-const prefix = "202.153.208.0/21";
-const origin = "4764";
+const prefix = "165.254.225.0/24";
+const origin = "15562";
 const verbose = true;
 
 rpki.validate(prefix, origin, verbose)
@@ -46,9 +46,9 @@ If `verbose` is `true`, the result will be an object like:
     valid: true|false|null,
     reason: "A string describing the reason",
     covering: [{
-        origin: "4760",
-        prefix: "218.103.32.0/19",
-        maxLength: 23
+        origin: "15562",
+        prefix: "165.254.225.0/21",
+        maxLength: 24
     }]
 }
 ```
