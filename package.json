@@ -1,6 +1,6 @@
 {
   "name": "rpki-validator",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A RPKI validator that works also in the browser.",
   "main": "index.js",
   "scripts": {
@@ -26,7 +26,9 @@
   "keywords": [
     "rpki",
     "bgp",
-    "validator"
+    "validator",
+    "origin validation",
+    "roa"
   ],
   "bugs": {
     "url": "https://github.com/massimocandela/rpki-validator/issues"
