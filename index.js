@@ -1,6 +1,5 @@
 let axios = require("axios");
 let brembo = require("brembo");
-let fs = require("fs");
 let ip = require("ip-sub");
 const RadixTrie = require("radix-trie-js");
 
@@ -30,26 +29,27 @@ const RpkiValidator = function () {
         return null;
     };
 
-    this._validateFromCache = (prefix, origin, verbose) => {
-        return new Promise((resolve, reject) => {
-            const roas = this._getPrefixMatches(prefix);
+    this.validateFromCacheSync = (prefix, origin, verbose) => {
+        const roas = this._getPrefixMatches(prefix);
 
-            if (roas === null) {
-                resolve(this.createOutput(null, null, verbose, null));
-            }  else {
-                const sameAsRoas = roas.filter(roa => roa.origin.toString() === origin);
-                const sameOrigin = sameAsRoas.length > 0;
-                const validLength = sameAsRoas.some(roa => parseInt(prefix.split("/")[1]) <= roa.maxLength);
-                resolve(this.createOutput(sameOrigin, validLength, verbose, roas.map(i => {
-                    return {
-                        prefix: i.prefix,
-                        maxLength: i.maxLength,
-                        origin: i.origin
-                    };
-                })));
-            }
-        });
+        if (roas === null) {
+            return this.createOutput(null, null, verbose, null);
+        }  else {
+            const sameAsRoas = roas.filter(roa => roa.origin.toString() === origin);
+            const sameOrigin = sameAsRoas.length > 0;
+            const validLength = sameAsRoas.some(roa => parseInt(prefix.split("/")[1]) <= roa.maxLength);
+            return this.createOutput(sameOrigin, validLength, verbose, roas.map(i => {
+                return {
+                    prefix: i.prefix,
+                    maxLength: i.maxLength,
+                    origin: i.origin
+                };
+            }));
+        }
     };
+
+    this._validateFromCache = (prefix, origin, verbose) =>
+        Promise.resolve(this.validateFromCacheSync(prefix, origin, verbose));
 
     this._validateOnline = (prefix, origin, verbose) => {
         const key = "a" + [prefix, origin]
