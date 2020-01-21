@@ -135,6 +135,10 @@ const RpkiValidator = function () {
                 })
                 .then(list => {
                     this.preCached = true;
+                    this.roas = {
+                        v4 : new RadixTrie(),
+                        v6 : new RadixTrie()
+                    };
 
                     for (let roa of list) {
                         this._addRoa(roa.prefix, roa);
