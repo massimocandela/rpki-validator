@@ -9,9 +9,9 @@
   "author": "Massimo Candela",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.19.2",
     "brembo": "^2.0.3",
-    "ip-sub": "^1.0.1",
+    "ip-sub": "^1.0.5",
     "radix-trie-js": "^1.0.5"
   },
   "devDependencies": {
