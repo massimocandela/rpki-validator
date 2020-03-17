@@ -11,7 +11,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "brembo": "^2.0.3",
-    "ip-sub": "^1.0.5",
+    "ip-sub": "^1.0.6",
     "radix-trie-js": "^1.0.5"
   },
   "devDependencies": {
