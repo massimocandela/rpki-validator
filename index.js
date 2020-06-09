@@ -165,6 +165,10 @@ const RpkiValidator = function () {
 
             this.cacheTimer = setInterval(() => {
                 this.getValidatedPrefixes(true)
+                    .catch(error => {
+                        console.log(error);
+                        return false;
+                    });
             }, everyMinutes * 60 * 1000);
         } else {
             if (this.cacheTimer) {
@@ -304,6 +308,14 @@ const RpkiValidator = function () {
                         }
                     }
                 })
+                .catch(error => {
+                    for (let item of items) {
+                        if (this.queue[item.key]) {
+                            this.queue[item.key].reject(error);
+                            delete this.queue[item.key];
+                        }
+                    }
+                });
         }
     };
 

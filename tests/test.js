@@ -36,7 +36,8 @@ describe("Tests", function() {
                 .then(result => {
                     expect(result).to.equal(true);
                     done();
-                });
+                })
+                .catch(console.log);
 
         }).timeout(asyncTimeout);
 
@@ -45,7 +46,9 @@ describe("Tests", function() {
                 .then(result => {
                     expect(result).to.equal(false);
                     done();
-                });
+                })
+                .catch(console.log);
+
         }).timeout(asyncTimeout);
 
         it("single not valid - prefix length", function(done) {
@@ -55,7 +58,9 @@ describe("Tests", function() {
                 .then(result => {
                     expect(result).to.equal(false);
                     done();
-                });
+                })
+                .catch(console.log);
+
         }).timeout(asyncTimeout);
 
         it("single not covered", function(done) {
@@ -63,7 +68,9 @@ describe("Tests", function() {
                 .then(result => {
                     expect(result).to.equal(null);
                     done();
-                });
+                })
+                .catch(console.log);
+
         }).timeout(asyncTimeout);
 
         it("multiple mixed", function(done) {
@@ -85,7 +92,8 @@ describe("Tests", function() {
                     expect(c).to.equal(false);
                     expect(d).to.equal(null);
                     done();
-                });
+                })
+                .catch(console.log);
 
         }).timeout(asyncTimeout);
 
@@ -96,6 +104,7 @@ describe("Tests", function() {
                     expect(list.length).to.equal(100);
                     done();
                 })
+                .catch(console.log);
         }).timeout(asyncTimeout);
 
     });
@@ -112,7 +121,8 @@ describe("Tests", function() {
                             reason: null
                         });
                     done();
-                });
+                })
+                .catch(console.log);
 
         }).timeout(asyncTimeout);
 
@@ -125,7 +135,9 @@ describe("Tests", function() {
                             reason: "Not valid origin"
                         });
                     done();
-                });
+                })
+                .catch(console.log);
+
         }).timeout(asyncTimeout);
 
         it("single not valid - prefix length", function(done) {
@@ -138,7 +150,9 @@ describe("Tests", function() {
                             reason: "Not valid prefix length"
                         });
                     done();
-                });
+                })
+                .catch(console.log);
+
         }).timeout(asyncTimeout);
 
         it("single not covered", function(done) {
@@ -150,7 +164,9 @@ describe("Tests", function() {
                             reason: "No ROA available for this prefix"
                         });
                     done();
-                });
+                })
+                .catch(console.log);
+
         }).timeout(asyncTimeout);
 
         it("multiple mixed", function(done) {
@@ -189,7 +205,8 @@ describe("Tests", function() {
                         });
 
                     done();
-                });
+                })
+                .catch(console.log);
 
         }).timeout(asyncTimeout);
 
@@ -210,8 +227,10 @@ describe("Tests", function() {
                                     reason: null
                                 });
                             done();
-                        });
-                });
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
         }).timeout(120000);
 
         it("single not valid - origin", function(done) {
@@ -225,8 +244,10 @@ describe("Tests", function() {
                                     reason: "Not valid origin"
                                 });
                             done();
-                        });
-                });
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
         }).timeout(asyncTimeout);
 
         it("single not valid - prefix length", function(done) {
@@ -241,8 +262,10 @@ describe("Tests", function() {
                                     reason: "Not valid prefix length"
                                 });
                             done();
-                        });
-                });
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
         }).timeout(asyncTimeout);
 
         it("single not covered", function(done) {
@@ -256,8 +279,10 @@ describe("Tests", function() {
                                     reason: "No ROA available for this prefix"
                                 });
                             done();
-                        });
-                });
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
         }).timeout(asyncTimeout);
 
         it("multiple mixed (4 validations)", function(done) {
@@ -299,8 +324,10 @@ describe("Tests", function() {
                                 });
 
                             done();
-                        });
-                });
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
         }).timeout(asyncTimeout);
 
         it("multiple (5000 validations)", function(done) {
@@ -311,9 +338,10 @@ describe("Tests", function() {
                         .then((list) => {
                             expect(list.length).to.equal(5000);
                             done();
-                        });
-                });
-
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
         }).timeout(asyncTimeout);
 
     });
