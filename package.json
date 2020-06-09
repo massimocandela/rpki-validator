@@ -8,6 +8,9 @@
   },
   "author": "Massimo Candela",
   "license": "BSD-3-Clause",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.com/"
+  },
   "dependencies": {
     "axios": "^0.19.2",
     "brembo": "^2.0.3",
