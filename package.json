@@ -4,7 +4,7 @@
   "description": "A RPKI validator that works also in the browser.",
   "main": "src/index.js",
   "scripts": {
-    "release": "release-it",
+    "release": "dotenv release-it",
     "test": "./node_modules/.bin/mocha --exit tests"
   },
   "author": {
@@ -80,7 +80,10 @@
     },
     "github": {
       "release": true,
-      "releaseName": "v${version}"
+      "releaseName": "v${version}",
+      "tokenRef": "GITHUB_TOKEN",
+      "origin": null,
+      "skipChecks": false
     }
   }
 }
