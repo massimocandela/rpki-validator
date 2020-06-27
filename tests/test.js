@@ -2,7 +2,7 @@ var chai = require("chai");
 var chaiSubset = require('chai-subset');
 chai.use(chaiSubset);
 var expect = chai.expect;
-var rpki = require("../index");
+var rpki = require("../src/index");
 var fs = require("fs");
 
 var asyncTimeout = 10000;

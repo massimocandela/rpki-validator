@@ -1,5 +1,6 @@
 let axios = require("axios");
 let brembo = require("brembo");
+let ripeConnector = require("./connectors/RIPEConnector");
 let ip = require("ip-sub");
 const RadixTrie = require("radix-trie-js");
 
@@ -15,6 +16,8 @@ const RpkiValidator = function () {
         v4: 12,
         v6: 24
     };
+
+    this.connector = new ripeConnector();
 
     this._getPrefixMatches = (prefix) => {
         const roas = this._getRoas(prefix) || [];
@@ -99,40 +102,13 @@ const RpkiValidator = function () {
     };
 
     this.getValidatedPrefixes = (force) => {
-
         if (!force && this.preCached) {
             return new Promise((resolve, reject) => {
                 resolve(true);
             });
         } else {
-            const url = brembo.build("https://stat.ripe.net/", {
-                path: ["data", "rpki-roas", "data.json"],
-                params: {
-                    validator: "ripenccv3"
-                }
-            });
-
-            return axios({
-                method: "get",
-                url,
-                responseType: "json"
-            })
-                .then(data => {
-                    if (data && data.data && data.data.data && data.data.data.roas) {
-                        const roas = data.data.data.roas;
-                        const out = [];
-
-                        for (let roa of roas) {
-                            out.push({
-                                prefix: roa.prefix,
-                                maxLength: roa.maxLength,
-                                origin: roa.asn
-                            });
-                        }
-
-                        return out;
-                    }
-                })
+            return this.connector
+                .getVRPs()
                 .then(list => {
                     if (list) {
                         this.preCached = true;
