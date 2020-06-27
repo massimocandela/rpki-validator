@@ -4,11 +4,8 @@ let brembo = require("brembo");
 module.exports = function () {
 
     this.getVRPs = function() {
-        const url = brembo.build("https://stat.ripe.net/", {
-            path: ["data", "rpki-roas", "data.json"],
-            params: {
-                validator: "ripenccv3"
-            }
+        const url = brembo.build("https://rpki.gin.ntt.net/", {
+            path: ["data", "api", "export.json"]
         });
 
         return axios({

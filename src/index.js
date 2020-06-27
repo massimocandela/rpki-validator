@@ -7,7 +7,7 @@ const RadixTrie = require("radix-trie-js");
 
 const RpkiValidator = function (options) {
     this.options = options || {
-        connector: "ripe",
+        connector: "ntt",
         httpsAgent: null
     };
 

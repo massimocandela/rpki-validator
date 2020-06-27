@@ -7,7 +7,7 @@ This is a JavaScript tool which provides some basic rpki validation functionalit
 The tool is designed to be used for data analysis and visualization, both server-side with node.js or client-side in the browser.
 
 This tool is not designed for routing security implementation.
-There is no cryptography involved in this tool, the validation is based on the Validated ROA Prefixes (VRPs) lists provided by [RIPE NCC](https://www.ripe.net) and [Cloudflare](https://cloudflare.com).
+There is no cryptography involved in this tool, the validation is based on the Validated ROA Prefixes (VRPs) lists provided by [NTT](https://www.gin.ntt.net/), [RIPE NCC](https://www.ripe.net), and [Cloudflare](https://cloudflare.com).
 
 ## Install
 Run: 
@@ -88,7 +88,7 @@ The `.preCache()` method can take an optional parameter indicating after how man
 > IMPORTANT: `preCache` uses a good amount of memory (at the moment ~20Mb, but this will grow in the future) to store the cache. This may be less suitable for running in a browser.
 
 
-## Options
+### Options
 
 It is possible to specify options while creating the validator. In the following way:
 
@@ -106,3 +106,5 @@ Example, to change the VRP provider to RIPE NCC:
 ```js
 const rpki = new rpkiValidator({ connector: "ripe" });
 ```
+
+The `connector` option changes the VRP provider for the `preCache()` method. All the validation done without cache rely on the online API offered by Cloudflare which allows to query for a single <prefix, origin> pair.
