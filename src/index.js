@@ -1,10 +1,20 @@
 let axios = require("axios");
 let brembo = require("brembo");
 let ripeConnector = require("./connectors/RIPEConnector");
+let nttConnector = require("./connectors/NTTConnector");
 let ip = require("ip-sub");
 const RadixTrie = require("radix-trie-js");
 
-const RpkiValidator = function () {
+const RpkiValidator = function (options) {
+    this.options = options || {
+        connector: "ripe",
+        httpsAgent: null
+    };
+
+    if (this.options.httpsAgent) {
+        axios.defaults.httpsAgent = options.httpsAgent;
+    }
+
     this.queue = {};
     this.preCached = false;
     this.roas = {
@@ -17,7 +27,12 @@ const RpkiValidator = function () {
         v6: 24
     };
 
-    this.connector = new ripeConnector();
+    this.connectors = {
+        ripe: new ripeConnector(),
+        ntt: new nttConnector()
+    };
+
+    this.connector = this.connectors[this.options.connector];
 
     this._getPrefixMatches = (prefix) => {
         const roas = this._getRoas(prefix) || [];
@@ -79,6 +94,7 @@ const RpkiValidator = function () {
         return this.queue[key].promise;
 
     };
+
 
     this.createOutput = (sameOrigin, validLength, verbose, covering) => {
         let valid = sameOrigin && validLength;
@@ -299,7 +315,7 @@ const RpkiValidator = function () {
 };
 
 
-module.exports = new RpkiValidator();
+module.exports = RpkiValidator;
 
 
 

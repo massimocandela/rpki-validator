@@ -1,11 +1,13 @@
-var chai = require("chai");
-var chaiSubset = require('chai-subset');
+const chai = require("chai");
+const chaiSubset = require('chai-subset');
 chai.use(chaiSubset);
-var expect = chai.expect;
-var rpki = require("../src/index");
-var fs = require("fs");
+const expect = chai.expect;
+const rpkiValidator = require("../src/index");
+const fs = require("fs");
 
-var asyncTimeout = 10000;
+const asyncTimeout = 10000;
+
+const rpki = new rpkiValidator();
 
 const prefixList = JSON.parse(fs.readFileSync("tests/test.json", "utf8"));
 const single = { // It must be in the vrp list

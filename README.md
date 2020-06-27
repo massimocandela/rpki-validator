@@ -24,6 +24,8 @@ const prefix = "165.254.225.0/24";
 const origin = "15562";
 const verbose = true;
 
+const rpki = new rpkiValidator();
+
 rpki.validate(prefix, origin, verbose)
     .then((result) => {
         // Do something with "result"
@@ -84,3 +86,23 @@ If you instead do validations outside the `.then`, these will be executed online
 The `.preCache()` method can take an optional parameter indicating after how many minutes (>15) the cache will be automatically refreshed. E.g. `prki.preCache(60)` to refresh the cache every hour.
 
 > IMPORTANT: `preCache` uses a good amount of memory (at the moment ~20Mb, but this will grow in the future) to store the cache. This may be less suitable for running in a browser.
+
+
+## Options
+
+It is possible to specify options while creating the validator. In the following way:
+
+```js
+const options = {
+    httpsAgent: an http(s) agent
+    connector: one of "ntt", "ripe" (default: "ntt")
+};
+
+const rpki = new rpkiValidator(options);
+```
+
+Example, to change the VRP provider to RIPE NCC:
+
+```js
+const rpki = new rpkiValidator({ connector: "ripe" });
+```
