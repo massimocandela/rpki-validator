@@ -1,7 +1,10 @@
 let axios = require("axios");
 let brembo = require("brembo");
 
-module.exports = function () {
+module.exports = function (options) {
+    if (options && options.httpsAgent) {
+        axios.defaults.httpsAgent = options.httpsAgent;
+    }
 
     this.getVRPs = function() {
         const url = brembo.build("https://rpki.gin.ntt.net/", {
