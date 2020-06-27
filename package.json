@@ -4,16 +4,20 @@
   "description": "A RPKI validator that works also in the browser.",
   "main": "src/index.js",
   "scripts": {
+    "release": "release-it",
     "test": "./node_modules/.bin/mocha --exit tests"
   },
-  "author": "Massimo Candela",
+  "author": {
+    "name": "Massimo Candela",
+    "url": "https://massimocandela.com"
+  },
   "license": "BSD-3-Clause",
   "publishConfig": {
     "registry": "https://registry.npmjs.com/"
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "brembo": "^2.0.3",
+    "brembo": "^2.0.4",
     "ip-sub": "^1.0.6",
     "radix-trie-js": "^1.0.5"
   },
@@ -21,7 +25,7 @@
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
     "mocha": "^8.0.1",
-    "yargs-parser": "^18.1.2"
+    "release-it": "^13.6.3"
   },
   "repository": {
     "type": "git",
@@ -37,5 +41,46 @@
   "bugs": {
     "url": "https://github.com/massimocandela/rpki-validator/issues"
   },
-  "homepage": "https://github.com/massimocandela/rpki-validator#readme"
+  "homepage": "https://github.com/massimocandela/rpki-validator#readme",
+  "release-it": {
+    "hooks": {
+      "before:init": [
+        "npm install"
+      ],
+      "after:bump": "npm run build",
+      "after:release": [
+        "echo Successfully released ${name} v${version} to ${repo.repository}."
+      ]
+    },
+    "git": {
+      "changelog": "git log --pretty=format:\"* %s (%h)\" ${from}...${to}",
+      "requireCleanWorkingDir": true,
+      "requireBranch": "master",
+      "requireUpstream": true,
+      "requireCommits": false,
+      "addUntrackedFiles": false,
+      "commit": true,
+      "commitMessage": "Release v${version}",
+      "commitArgs": [],
+      "tag": true,
+      "tagName": null,
+      "tagAnnotation": "Release v${version}",
+      "tagArgs": [],
+      "push": true,
+      "pushArgs": [
+        "--follow-tags"
+      ],
+      "pushRepo": ""
+    },
+    "gitlab": {
+      "release": false
+    },
+    "npm": {
+      "publish": true
+    },
+    "github": {
+      "release": true,
+      "releaseName": "v${version}"
+    }
+  }
 }
