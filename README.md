@@ -13,7 +13,7 @@ There is no cryptography involved in this tool, the validation is based on the V
 Run: 
 `npm install rpki-validator`
 
-Place in your code: `var Rpki = require("rpki-validator");`
+Place in your code: `const Rpki = require("rpki-validator");`
 
 ## Validate
 
