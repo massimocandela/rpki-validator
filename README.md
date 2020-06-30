@@ -13,7 +13,7 @@ There is no cryptography involved in this tool, the validation is based on the V
 Run: 
 `npm install rpki-validator`
 
-Place in your code: `const Rpki = require("rpki-validator");`
+Place in your code: `const RpkiValidator = require("rpki-validator");`
 
 ## Validate
 
@@ -24,7 +24,7 @@ const prefix = "165.254.225.0/24";
 const origin = "15562";
 const verbose = true;
 
-const rpki = new Rpki();
+const rpki = new RpkiValidator();
 
 rpki.validate(prefix, origin, verbose)
     .then((result) => {
@@ -98,13 +98,13 @@ const options = {
     connector: one of "ntt", "ripe" (default: "ntt")
 };
 
-const rpki = new Rpki(options);
+const rpki = new RpkiValidator(options);
 ```
 
 Example, to change the VRP provider to RIPE NCC:
 
 ```js
-const rpki = new Rpki({ connector: "ripe" });
+const rpki = new RpkiValidator({ connector: "ripe" });
 ```
 
 The `connector` option changes the VRP provider for the `preCache()` method. All the validation done without cache rely on the online API offered by Cloudflare which allows to query for a single <prefix, origin> pair.
