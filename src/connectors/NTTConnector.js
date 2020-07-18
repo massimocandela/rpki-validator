@@ -32,7 +32,7 @@ module.exports = function (options) {
                         out.push({
                             prefix: roa.prefix,
                             maxLength: roa.maxLength,
-                            origin: parseInt(roa.asn.replace('AS', ''))
+                            origin: roa.asn.replace('AS', '')
                         });
                     }
 
