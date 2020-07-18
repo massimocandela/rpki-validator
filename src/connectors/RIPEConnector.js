@@ -5,6 +5,7 @@ module.exports = function (options) {
     if (options && options.httpsAgent) {
         axios.defaults.httpsAgent = options.httpsAgent;
     }
+    axios.defaults.timeout = 180000;
 
     this.clientId = options.clientId;
 
