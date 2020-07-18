@@ -1,9 +1,9 @@
 const chai = require("chai");
 const chaiSubset = require('chai-subset');
-chai.use(chaiSubset);
 const expect = chai.expect;
 const rpkiValidator = require("../src/index");
 const fs = require("fs");
+chai.use(chaiSubset);
 
 const asyncTimeout = 10000;
 
@@ -25,6 +25,17 @@ const uncovered = {
     prefix: "203.126.124.0/21",
     asn: "9404"
 };
+
+const singleNotValidLengthExternal = {
+    prefix: "213.7.5.0/26",
+    asn: "1234"
+};
+
+const singleValidLengthExternal = {
+    prefix: "213.7.5.0/24",
+    asn: "1234"
+};
+
 const first100 = prefixList.slice(0, 100);
 const first5000 = prefixList.slice(0, 5000);
 
@@ -221,7 +232,7 @@ describe("Tests", function() {
         it("single valid - loading VRP list", function(done) {
             rpki.preCache()
                 .then(() => {
-                    rpki.validate(single.prefix, single.asn, verbose)
+                    return rpki.validate(single.prefix, single.asn, verbose)
                         .then(result => {
                             expect(result).to
                                 .containSubset({
@@ -238,7 +249,7 @@ describe("Tests", function() {
         it("single not valid - origin", function(done) {
             rpki.preCache()
                 .then(() => {
-                    rpki.validate(single.prefix, uncovered.asn, verbose)
+                    return rpki.validate(single.prefix, uncovered.asn, verbose)
                         .then(result => {
                             expect(result).to
                                 .containSubset({
@@ -342,6 +353,55 @@ describe("Tests", function() {
                             done();
                         })
                         .catch(console.log);
+                })
+                .catch(console.log);
+        }).timeout(asyncTimeout);
+
+    });
+
+    describe("External VRPs", function () {
+
+        const rpki2 = new rpkiValidator({
+            connector: "external",
+            vrps: [{
+                prefix: "213.7.5.0/24",
+                maxLength: 24,
+                asn: "1234"
+            }]
+        });
+
+        it("valid", function(done) {
+            rpki2.preCache()
+                .then(() => {
+                    return rpki2.validate(singleValidLengthExternal.prefix, singleValidLengthExternal.asn, false)
+                        .then(result => {
+                            expect(result).to.equal(true);
+                            done();
+                        });
+                })
+                .catch(console.log);
+        }).timeout(asyncTimeout);
+
+        it("invalid - prefix length", function(done) {
+            rpki2.preCache()
+                .then(() => {
+                    return rpki2.validate(singleNotValidLengthExternal.prefix, singleNotValidLengthExternal.asn, false)
+                        .then(result => {
+                            expect(result).to.equal(false);
+                            done();
+                        });
+                })
+                .catch(console.log);
+        }).timeout(asyncTimeout);
+
+        it("invalid - origin", function(done) {
+            rpki2.preCache()
+                .then(() => {
+                    return rpki2.validate(singleValidLengthExternal.prefix, "4321", false)
+                        .then(result => {
+                            expect(result).to.equal(false);
+                            done();
+                        });
                 })
                 .catch(console.log);
         }).timeout(asyncTimeout);

@@ -92,10 +92,10 @@ The `.preCache()` method can take an optional parameter indicating after how man
 
 It is possible to specify options while creating the validator. In the following way:
 
-```js
+```
 const options = {
-    httpsAgent: an http(s) agent
-    connector: one of "ntt", "ripe" (default: "ntt")
+    httpsAgent: an http(s) agent, e.g. to use a proxy https://www.npmjs.com/package/https-proxy-agent
+    connector: one of "ntt", "ripe", "external" (default: "ntt")
 };
 
 const rpki = new RpkiValidator(options);
@@ -107,4 +107,24 @@ Example, to change the VRP provider to RIPE NCC:
 const rpki = new RpkiValidator({ connector: "ripe" });
 ```
 
-The `connector` option changes the VRP provider for the `preCache()` method. All the validation done without cache rely on the online API offered by Cloudflare which allows to query for a single <prefix, origin> pair.
+The `connector` option changes the VRP provider for the `preCache()` method. All the validation done without cache rely on the online API offered by Cloudflare.
+
+#### External VRPs
+You can load your VRPs in the following way:
+
+```javascript
+const rpki = new rpkiValidator({
+    connector: "external",
+    vrps: [
+        {
+            prefix: "123.4.5.0/24",
+            maxLength: 24,
+            asn: "1234"
+        }, {
+            prefix: "321.4.5.0/22",
+            maxLength: 22,
+            asn: "9876"
+        }
+    ]
+});
+```

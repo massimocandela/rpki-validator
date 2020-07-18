@@ -1,16 +1,19 @@
-let axios = require("axios");
-let brembo = require("brembo");
+const axios = require("axios");
+const brembo = require("brembo");
 
 module.exports = function (options) {
     if (options && options.httpsAgent) {
         axios.defaults.httpsAgent = options.httpsAgent;
     }
 
+    this.clientId = options.clientId;
+
     this.getVRPs = function() {
         const url = brembo.build("https://stat.ripe.net/", {
             path: ["data", "rpki-roas", "data.json"],
             params: {
-                validator: "ripenccv3"
+                validator: "ripenccv3",
+                client: this.clientId
             }
         });
 

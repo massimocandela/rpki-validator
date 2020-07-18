@@ -1,15 +1,21 @@
-let axios = require("axios");
-let brembo = require("brembo");
-let ripeConnector = require("./connectors/RIPEConnector");
-let nttConnector = require("./connectors/NTTConnector");
-let ip = require("ip-sub");
+const axios = require("axios");
+const brembo = require("brembo");
+const ripeConnector = require("./connectors/RIPEConnector");
+const nttConnector = require("./connectors/NTTConnector");
+const externalConnector = require("./connectors/ExternalConnector");
+const ip = require("ip-sub");
 const RadixTrie = require("radix-trie-js");
 
 const RpkiValidator = function (options) {
-    this.options = options || {
+
+    const defaults = {
         connector: "ntt",
-        httpsAgent: null
+        vrps: null,
+        httpsAgent: null,
+        clientId: "rpki_validator_js"
     };
+
+    this.options = Object.assign({}, defaults, options);
 
     if (this.options.httpsAgent) {
         axios.defaults.httpsAgent = options.httpsAgent;
@@ -28,29 +34,24 @@ const RpkiValidator = function (options) {
     };
 
     this.connectors = {
-        ripe: new ripeConnector(),
-        ntt: new nttConnector()
+        ripe: new ripeConnector(this.options),
+        ntt: new nttConnector(this.options),
+        external: new externalConnector(this.options),
     };
 
     this.connector = this.connectors[this.options.connector];
 
     this._getPrefixMatches = (prefix) => {
         const roas = this._getRoas(prefix) || [];
+        const binaryPrefix = ip.getNetmask(prefix);
 
-        for (let roa of roas) {
-            const binaryPrefix = ip.getNetmask(prefix);
-            if (roa.binaryPrefix === binaryPrefix || ip.isSubnetBinary(roa.binaryPrefix, binaryPrefix)) {
-                return roas;
-            }
-        }
-
-        return null;
+        return roas.filter(roa => roa.binaryPrefix === binaryPrefix || ip.isSubnetBinary(roa.binaryPrefix, binaryPrefix));
     };
 
     this.validateFromCacheSync = (prefix, origin, verbose) => {
         const roas = this._getPrefixMatches(prefix);
 
-        if (roas === null) {
+        if (roas.length === 0) {
             return this.createOutput(null, null, verbose, null);
         }  else {
             const sameAsRoas = roas.filter(roa => roa.origin.toString() === origin);

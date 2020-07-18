@@ -1,14 +1,21 @@
-let axios = require("axios");
-let brembo = require("brembo");
+const axios = require("axios");
+const brembo = require("brembo");
 
 module.exports = function (options) {
     if (options && options.httpsAgent) {
         axios.defaults.httpsAgent = options.httpsAgent;
     }
 
+    axios.defaults.timeout = 12000000;
+
+    this.clientId = options.clientId;
+
     this.getVRPs = function() {
         const url = brembo.build("https://rpki.gin.ntt.net/", {
-            path: ["data", "api", "export.json"]
+            path: ["api", "export.json"],
+            params: {
+                client: this.clientId
+            }
         });
 
         return axios({
@@ -17,15 +24,15 @@ module.exports = function (options) {
             responseType: "json"
         })
             .then(data => {
-                if (data && data.data && data.data.data && data.data.data.roas) {
-                    const roas = data.data.data.roas;
+                if (data && data.data && data.data.roas) {
+                    const roas = data.data.roas;
                     const out = [];
 
                     for (let roa of roas) {
                         out.push({
                             prefix: roa.prefix,
                             maxLength: roa.maxLength,
-                            origin: roa.asn
+                            origin: parseInt(roa.asn.replace('AS', ''))
                         });
                     }
 
