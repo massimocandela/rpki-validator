@@ -6,7 +6,7 @@ module.exports = function (options) {
     this.getVRPs = function() {
         return Promise.resolve((this.vrps || [])
             .map(i => {
-                const origin = i.asn.replace('AS', '');
+                const origin = i.asn.toString().replace('AS', '');
                 const maxLength = parseInt(i.maxLength);
                 if (!!i.prefix && isNaN(origin) && isNaN(maxLength)) {
                     throw new Error("Not valid ROA format");

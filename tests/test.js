@@ -23,7 +23,7 @@ const singleNotValidLength = {
 
 const uncovered = {
     prefix: "203.126.124.0/21",
-    asn: "9404"
+    asn: 9404
 };
 
 const singleNotValidLengthExternal = {
@@ -33,7 +33,7 @@ const singleNotValidLengthExternal = {
 
 const singleValidLengthExternal = {
     prefix: "213.7.5.0/24",
-    asn: "1234"
+    asn: 1234
 };
 
 const first100 = prefixList.slice(0, 100);
