@@ -41,6 +41,10 @@ const RpkiValidator = function (options) {
 
     this.connector = this.connectors[this.options.connector];
 
+    if (!this.connector) {
+        throw new Error("The specified connector is not valid");
+    }
+
     this._getPrefixMatches = (prefix) => {
         const roas = this._getRoas(prefix) || [];
         const binaryPrefix = ip.getNetmask(prefix);
