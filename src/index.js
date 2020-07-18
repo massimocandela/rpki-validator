@@ -237,6 +237,9 @@ const RpkiValidator = function (options) {
 
             const url = brembo.build("https://rpki.cloudflare.com/", {
                 path: ["api", "graphql"],
+                params: {
+                    client: this.options.clientId
+                }
             });
 
             return axios({
