@@ -6,13 +6,15 @@ module.exports = function (options) {
     this.getVRPs = function() {
         return Promise.resolve((this.vrps || [])
             .map(i => {
-                if (!!i.prefix && isNaN(i.origin) && isNaN(i.maxLength)) {
+                const origin = i.asn.replace('AS', '');
+                const maxLength = parseInt(i.maxLength);
+                if (!!i.prefix && isNaN(origin) && isNaN(maxLength)) {
                     throw new Error("Not valid ROA format");
                 }
                 return {
                     prefix: i.prefix,
-                    origin: i.asn,
-                    maxLength: i.maxLength
+                    origin,
+                    maxLength
                 }
             }));
     };
