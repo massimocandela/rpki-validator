@@ -54,14 +54,14 @@ const RpkiValidator = function (options) {
         if (roas.length === 0) {
             return this.createOutput(null, null, verbose, null);
         }  else {
-            const sameAsRoas = roas.filter(roa => roa.origin.toString() === origin);
+            const sameAsRoas = roas.filter(roa => roa.asn.toString() === origin);
             const sameOrigin = sameAsRoas.length > 0;
             const validLength = sameAsRoas.some(roa => parseInt(prefix.split("/")[1]) <= roa.maxLength);
             return this.createOutput(sameOrigin, validLength, verbose, roas.map(i => {
                 return {
                     prefix: i.prefix,
                     maxLength: i.maxLength,
-                    origin: i.origin
+                    asn: i.asn
                 };
             }));
         }
@@ -175,6 +175,7 @@ const RpkiValidator = function (options) {
         if (origin == null) {
             throw new Error("Origin AS missing");
         }
+        origin = origin.toString().replace("AS", "");
 
         if (prefix == null || typeof(prefix) !== "string" || !ip.isValidPrefix(prefix)) {
             throw new Error("Prefix missing or not valid");
@@ -266,7 +267,7 @@ const RpkiValidator = function (options) {
                                 const covering = results[alias].covering
                                     .map(i => {
                                         return {
-                                            origin: i.asn,
+                                            asn: i.asn,
                                             prefix: i.prefix.prefix,
                                             maxLength: i.prefix.maxLength
                                         };
@@ -280,7 +281,7 @@ const RpkiValidator = function (options) {
                                 const covering = results[alias].covering
                                     .map(i => {
                                         return {
-                                            origin: i.asn,
+                                            asn: i.asn,
                                             prefix: i.prefix.prefix,
                                             maxLength: i.prefix.maxLength
                                         };

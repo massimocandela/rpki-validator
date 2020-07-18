@@ -246,6 +246,64 @@ describe("Tests", function() {
                 .catch(console.log);
         }).timeout(120000);
 
+        it("single valid - string origin", function(done) {
+            rpki.preCache()
+                .then(() => {
+                    return rpki.validate(single.prefix, `AS${single.asn}`, verbose)
+                        .then(result => {
+                            expect(result).to
+                                .containSubset({
+                                    valid: true,
+                                    reason: null
+                                });
+                            done();
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
+        }).timeout(120000);
+
+        it("single valid - integer origin", function(done) {
+            rpki.preCache()
+                .then(() => {
+                    return rpki.validate(single.prefix, 4515, verbose)
+                        .then(result => {
+                            expect(result).to
+                                .containSubset({
+                                    valid: true,
+                                    reason: null
+                                });
+                            done();
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
+        }).timeout(120000);
+
+        it("single not valid - two ROAs", function(done) {
+            rpki.preCache()
+                .then(() => {
+                    return rpki.validate("82.112.100.0/24", "2914", verbose)
+                        .then(result => {
+
+                            expect(result).to
+                                .containSubset({
+                                    valid: true,
+                                    reason: null
+                                });
+
+                            expect(result.covering).to
+                                .eql([
+                                        { prefix: '82.112.96.0/19', maxLength: 19, asn: '2914' },
+                                        { prefix: '82.112.100.0/24', maxLength: 24, asn: '2914' }
+                                    ]);
+                            done();
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
+        }).timeout(asyncTimeout);
+
         it("single not valid - origin", function(done) {
             rpki.preCache()
                 .then(() => {
@@ -370,7 +428,7 @@ describe("Tests", function() {
             }]
         });
 
-        it("valid", function(done) {
+        it("wingle valid", function(done) {
             rpki2.preCache()
                 .then(() => {
                     return rpki2.validate(singleValidLengthExternal.prefix, singleValidLengthExternal.asn, false)

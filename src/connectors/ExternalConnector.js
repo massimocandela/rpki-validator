@@ -13,7 +13,7 @@ module.exports = function (options) {
                 }
                 return {
                     prefix: i.prefix,
-                    origin,
+                    asn: origin,
                     maxLength
                 }
             }));

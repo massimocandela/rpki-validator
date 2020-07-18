@@ -47,7 +47,7 @@ If `verbose` is `true`, the result will be an object like:
     valid: true|false|null,
     reason: "A string describing the reason",
     covering: [{
-        origin: "15562",
+        asn: "15562",
         prefix: "165.254.225.0/21",
         maxLength: 24
     }]
