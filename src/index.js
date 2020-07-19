@@ -49,6 +49,7 @@ const RpkiValidator = function (options) {
         const roas = this._getRoas(prefix) || [];
         const binaryPrefix = ip.getNetmask(prefix);
 
+
         return roas.filter(roa => roa.binaryPrefix === binaryPrefix || ip.isSubnetBinary(roa.binaryPrefix, binaryPrefix));
     };
 
@@ -139,7 +140,7 @@ const RpkiValidator = function (options) {
                         };
 
                         for (let roa of list) {
-                            this._addRoa(roa.prefix, roa);
+                            this._addRoa(roa);
                         }
 
                         return true;
@@ -194,10 +195,10 @@ const RpkiValidator = function (options) {
     };
 
     this._getRoas = (prefix) => {
-        const isV4 = (prefix.indexOf(":") === -1);
+        const af = ip.getAddressFamily(prefix);
         const binaryNetmask = ip.getNetmask(prefix);
 
-        if (isV4) {
+        if (af === 4) {
             const key = binaryNetmask.slice(0, this.keySizes.v4);
             return this.roas.v4.get(key);
         } else {
@@ -206,23 +207,24 @@ const RpkiValidator = function (options) {
         }
     };
 
-    this._addRoa = (prefix, value) => {
-        const isV4 = (prefix.indexOf(":") === -1);
+    this._addRoa = (roa) => {
+        const prefix = roa.prefix;
+        const af = ip.getAddressFamily(prefix);
         const binaryNetmask = ip.getNetmask(prefix);
-        value.binaryPrefix = binaryNetmask;
+        roa.binaryPrefix = binaryNetmask;
 
-        if (isV4) {
+        if (af === 4) {
             const key = binaryNetmask.slice(0, this.keySizes.v4);
             if (!this.roas.v4.has(key)) {
                 this.roas.v4.add(key, []);
             }
-            this.roas.v4.get(key).push(value);
+            this.roas.v4.get(key).push(roa);
         } else {
             const key = binaryNetmask.slice(0, this.keySizes.v6);
             if (!this.roas.v6.has(key)) {
                 this.roas.v6.add(key, []);
             }
-            this.roas.v6.get(key).push(value);
+            this.roas.v6.get(key).push(roa);
         }
     };
 

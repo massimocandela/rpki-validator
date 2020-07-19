@@ -5,7 +5,7 @@ const rpkiValidator = require("../src/index");
 const fs = require("fs");
 chai.use(chaiSubset);
 
-const asyncTimeout = 10000;
+const asyncTimeout = 1000000;
 
 const rpki = new rpkiValidator();
 
@@ -294,9 +294,26 @@ describe("Tests", function() {
 
                             expect(result.covering).to
                                 .eql([
-                                        { prefix: '82.112.96.0/19', maxLength: 19, asn: '2914' },
-                                        { prefix: '82.112.100.0/24', maxLength: 24, asn: '2914' }
-                                    ]);
+                                    { prefix: '82.112.96.0/19', maxLength: 19, asn: '2914' },
+                                    { prefix: '82.112.100.0/24', maxLength: 24, asn: '2914' }
+                                ]);
+                            done();
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
+        }).timeout(asyncTimeout);
+        //
+        it("single not valid - 23.11.254.0/23", function(done) {
+            rpki.preCache()
+                .then(() => {
+                    return rpki.validate("23.11.254.0/23", uncovered.asn, verbose)
+                        .then(result => {
+                            expect(result).to
+                                .containSubset({
+                                    valid: null,
+                                    reason: "No ROA available for this prefix"
+                                });
                             done();
                         })
                         .catch(console.log);
