@@ -5,7 +5,7 @@ const rpkiValidator = require("../src/index");
 const fs = require("fs");
 chai.use(chaiSubset);
 
-const asyncTimeout = 1000000;
+const asyncTimeout = 120000;
 
 const rpki = new rpkiValidator();
 
@@ -303,7 +303,7 @@ describe("Tests", function() {
                 })
                 .catch(console.log);
         }).timeout(asyncTimeout);
-        //
+
         it("single not valid - 23.11.254.0/23", function(done) {
             rpki.preCache()
                 .then(() => {
