@@ -153,8 +153,8 @@ const RpkiValidator = function (options) {
 
     this.preCache = (everyMinutes) => {
         if (everyMinutes) {
-            if (everyMinutes < 15) {
-                throw new Error("The VRP list can be updated at most once every 15 minutes.");
+            if (everyMinutes < this.connector.minimumRefreshRateMinutes) {
+                throw new Error(`The VRP list can be updated at most once every ${this.connector.minimumRefreshRateSeconds} minutes.`);
             }
 
             if (this.cacheTimer) {
@@ -322,7 +322,21 @@ const RpkiValidator = function (options) {
         }
     };
 
-    setInterval(this._validateBundle, 500);
+    this.setVRPs = function(vrps) {
+        return this.connector.setVRPs(vrps);
+    };
+
+    this.destroy = function() {
+        if (this.validationTimer) {
+            clearInterval(this.validationTimer);
+        }
+        if (this.cacheTimer) {
+            clearInterval(this.cacheTimer);
+        }
+        this.roas = null;
+    };
+
+    this.validationTimer = setInterval(this._validateBundle, 500);
 };
 
 

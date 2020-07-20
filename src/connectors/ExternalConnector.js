@@ -1,10 +1,12 @@
 
 module.exports = function (options) {
 
-    this.vrps = options.vrps;
+    this.vrps = [];
 
-    this.getVRPs = function() {
-        return Promise.resolve((this.vrps || [])
+    this.minimumRefreshRateMinutes = 0;
+
+    this.setVRPs = function(vrps){
+        this.vrps = (vrps || [])
             .map(i => {
                 const origin = i.asn.toString().replace('AS', '');
                 const maxLength = parseInt(i.maxLength);
@@ -16,7 +18,11 @@ module.exports = function (options) {
                     asn: origin,
                     maxLength
                 }
-            }));
+            })
+    };
+
+    this.getVRPs = function() {
+        return Promise.resolve(this.vrps);
     };
 
 };

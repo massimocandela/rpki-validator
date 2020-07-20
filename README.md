@@ -113,18 +113,16 @@ The `connector` option changes the VRP provider for the `preCache()` method. All
 You can load your VRPs in the following way:
 
 ```javascript
-const rpki = new rpkiValidator({
-    connector: "external",
-    vrps: [
-        {
-            prefix: "123.4.5.0/24",
-            maxLength: 24,
-            asn: "1234"
-        }, {
-            prefix: "321.4.5.0/22",
-            maxLength: 22,
-            asn: "9876"
-        }
-    ]
-});
+const rpki = new rpkiValidator({ connector: "external" });
+
+rpki.setVRPs([{
+    prefix: "123.4.5.0/24",
+    maxLength: 24,
+    asn: "1234"
+}, {
+    prefix: "321.4.5.0/22",
+    maxLength: 22,
+    asn: "9876"
+}
+]);
 ```

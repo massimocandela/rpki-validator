@@ -436,14 +436,13 @@ describe("Tests", function() {
 
     describe("External VRPs", function () {
 
-        const rpki2 = new rpkiValidator({
-            connector: "external",
-            vrps: [{
-                prefix: "213.7.5.0/24",
-                maxLength: 24,
-                asn: "1234"
-            }]
-        });
+        const rpki2 = new rpkiValidator({ connector: "external" });
+
+        rpki2.setVRPs([{
+            prefix: "213.7.5.0/24",
+            maxLength: 24,
+            asn: "1234"
+        }]);
 
         it("wingle valid", function(done) {
             rpki2.preCache()
