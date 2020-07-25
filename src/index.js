@@ -12,7 +12,7 @@ const RpkiValidator = function (options) {
         connector: "ntt",
         vrps: null,
         httpsAgent: null,
-        clientId: "rpki_validator_js"
+        clientId: "rpki-validator_js"
     };
 
     this.options = Object.assign({}, defaults, options);
