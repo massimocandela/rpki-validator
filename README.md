@@ -95,7 +95,7 @@ It is possible to specify options while creating the validator. In the following
 ```
 const options = {
     httpsAgent: an http(s) agent, e.g. to use a proxy https://www.npmjs.com/package/https-proxy-agent
-    connector: one of "ntt", "ripe", "external" (default: "ntt")
+    connector: one of "ntt", "ripe", "cloudflare", "external" (default: "ntt")
 };
 
 const rpki = new RpkiValidator(options);
