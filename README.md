@@ -7,7 +7,7 @@ This is a JavaScript tool which provides some basic rpki validation functionalit
 The tool is designed to be used for data analysis and visualization, both server-side with node.js or client-side in the browser.
 
 This tool is not designed for routing security implementation.
-There is no cryptography involved in this tool, the validation is based on the Validated ROA Prefixes (VRPs) lists provided by [NTT](https://www.gin.ntt.net/), [RIPE NCC](https://www.ripe.net), and [Cloudflare](https://cloudflare.com).
+There is no cryptography involved in this tool, the validation is based on the Validated ROA Payloads (VRPs) lists provided by [NTT](https://www.gin.ntt.net/), [RIPE NCC](https://www.ripe.net), and [Cloudflare](https://cloudflare.com).
 
 ## Install
 Run: 
