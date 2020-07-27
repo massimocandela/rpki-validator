@@ -2,6 +2,7 @@ const axios = require("axios");
 const brembo = require("brembo");
 const ripeConnector = require("./connectors/RIPEConnector");
 const nttConnector = require("./connectors/NTTConnector");
+const cloudflareConnector = require("./connectors/CloudflareConnector");
 const externalConnector = require("./connectors/ExternalConnector");
 const ip = require("ip-sub");
 const RadixTrie = require("radix-trie-js");
@@ -10,7 +11,6 @@ const RpkiValidator = function (options) {
 
     const defaults = {
         connector: "ntt",
-        vrps: null,
         httpsAgent: null,
         clientId: "rpki-validator_js"
     };

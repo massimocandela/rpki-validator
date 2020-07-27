@@ -18,8 +18,8 @@ module.exports = function (options) {
 
 
     this.getVRPs = function() {
-        const url = brembo.build("https://rpki.gin.ntt.net/", {
-            path: ["api", "export.json"],
+        const url = brembo.build("https://rpki.cloudflare.com", {
+            path: ["rpki.json"],
             params: {
                 client: this.clientId
             }
