@@ -4,7 +4,7 @@
 # rpki-validator
 
 This is a JavaScript tool which provides rpki validation functionalities.  
-This tool is designed to be used for data analysis and visualization, and it is able to check more than 20k prefixes per second.
+This tool is designed to be used for data analysis and visualization, and it is able to check more than 20k prefixes per second.  
 It works both server-side with node.js or client-side in the browser. 
 
 > This tool is not designed for routing security implementation.
