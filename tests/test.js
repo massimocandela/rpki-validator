@@ -444,7 +444,7 @@ describe("Tests", function() {
             asn: "1234"
         }]);
 
-        it("wingle valid", function(done) {
+        it("single valid", function(done) {
             rpki2.preCache()
                 .then(() => {
                     return rpki2.validate(singleValidLengthExternal.prefix, singleValidLengthExternal.asn, false)
