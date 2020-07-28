@@ -128,4 +128,14 @@ rpki.setVRPs([{
     asn: "9876"
 }
 ]);
+
+rpki.preCache()
+    .then(() => {
+        // External VRPs loaded
+
+        rpki.validate(prefix, origin, verbose)
+            .then((result) => {
+                // Do something with "result"
+            })
+    })
 ```
