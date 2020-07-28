@@ -38,6 +38,7 @@ const singleValidLengthExternal = {
 
 const first100 = prefixList.slice(0, 100);
 const first5000 = prefixList.slice(0, 5000);
+const first20000 = first5000.concat(first5000).concat(first5000).concat(first5000);
 
 describe("Tests", function() {
 
@@ -425,6 +426,20 @@ describe("Tests", function() {
                     Promise.all(first5000.map(i => rpki.validate(i.prefix, i.asn, false)))
                         .then((list) => {
                             expect(list.length).to.equal(5000);
+                            done();
+                        })
+                        .catch(console.log);
+                })
+                .catch(console.log);
+        }).timeout(asyncTimeout);
+
+        it("multiple (20000 validations)", function(done) {
+
+            rpki.preCache()
+                .then(() => {
+                    Promise.all(first20000.map(i => rpki.validate(i.prefix, i.asn, false)))
+                        .then((list) => {
+                            expect(list.length).to.equal(20000);
                             done();
                         })
                         .catch(console.log);
