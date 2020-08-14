@@ -174,7 +174,11 @@ const RpkiValidator = function (options) {
                 clearInterval(this.cacheTimer);
             }
         }
-        return this.getValidatedPrefixes();
+
+        if (!this.preChachePromise) {
+            this.preChachePromise = this.getValidatedPrefixes();
+        }
+        return this.preChachePromise;
     };
 
     this.validate = (prefix, origin, verbose) => {
