@@ -16,7 +16,7 @@
     "registry": "https://registry.npmjs.com/"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.20.0",
     "brembo": "^2.0.4",
     "ip-sub": "^1.0.10",
     "radix-trie-js": "^1.0.5"
