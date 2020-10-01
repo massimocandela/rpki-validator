@@ -18,7 +18,7 @@
   "dependencies": {
     "axios": "^0.20.0",
     "brembo": "^2.0.4",
-    "ip-sub": "^1.0.10",
+    "ip-sub": "^1.0.11",
     "radix-trie-js": "^1.0.5"
   },
   "devDependencies": {
@@ -26,7 +26,7 @@
     "chai-subset": "^1.6.0",
     "dotenv-cli": "^4.0.0",
     "mocha": "^8.1.1",
-    "release-it": "^14.0.2"
+    "release-it": "^14.0.3"
   },
   "repository": {
     "type": "git",
