@@ -60,16 +60,15 @@ const RpkiValidator = function (options) {
         if (roas.length === 0) {
             return this.createOutput(null, null, verbose, null);
         }  else {
-            const sameAsRoas = roas.filter(roa => roa.asn.toString() === origin);
-            const sameOrigin = sameAsRoas.length > 0;
-            const validLength = sameAsRoas.some(roa => parseInt(prefix.split("/")[1]) <= roa.maxLength);
-            return this.createOutput(sameOrigin, validLength, verbose, roas.map(i => {
+            const covering = roas.map(i => {
                 return {
                     prefix: i.prefix,
                     maxLength: i.maxLength,
                     asn: i.asn
                 };
-            }));
+            })
+
+            return this.checkCoveringROAs(origin, prefix, covering, verbose);
         }
     };
 
@@ -288,7 +287,7 @@ const RpkiValidator = function (options) {
 
                             } else {
 
-                                let sameOrigin, validLength;
+                                // let sameOrigin, validLength;
                                 const covering = results[alias].covering
                                     .map(i => {
                                         return {
@@ -298,18 +297,11 @@ const RpkiValidator = function (options) {
                                         };
                                     });
 
-                                try {
-                                    sameOrigin = this.queue[alias]["origin"] == results[alias].covering[0]["asn"];
-                                } catch(e) {
-                                    sameOrigin = false;
-                                }
-
-                                try {
-                                    validLength = parseInt(this.queue[alias]["prefix"].split("/")[1]) <= results[alias].covering[0]["prefix"]["maxLength"];
-                                } catch(e) {
-                                    validLength = false;
-                                }
-                                output = this.createOutput(sameOrigin, validLength, this.queue[alias].verbose, covering);
+                                output = this.checkCoveringROAs(this.queue[alias]["origin"],
+                                    this.queue[alias]["prefix"],
+                                    covering,
+                                    this.queue[alias].verbose
+                                );
                                 this.queue[alias].resolve(output);
                             }
                             delete this.queue[alias];
@@ -325,6 +317,14 @@ const RpkiValidator = function (options) {
                     }
                 });
         }
+    };
+
+    this.checkCoveringROAs = function (origin, prefix, covering, verbose) {
+        const sameAsRoas = covering.filter(roa => roa.asn.toString() === origin);
+        const sameOrigin = sameAsRoas.length > 0;
+        const validLength = sameAsRoas.some(roa => parseInt(prefix.split("/")[1]) <= roa.maxLength);
+
+        return this.createOutput(sameOrigin, validLength, verbose, covering);
     };
 
     this.setVRPs = function(vrps) {
