@@ -46,7 +46,7 @@
   "release-it": {
     "hooks": {
       "before:init": [
-        "npm install"
+        "npm ci"
       ],
       "after:release": [
         "echo Successfully released ${name} v${version} to ${repo.repository}."
