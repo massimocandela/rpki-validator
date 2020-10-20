@@ -341,6 +341,14 @@ const RpkiValidator = function (options) {
         this.roas = null;
     };
 
+    this.getVrps = function () {
+        return this.connector.getVRPs();
+    };
+
+    this.getRadixTrie = function () {
+        return this.roas;
+    }
+
     this.validationTimer = setInterval(this._validateBundle, 500);
 };
 
