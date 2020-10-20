@@ -22,7 +22,7 @@ const singleNotValidLength = {
 };
 
 const uncovered = {
-    prefix: "203.126.124.0/21",
+    prefix: "203.126.124.0/8",
     asn: 9404
 };
 
