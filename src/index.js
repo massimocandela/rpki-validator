@@ -152,31 +152,35 @@ const RpkiValidator = function (options) {
     };
 
     this.preCache = (everyMinutes) => {
-        if (everyMinutes) {
-            if (everyMinutes < this.connector.minimumRefreshRateMinutes) {
-                throw new Error(`The VRP list can be updated at most once every ${this.connector.minimumRefreshRateSeconds} minutes.`);
-            }
+        if (everyMinutes !== this.refreshVrpEveryMinutes) {
+            this.refreshVrpEveryMinutes = everyMinutes;
+            if (everyMinutes) {
+                if (everyMinutes < this.connector.minimumRefreshRateMinutes) {
+                    return Promise.reject(new Error(`The VRP list can be updated at most once every ${this.connector.minimumRefreshRateSeconds} minutes.`));
+                }
 
-            if (this.cacheTimer) {
-                clearInterval(this.cacheTimer);
-            }
+                if (this.cacheTimer) {
+                    clearInterval(this.cacheTimer);
+                }
 
-            this.cacheTimer = setInterval(() => {
-                this.getValidatedPrefixes(true)
-                    .catch(error => {
-                        console.log(error);
-                        return false;
-                    });
-            }, everyMinutes * 60 * 1000);
-        } else {
-            if (this.cacheTimer) {
-                clearInterval(this.cacheTimer);
+                this.cacheTimer = setInterval(() => {
+                    this.preChachePromise = this.getValidatedPrefixes(true)
+                        .catch(error => {
+                            console.log(error);
+                            return false;
+                        });
+                }, everyMinutes * 60 * 1000);
+            } else {
+                if (this.cacheTimer) {
+                    clearInterval(this.cacheTimer);
+                }
             }
         }
 
         if (!this.preChachePromise) {
             this.preChachePromise = this.getValidatedPrefixes();
         }
+
         return this.preChachePromise;
     };
 
