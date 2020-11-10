@@ -1,4 +1,4 @@
-const axios = require("axios");
+const realAxios = require("axios");
 const brembo = require("brembo");
 const ripeConnector = require("./connectors/RIPEConnector");
 const nttConnector = require("./connectors/NTTConnector");
@@ -8,18 +8,23 @@ const ip = require("ip-sub");
 const RadixTrie = require("radix-trie-js");
 
 const RpkiValidator = function (options) {
-
     const defaults = {
         connector: "ntt",
         httpsAgent: null,
+        axios: null,
         clientId: "rpki-validator_js"
     };
 
     this.options = Object.assign({}, defaults, options);
 
-    if (this.options.httpsAgent) {
-        axios.defaults.httpsAgent = options.httpsAgent;
+    if (!this.options.axios) {
+        this.options.axios = realAxios;
+        if (this.options.httpsAgent) {
+            this.options.axios.defaults.httpsAgent = options.httpsAgent;
+        }
+        this.options.axios.defaults.timeout = 180000;
     }
+    const axios = this.options.axios;
 
     this.queue = {};
     this.preCached = false;

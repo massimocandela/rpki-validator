@@ -1,11 +1,7 @@
-const axios = require("axios");
 const brembo = require("brembo");
 
 module.exports = function (options) {
-    if (options && options.httpsAgent) {
-        axios.defaults.httpsAgent = options.httpsAgent;
-    }
-    axios.defaults.timeout = 180000;
+    const axios = options.axios;
 
     this.clientId = options.clientId;
 
@@ -14,7 +10,6 @@ module.exports = function (options) {
     this.setVRPs = function(){
         throw new Error("You cannot set VRPs with this connector.");
     };
-
 
     this.getVRPs = function() {
         const url = brembo.build("https://stat.ripe.net/", {
