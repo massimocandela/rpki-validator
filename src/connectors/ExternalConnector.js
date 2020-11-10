@@ -16,7 +16,8 @@ module.exports = function (options) {
                 return {
                     prefix: i.prefix,
                     asn: origin,
-                    maxLength
+                    maxLength,
+                    ta: i.ta || ""
                 }
             })
     };
