@@ -11,6 +11,9 @@ module.exports = function (options) {
         throw new Error("You cannot set VRPs with this connector.");
     };
 
+    this.toStandardTa = function (ta) {
+        return ta.replace("Cloudflare - ", "").toLowerCase();
+    };
 
     this.getVRPs = function() {
         const url = brembo.build("https://rpki.cloudflare.com", {
@@ -34,7 +37,8 @@ module.exports = function (options) {
                         out.push({
                             prefix: roa.prefix,
                             maxLength: roa.maxLength,
-                            asn: roa.asn.toString().replace('AS', '')
+                            asn: roa.asn.toString().replace('AS', ''),
+                            ta: this.toStandardTa(roa.ta)
                         });
                     }
 

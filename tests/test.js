@@ -295,8 +295,8 @@ describe("Tests", function() {
 
                             expect(result.covering).to
                                 .eql([
-                                    { prefix: '82.112.96.0/19', maxLength: 19, asn: '2914' },
-                                    { prefix: '82.112.100.0/24', maxLength: 24, asn: '2914' }
+                                    { prefix: '82.112.96.0/19', maxLength: 19, asn: '2914', ta: "ripe" },
+                                    { prefix: '82.112.100.0/24', maxLength: 24, asn: '2914', ta: "ripe"  }
                                 ]);
                             done();
                         })

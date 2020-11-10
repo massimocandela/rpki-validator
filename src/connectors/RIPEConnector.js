@@ -11,6 +11,11 @@ module.exports = function (options) {
         throw new Error("You cannot set VRPs with this connector.");
     };
 
+    this.toStandardTa = function (ta) {
+        const taComponents = ta.split(" ");
+        return ((taComponents.length) ? taComponents[0] : "").toLowerCase();
+    };
+
     this.getVRPs = function() {
         const url = brembo.build("https://stat.ripe.net/", {
             path: ["data", "rpki-roas", "data.json"],
@@ -34,7 +39,8 @@ module.exports = function (options) {
                         out.push({
                             prefix: roa.prefix,
                             maxLength: roa.maxLength,
-                            asn: roa.asn.toString()
+                            asn: roa.asn.toString(),
+                            ta: this.toStandardTa(roa.ta)
                         });
                     }
 
