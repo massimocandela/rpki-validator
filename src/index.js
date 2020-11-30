@@ -52,9 +52,9 @@ const RpkiValidator = function (options) {
     }
 
     this._getPrefixMatches = (prefix) => {
-        const roas = this._getRoas(prefix) || [];
-        const binaryPrefix = ip.getNetmask(prefix);
-
+        const af = ip.getAddressFamily(prefix);
+        const binaryPrefix = ip.getNetmask(prefix, af);
+        const roas = this._getRoas(binaryPrefix, af) || [];
 
         return roas.filter(roa => roa.binaryPrefix === binaryPrefix || ip.isSubnetBinary(roa.binaryPrefix, binaryPrefix));
     };
@@ -208,33 +208,27 @@ const RpkiValidator = function (options) {
         }
     };
 
-    this._getRoas = (prefix) => {
-        const af = ip.getAddressFamily(prefix);
-        const binaryNetmask = ip.getNetmask(prefix);
-
+    this._getRoas = (binaryNetmask, af) => {
         if (af === 4) {
-            const key = binaryNetmask.slice(0, this.keySizes.v4);
-            return this.roas.v4.get(key);
+            return this.roas.v4.get(binaryNetmask.slice(0, this.keySizes.v4));
         } else {
-            const key = binaryNetmask.slice(0, this.keySizes.v6);
-            return this.roas.v6.get(key);
+            return this.roas.v6.get(binaryNetmask.slice(0, this.keySizes.v6));
         }
     };
 
     this._addRoa = (roa) => {
         const prefix = roa.prefix;
         const af = ip.getAddressFamily(prefix);
-        const binaryNetmask = ip.getNetmask(prefix);
-        roa.binaryPrefix = binaryNetmask;
+        roa.binaryPrefix = ip.getNetmask(prefix, af);
 
         if (af === 4) {
-            const key = binaryNetmask.slice(0, this.keySizes.v4);
+            const key = roa.binaryPrefix.slice(0, this.keySizes.v4);
             if (!this.roas.v4.has(key)) {
                 this.roas.v4.add(key, []);
             }
             this.roas.v4.get(key).push(roa);
         } else {
-            const key = binaryNetmask.slice(0, this.keySizes.v6);
+            const key = roa.binaryPrefix.slice(0, this.keySizes.v6);
             if (!this.roas.v6.has(key)) {
                 this.roas.v6.add(key, []);
             }
