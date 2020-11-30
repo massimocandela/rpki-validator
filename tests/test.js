@@ -51,7 +51,7 @@ describe("Tests", function() {
                     expect(result).to.equal(true);
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
 
         }).timeout(asyncTimeout);
 
@@ -61,7 +61,7 @@ describe("Tests", function() {
                     expect(result).to.equal(false);
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
 
         }).timeout(asyncTimeout);
 
@@ -73,7 +73,7 @@ describe("Tests", function() {
                     expect(result).to.equal(false);
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
 
         }).timeout(asyncTimeout);
 
@@ -83,7 +83,7 @@ describe("Tests", function() {
                     expect(result).to.equal(null);
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
 
         }).timeout(asyncTimeout);
 
@@ -107,7 +107,7 @@ describe("Tests", function() {
                     expect(d).to.equal(null);
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
 
         }).timeout(asyncTimeout);
 
@@ -118,7 +118,7 @@ describe("Tests", function() {
                     expect(list.length).to.equal(100);
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
     });
@@ -136,7 +136,7 @@ describe("Tests", function() {
                         });
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
 
         }).timeout(asyncTimeout);
 
@@ -150,7 +150,7 @@ describe("Tests", function() {
                         });
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
 
         }).timeout(asyncTimeout);
 
@@ -165,7 +165,7 @@ describe("Tests", function() {
                         });
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
 
         }).timeout(asyncTimeout);
 
@@ -179,7 +179,7 @@ describe("Tests", function() {
                         });
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
 
         }).timeout(asyncTimeout);
 
@@ -220,7 +220,7 @@ describe("Tests", function() {
 
                     done();
                 })
-                .catch(console.log);
+                .catch(done);
 
         }).timeout(asyncTimeout);
 
@@ -242,9 +242,9 @@ describe("Tests", function() {
                                 });
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(120000);
 
         it("single valid - string origin", function(done) {
@@ -259,9 +259,9 @@ describe("Tests", function() {
                                 });
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(120000);
 
         it("single valid - integer origin", function(done) {
@@ -276,9 +276,9 @@ describe("Tests", function() {
                                 });
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(120000);
 
         it("single not valid - two ROAs", function(done) {
@@ -300,9 +300,9 @@ describe("Tests", function() {
                                 ]);
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
         it("single not valid - 23.11.254.0/23", function(done) {
@@ -317,9 +317,9 @@ describe("Tests", function() {
                                 });
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
         it("single not valid - origin", function(done) {
@@ -334,9 +334,9 @@ describe("Tests", function() {
                                 });
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
         it("single not valid - prefix length", function(done) {
@@ -352,9 +352,9 @@ describe("Tests", function() {
                                 });
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
         it("single not covered", function(done) {
@@ -369,9 +369,9 @@ describe("Tests", function() {
                                 });
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
         it("multiple mixed (4 validations)", function(done) {
@@ -414,9 +414,9 @@ describe("Tests", function() {
 
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
         it("multiple (5000 validations)", function(done) {
@@ -428,9 +428,9 @@ describe("Tests", function() {
                             expect(list.length).to.equal(5000);
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
         it("multiple (20000 validations)", function(done) {
@@ -442,9 +442,9 @@ describe("Tests", function() {
                             expect(list.length).to.equal(20000);
                             done();
                         })
-                        .catch(console.log);
+                        .catch(done);
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
     });
@@ -468,7 +468,7 @@ describe("Tests", function() {
                             done();
                         });
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
         it("invalid - prefix length", function(done) {
@@ -480,7 +480,7 @@ describe("Tests", function() {
                             done();
                         });
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
         it("invalid - origin", function(done) {
@@ -492,7 +492,7 @@ describe("Tests", function() {
                             done();
                         });
                 })
-                .catch(console.log);
+                .catch(done);
         }).timeout(asyncTimeout);
 
     });
