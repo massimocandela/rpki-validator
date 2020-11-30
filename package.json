@@ -18,7 +18,7 @@
   "dependencies": {
     "axios": "^0.21.0",
     "brembo": "^2.0.4",
-    "ip-sub": "file:/Users/massimocandela/Documents/work/ip-utils",
+    "ip-sub": "^1.0.17",
     "radix-trie-js": "^1.0.5"
   },
   "devDependencies": {
