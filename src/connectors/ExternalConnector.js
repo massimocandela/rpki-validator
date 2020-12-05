@@ -15,8 +15,8 @@ module.exports = function (options) {
                 }
                 return {
                     prefix: i.prefix,
-                    asn: origin,
-                    maxLength,
+                    asn: parseInt(origin),
+                    maxLength: parseInt(maxLength),
                     ta: i.ta || ""
                 }
             })

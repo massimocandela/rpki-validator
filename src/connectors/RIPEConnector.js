@@ -38,8 +38,8 @@ module.exports = function (options) {
                     for (let roa of roas) {
                         out.push({
                             prefix: roa.prefix,
-                            maxLength: roa.maxLength,
-                            asn: roa.asn.toString(),
+                            maxLength: parseInt(roa.maxLength),
+                            asn: parseInt(roa.asn),
                             ta: this.toStandardTa(roa.ta)
                         });
                     }
