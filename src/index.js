@@ -194,7 +194,7 @@ const RpkiValidator = function (options) {
         if (origin == null) {
             throw new Error("Origin AS missing");
         }
-        origin = origin.toString().replace("AS", "");
+        origin = parseInt(origin.toString().replace("AS", ""));
 
         if (prefix == null || typeof(prefix) !== "string" || !ip.isValidPrefix(prefix)) {
             throw new Error("Prefix missing or not valid");
@@ -324,7 +324,7 @@ const RpkiValidator = function (options) {
     };
 
     this.checkCoveringROAs = function (origin, prefix, covering, verbose) {
-        const sameAsRoas = covering.filter(roa => roa.asn.toString() === origin);
+        const sameAsRoas = covering.filter(roa => roa.asn === parseInt(origin));
         const sameOrigin = sameAsRoas.length > 0;
         const validLength = sameAsRoas.some(roa => parseInt(prefix.split("/")[1]) <= roa.maxLength);
 

@@ -9,7 +9,7 @@ module.exports = function (options) {
         this.vrps = (vrps || [])
             .map(i => {
                 const origin = i.asn.toString().replace('AS', '');
-                const maxLength = parseInt(i.maxLength);
+                const maxLength = i.maxLength;
                 if (!!i.prefix && isNaN(origin) && isNaN(maxLength)) {
                     throw new Error("Not valid ROA format");
                 }
