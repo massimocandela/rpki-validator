@@ -322,6 +322,22 @@ describe("Tests", function() {
                 .catch(done);
         }).timeout(asyncTimeout);
 
+        it("single valid - 165.254.255.0/25", function(done) {
+            rpki.preCache()
+                .then(() => {
+                    return rpki.validate("165.254.255.0/25", "AS15562", verbose)
+                        .then(result => {
+                            expect(result).to
+                                .containSubset({
+                                    valid: true
+                                });
+                            done();
+                        })
+                        .catch(done);
+                })
+                .catch(done);
+        }).timeout(asyncTimeout);
+
         it("single not valid - origin", function(done) {
             rpki.preCache()
                 .then(() => {
