@@ -3,6 +3,7 @@ const brembo = require("brembo");
 const ripeConnector = require("./connectors/RIPEConnector");
 const nttConnector = require("./connectors/NTTConnector");
 const cloudflareConnector = require("./connectors/CloudflareConnector");
+const rpkiClientConnector = require("./connectors/RpkiClientConnector");
 const externalConnector = require("./connectors/ExternalConnector");
 const ip = require("ip-sub");
 const RadixTrie = require("radix-trie-js");
@@ -42,7 +43,7 @@ const RpkiValidator = function (options) {
         ripe: new ripeConnector(this.options),
         ntt: new nttConnector(this.options),
         cloudflare: new cloudflareConnector(this.options),
-        rpkiclient: new cloudflareConnector(this.options),
+        rpkiclient: new rpkiClientConnector(this.options),
         external: new externalConnector(this.options),
     };
 
