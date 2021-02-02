@@ -1,10 +1,10 @@
 const realAxios = require("axios");
 const brembo = require("brembo");
-const ripeConnector = require("./connectors/RIPEConnector");
-const nttConnector = require("./connectors/NTTConnector");
-const cloudflareConnector = require("./connectors/CloudflareConnector");
-const rpkiClientConnector = require("./connectors/RpkiClientConnector");
-const externalConnector = require("./connectors/ExternalConnector");
+const RIPEConnector = require("./connectors/RIPEConnector");
+const NTTConnector = require("./connectors/NTTConnector");
+const CloudflareConnector = require("./connectors/CloudflareConnector");
+const RpkiClientConnector = require("./connectors/RpkiClientConnector");
+const ExternalConnector = require("./connectors/ExternalConnector");
 const ip = require("ip-sub");
 const RadixTrie = require("radix-trie-js");
 
@@ -40,11 +40,11 @@ const RpkiValidator = function (options) {
     };
 
     this.connectors = {
-        ripe: new ripeConnector(this.options),
-        ntt: new nttConnector(this.options),
-        cloudflare: new cloudflareConnector(this.options),
-        rpkiclient: new rpkiClientConnector(this.options),
-        external: new externalConnector(this.options),
+        ripe: new RIPEConnector(this.options),
+        ntt: new NTTConnector(this.options),
+        cloudflare: new CloudflareConnector(this.options),
+        rpkiclient: new RpkiClientConnector(this.options),
+        external: new ExternalConnector(this.options),
     };
 
     this.connector = this.connectors[this.options.connector];
