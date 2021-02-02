@@ -8,7 +8,7 @@ This tool is designed to be used for data analysis and visualization, and it is 
 It works both server-side with node.js or client-side in the browser. 
 
 > This tool is not designed for routing security implementation.
-> There is no cryptography involved in this tool, the validation is based on the Validated ROA Payloads (VRPs) lists provided by [NTT](https://www.gin.ntt.net/), [RIPE NCC](https://www.ripe.net), and [Cloudflare](https://cloudflare.com).
+> There is no cryptography involved in this tool, the validation is based on the Validated ROA Payloads (VRPs) lists provided by [NTT](https://www.gin.ntt.net/), [rpki-client.org](https://www.rpki-client.org/), [Cloudflare](https://cloudflare.com), and [RIPE NCC](https://www.ripe.net).
 
 
 
@@ -98,7 +98,7 @@ It is possible to specify options while creating the validator. In the following
 ```
 const options = {
     httpsAgent: an http(s) agent, e.g. to use a proxy https://www.npmjs.com/package/https-proxy-agent
-    connector: one of "ntt", "ripe", "cloudflare", "external" (default: "ntt")
+    connector: one of "ntt", "rpkiclient", "cloudflare", "ripe", "external" (default: "ntt")
 };
 
 const rpki = new RpkiValidator(options);
