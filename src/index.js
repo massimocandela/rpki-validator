@@ -42,6 +42,7 @@ const RpkiValidator = function (options) {
         ripe: new ripeConnector(this.options),
         ntt: new nttConnector(this.options),
         cloudflare: new cloudflareConnector(this.options),
+        rpkiclient: new cloudflareConnector(this.options),
         external: new externalConnector(this.options),
     };
 
