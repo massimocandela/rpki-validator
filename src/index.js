@@ -6,7 +6,7 @@ const CloudflareConnector = require("./connectors/CloudflareConnector");
 const RpkiClientConnector = require("./connectors/RpkiClientConnector");
 const ExternalConnector = require("./connectors/ExternalConnector");
 const ip = require("ip-sub");
-const RadixTrie = require("radix-trie-js");
+const LongestPrefixMatch = require("longest-prefix-match");
 
 const RpkiValidator = function (options) {
     const defaults = {
@@ -16,6 +16,7 @@ const RpkiValidator = function (options) {
         clientId: "rpki-validator_js"
     };
 
+    this.longestPrefixMatch = new LongestPrefixMatch();
     this.options = Object.assign({}, defaults, options);
 
     if (!this.options.axios) {
@@ -29,15 +30,6 @@ const RpkiValidator = function (options) {
 
     this.queue = {};
     this.preCached = false;
-    this.roas = {
-        v4 : new RadixTrie(),
-        v6 : new RadixTrie()
-    };
-
-    this.keySizes = {
-        v4: 12,
-        v6: 24
-    };
 
     this.connectors = {
         ripe: new RIPEConnector(this.options),
@@ -56,7 +48,7 @@ const RpkiValidator = function (options) {
     this._getPrefixMatches = (prefix) => {
         const af = ip.getAddressFamily(prefix);
         const binaryPrefix = ip.getNetmask(prefix, af);
-        const roas = this._getRoas(binaryPrefix, af) || [];
+        const roas = this.longestPrefixMatch._getMatch(binaryPrefix, af) || [];
 
         return roas.filter(roa => roa.binaryPrefix === binaryPrefix || ip.isSubnetBinary(roa.binaryPrefix, binaryPrefix));
     };
@@ -142,13 +134,12 @@ const RpkiValidator = function (options) {
                 .then(list => {
                     if (list) {
                         this.preCached = true;
-                        this.roas = {
-                            v4: new RadixTrie(),
-                            v6: new RadixTrie()
-                        };
+                        this.longestPrefixMatch.reset();
 
                         for (let roa of list) {
-                            this._addRoa(roa);
+                            const af = ip.getAddressFamily(roa.prefix)
+                            roa.binaryPrefix = ip.getNetmask(roa.prefix, af);
+                            this.longestPrefixMatch._addPrefix(roa.binaryPrefix, af, roa);
                         }
 
                         return true;
@@ -207,34 +198,6 @@ const RpkiValidator = function (options) {
             return this._validateFromCache(prefix, origin, verbose);
         } else {
             return this._validateOnline(prefix, origin, verbose);
-        }
-    };
-
-    this._getRoas = (binaryNetmask, af) => {
-        if (af === 4) {
-            return this.roas.v4.get(binaryNetmask.slice(0, this.keySizes.v4));
-        } else {
-            return this.roas.v6.get(binaryNetmask.slice(0, this.keySizes.v6));
-        }
-    };
-
-    this._addRoa = (roa) => {
-        const prefix = roa.prefix;
-        const af = ip.getAddressFamily(prefix);
-        roa.binaryPrefix = ip.getNetmask(prefix, af);
-
-        if (af === 4) {
-            const key = roa.binaryPrefix.slice(0, this.keySizes.v4);
-            if (!this.roas.v4.has(key)) {
-                this.roas.v4.add(key, []);
-            }
-            this.roas.v4.get(key).push(roa);
-        } else {
-            const key = roa.binaryPrefix.slice(0, this.keySizes.v6);
-            if (!this.roas.v6.has(key)) {
-                this.roas.v6.add(key, []);
-            }
-            this.roas.v6.get(key).push(roa);
         }
     };
 
