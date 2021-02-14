@@ -9,13 +9,13 @@ If this list is not up to date, please contact one of the authors.
     https://massimocandela.com/
 
 
-- CONTRIBUTORS -
-
 
 A special THANK YOU goes to:
 
    Louis Poinsignon for the Cloudflare RPKI validation API
 
    Agustín Formoso and Mikhail Puzanov for the RIPE NCC VRP lists API
+
+   Job Snijders for the rpki-client.org VRPs API
 
 
