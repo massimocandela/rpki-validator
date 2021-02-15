@@ -512,4 +512,38 @@ describe("Tests", function() {
         }).timeout(asyncTimeout);
 
     });
+
+    describe("Exporting Data", function () {
+
+        const rpki2 = new rpkiValidator({ connector: "external" });
+
+        rpki2.setVRPs([{
+            prefix: "213.7.5.0/24",
+            maxLength: 24,
+            asn: "1234"
+        }]);
+
+        it("Export to array", function(done) {
+            rpki2.preCache()
+                .then(() => {
+                    const arr = rpki2.toArray();
+                    expect(arr.length > 0).to.equal(true);
+                    done();
+                })
+                .catch(done);
+        }).timeout(asyncTimeout);
+
+        it("Export to data structure", function(done) {
+            rpki2.preCache()
+                .then(() => {
+                    const obj = rpki2.getData();
+                    expect(Object.keys(obj).includes("v4")).to.equal(true);
+                    expect(Object.keys(obj).includes("v6")).to.equal(true);
+                    done();
+                })
+                .catch(done);
+        }).timeout(asyncTimeout);
+
+
+    });
 });

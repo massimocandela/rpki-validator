@@ -307,16 +307,20 @@ const RpkiValidator = function (options) {
         if (this.cacheTimer) {
             clearInterval(this.cacheTimer);
         }
-        this.roas = null;
+        this.longestPrefixMatch.reset();
     };
 
     this.getVrps = function () {
         return this.connector.getVRPs();
     };
 
-    this.getRadixTrie = function () {
-        return this.roas;
-    }
+    this.getData = function () {
+        return this.longestPrefixMatch.getData();
+    };
+
+    this.toArray = function () {
+        return this.longestPrefixMatch.toArray();
+    };
 
     this.validationTimer = setInterval(this._validateBundle, 500);
 };
