@@ -1,3 +1,4 @@
+const brembo = require("brembo");
 
 module.exports = function (options) {
     const axios = options.axios;
@@ -10,16 +11,31 @@ module.exports = function (options) {
 
     this.getVRPs = function() {
 
+        const params = brembo.parse(options.url).params
+        const url = brembo.build(options.url.split("?")[0], {
+            params: Object.assign({ client: this.clientId }, params)
+        });
+
         return axios({
             method: "get",
-            url: options.url,
+            url: url,
             responseType: "json"
         })
             .then(data => {
-                if (data && data.data.roas) {
+                const out = [];
+                if (data && data.data && data.data.roas && data.data.roas.length) {
 
-                    return data.data.roas;
+                    for (let roa of data.data.roas) {
+                        out.push({
+                            prefix: roa.prefix,
+                            maxLength: parseInt(roa.maxLength),
+                            asn: parseInt(roa.asn.toString().replace("AS", "")),
+                            ta: roa.ta
+                        });
+                    }
                 }
+
+                return out;
             });
     };
 
