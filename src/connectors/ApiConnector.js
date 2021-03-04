@@ -23,9 +23,10 @@ module.exports = function (options) {
         })
             .then(data => {
                 const out = [];
-                if (data && data.data && data.data.roas && data.data.roas.length) {
+                if (data && data.data) {
+                    const roas = (data.data.roas && data.data.roas.length) ? data.data.roas : data.data || [];
 
-                    for (let roa of data.data.roas) {
+                    for (let roa of roas) {
                         out.push({
                             prefix: roa.prefix,
                             maxLength: parseInt(roa.maxLength),
