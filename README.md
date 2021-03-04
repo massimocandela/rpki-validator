@@ -92,7 +92,7 @@ The `.preCache()` method can take an optional parameter indicating after how man
 > IMPORTANT: `preCache` uses a good amount of memory (at the moment ~20Mb, but this will grow in the future) to store the cache. This may be less suitable for running in a browser.
 
 
-### Options
+## Options
 
 It is possible to specify options while creating the validator. In the following way:
 
@@ -113,7 +113,7 @@ const rpki = new RpkiValidator({ connector: "ripe" });
 
 The `connector` option changes the VRP provider for the `preCache()` method. All the validation done without cache rely on the online API offered by Cloudflare.
 
-#### RPKI auto-refresh limits
+### RPKI auto-refresh limits
 Each connector has limits on how much time can be specified for the auto-refresh option:
 * ntt, 15 min
 * rpki-client, 15 min
@@ -123,7 +123,7 @@ Each connector has limits on how much time can be specified for the auto-refresh
 * api, 5 min
 
 
-### External VRPs
+## External VRPs
 You can load your VRPs in the following way:
 
 ```javascript
@@ -152,7 +152,7 @@ rpki.preCache()
 ```
 
 
-### VRPs on custom API
+## VRPs on custom API
 Also, you can load your VRPs by providing a URL of an API.
 
 ```javascript
