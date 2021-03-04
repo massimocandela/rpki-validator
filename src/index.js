@@ -5,6 +5,7 @@ const NTTConnector = require("./connectors/NTTConnector");
 const CloudflareConnector = require("./connectors/CloudflareConnector");
 const RpkiClientConnector = require("./connectors/RpkiClientConnector");
 const ExternalConnector = require("./connectors/ExternalConnector");
+const ApiConnector = require("./connectors/ApiConnector");
 const ip = require("ip-sub");
 const LongestPrefixMatch = require("longest-prefix-match");
 
@@ -37,6 +38,7 @@ const RpkiValidator = function (options) {
         cloudflare: new CloudflareConnector(this.options),
         rpkiclient: new RpkiClientConnector(this.options),
         external: new ExternalConnector(this.options),
+        api: new ApiConnector(this.options),
     };
 
     this.connector = this.connectors[this.options.connector];
@@ -100,7 +102,6 @@ const RpkiValidator = function (options) {
         return this.queue[key].promise;
 
     };
-
 
     this.createOutput = (sameOrigin, validLength, verbose, covering) => {
         let valid = sameOrigin && validLength;
