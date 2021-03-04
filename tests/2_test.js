@@ -6,7 +6,7 @@ chai.use(chaiSubset);
 
 const rpki = new rpkiValidator({
     connector: "api",
-    url: "https://stat.ripe.net/data/rpki-roas/data.json?validator=ripenccv3"
+    url: "https://rpki.gin.ntt.net/api/export.json?parameter=true" // A random param to test also param parsing
 });
 
 const single = { // It must be in the vrp list
@@ -20,7 +20,7 @@ describe("Generic API Connector", function () {
 
     const verbose = true;
 
-    it("single valid - loading VRP list", function(done) {
+    it("single valid", function(done) {
         rpki.preCache()
             .then(() => {
                 return rpki.validate(single.prefix, single.asn, verbose)
