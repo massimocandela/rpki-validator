@@ -50,9 +50,8 @@ const RpkiValidator = function (options) {
     this._getPrefixMatches = (prefix) => {
         const af = ip.getAddressFamily(prefix);
         const binaryPrefix = ip.getNetmask(prefix, af);
-        const roas = this.longestPrefixMatch._getMatch(binaryPrefix, af) || [];
 
-        return roas.filter(roa => roa.binaryPrefix === binaryPrefix || ip.isSubnetBinary(roa.binaryPrefix, binaryPrefix));
+        return this.longestPrefixMatch._getMatch(binaryPrefix, af, true) || [];
     };
 
     this.validateFromCacheSync = (prefix, origin, verbose) => {
@@ -138,9 +137,7 @@ const RpkiValidator = function (options) {
                         this.longestPrefixMatch.reset();
 
                         for (let roa of list) {
-                            const af = ip.getAddressFamily(roa.prefix)
-                            roa.binaryPrefix = ip.getNetmask(roa.prefix, af);
-                            this.longestPrefixMatch._addPrefix(roa.binaryPrefix, af, roa);
+                            this.longestPrefixMatch.addPrefix(roa.prefix, roa);
                         }
 
                         return true;
