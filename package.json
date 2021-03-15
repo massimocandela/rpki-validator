@@ -20,7 +20,7 @@
     "axios": "^0.21.1",
     "brembo": "^2.0.5",
     "ip-sub": "^1.0.21",
-    "longest-prefix-match": "^1.1.3"
+    "longest-prefix-match": "^1.1.4"
   },
   "devDependencies": {
     "chai": "^4.3.4",
