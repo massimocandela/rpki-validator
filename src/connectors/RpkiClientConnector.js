@@ -32,8 +32,8 @@ module.exports = function (options) {
                     for (let roa of roas) {
                         out.push({
                             prefix: roa.prefix,
-                            maxLength: parseInt(roa.maxLength),
-                            asn: parseInt(roa.asn.toString().replace('AS', '')),
+                            maxLength: roa.maxLength,
+                            asn: roa.asn,
                             ta: roa.ta
                         });
                     }
