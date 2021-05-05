@@ -19,7 +19,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "brembo": "^2.0.5",
-    "ip-sub": "^1.0.21",
+    "ip-sub": "^1.0.22",
     "longest-prefix-match": "^1.1.4"
   },
   "devDependencies": {
