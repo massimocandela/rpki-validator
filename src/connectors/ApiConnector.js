@@ -31,7 +31,8 @@ module.exports = function (options) {
                             prefix: roa.prefix,
                             maxLength: parseInt(roa.maxLength),
                             asn: parseInt(roa.asn.toString().replace("AS", "")),
-                            ta: roa.ta
+                            ta: roa.ta,
+                            expires: roa.expires || null
                         });
                     }
                 }

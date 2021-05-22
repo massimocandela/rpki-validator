@@ -34,7 +34,8 @@ module.exports = function (options) {
                             prefix: roa.prefix,
                             maxLength: roa.maxLength,
                             asn: roa.asn,
-                            ta: roa.ta
+                            ta: roa.ta,
+                            expires: roa.expires || null
                         });
                     }
 
