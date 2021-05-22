@@ -17,7 +17,8 @@ module.exports = function (options) {
                     prefix: i.prefix,
                     asn: parseInt(origin),
                     maxLength: parseInt(maxLength),
-                    ta: i.ta || ""
+                    ta: i.ta || "",
+                    expires: i.expires || null
                 }
             })
     };
