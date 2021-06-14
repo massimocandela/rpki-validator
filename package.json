@@ -27,7 +27,7 @@
     "chai-subset": "^1.6.0",
     "dotenv-cli": "^4.0.0",
     "mocha": "^9.0.0",
-    "release-it": "^14.8.0"
+    "release-it": "^14.9.0"
   },
   "repository": {
     "type": "git",
