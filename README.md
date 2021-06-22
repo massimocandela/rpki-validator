@@ -1,5 +1,4 @@
 [![Build Status](https://api.travis-ci.com/massimocandela/rpki-validator.svg)](https://travis-ci.com/massimocandela/rpki-validator)
-![Dependabot Status](https://badgen.net/dependabot/massimocandela/rpki-validator/?icon=dependabot)
 
 # rpki-validator
 
