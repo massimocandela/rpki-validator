@@ -19,8 +19,8 @@
   "dependencies": {
     "axios": "^0.21.1",
     "brembo": "^2.0.5",
-    "ip-sub": "^1.0.24",
-    "longest-prefix-match": "^1.1.10"
+    "ip-sub": "^1.0.25",
+    "longest-prefix-match": "^1.1.11"
   },
   "devDependencies": {
     "chai": "^4.3.4",
