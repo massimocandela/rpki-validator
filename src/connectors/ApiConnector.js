@@ -1,5 +1,3 @@
-const brembo = require("brembo");
-
 module.exports = function (options) {
     const axios = options.axios;
     this.clientId = options.clientId;
@@ -10,11 +8,7 @@ module.exports = function (options) {
     };
 
     this.getVRPs = function() {
-
-        const params = brembo.parse(options.url).params
-        const url = brembo.build(options.url.split("?")[0], {
-            params: Object.assign({ client: this.clientId }, params)
-        });
+        const url = options.url;
 
         return axios({
             method: "get",
