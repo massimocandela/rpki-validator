@@ -142,7 +142,6 @@ const RpkiValidator = function (options) {
                                 validateVRP(vrp);
                                 this.longestPrefixMatch.addPrefix(vrp.prefix, vrp);
                             } catch (error) {
-                                console.log(error);
                                 // Just skip the insert
                             }
                         }
