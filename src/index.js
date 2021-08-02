@@ -8,6 +8,7 @@ const ExternalConnector = require("./connectors/ExternalConnector");
 const ApiConnector = require("./connectors/ApiConnector");
 const ip = require("ip-sub");
 const LongestPrefixMatch = require("longest-prefix-match");
+const { validatePrefix, validateAS, validateVRP } = require("net-validations");
 
 const RpkiValidator = function (options) {
     const defaults = {
@@ -136,8 +137,14 @@ const RpkiValidator = function (options) {
                         this.preCached = true;
                         this.longestPrefixMatch.reset();
 
-                        for (let roa of list) {
-                            this.longestPrefixMatch.addPrefix(roa.prefix, roa);
+                        for (let vrp of list) {
+                            try {
+                                validateVRP(vrp);
+                                this.longestPrefixMatch.addPrefix(vrp.prefix, vrp);
+                            } catch (error) {
+                                console.log(error);
+                                // Just skip the insert
+                            }
                         }
 
                         return true;
@@ -182,15 +189,13 @@ const RpkiValidator = function (options) {
     };
 
     this.validate = (prefix, origin, verbose) => {
-        if (origin == null) {
+        if (origin == null || origin === "") {
             throw new Error("Origin AS missing");
         }
         origin = parseInt(origin.toString().replace("AS", ""));
 
-        if (prefix == null || typeof(prefix) !== "string" || !ip.isValidPrefix(prefix)) {
-            throw new Error("Prefix missing or not valid");
-        }
-
+        validateAS(origin);
+        validatePrefix(prefix);
 
         if (this.preCached) {
             return this._validateFromCache(prefix, origin, verbose);
