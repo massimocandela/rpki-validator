@@ -50,7 +50,7 @@ const RpkiValidator = function (options) {
 
     this._getPrefixMatches = (prefix) => {
         const af = ip.getAddressFamily(prefix);
-        const binaryPrefix = ip.getNetmask(prefix, af);
+        const binaryPrefix = ip.applyNetmask(prefix, af);
 
         return this.longestPrefixMatch._getMatch(binaryPrefix, af, true) || [];
     };
