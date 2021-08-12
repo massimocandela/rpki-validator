@@ -1,6 +1,6 @@
 {
   "name": "rpki-validator",
-  "version": "2.6.7",
+  "version": "2.6.8",
   "description": "A RPKI validator that works also in the browser.",
   "main": "src/index.js",
   "scripts": {
