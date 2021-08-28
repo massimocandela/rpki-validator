@@ -168,8 +168,7 @@ const RpkiValidator = function (options) {
 
                 this.cacheTimer = setInterval(() => {
                     this.preChachePromise = this.getValidatedPrefixes(true)
-                        .catch(error => {
-                            console.log(error);
+                        .catch(() => {
                             return false;
                         });
                 }, everyMinutes * 60 * 1000);
