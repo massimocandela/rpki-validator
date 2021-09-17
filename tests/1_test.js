@@ -1,4 +1,5 @@
 const chai = require("chai");
+const batchPromises = require("batch-promises");
 const chaiSubset = require('chai-subset');
 const expect = chai.expect;
 const rpkiValidator = require("../src/index");
@@ -113,8 +114,8 @@ describe("Tests", function() {
 
         it("multiple - 100", function(done) {
 
-            Promise.all(first100.map(i => rpki.validate(i.prefix, i.asn, false)))
-                .then((list) => {
+            batchPromises(5, first100, i => rpki.validate(i.prefix, i.asn, false))
+                .then(list => {
                     expect(list.length).to.equal(100);
                     done();
                 })

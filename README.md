@@ -98,24 +98,24 @@ It is possible to specify options while creating the validator. In the following
 ```
 const options = {
     httpsAgent: an http(s) agent, e.g. to use a proxy https://www.npmjs.com/package/https-proxy-agent
-    connector: one of "ntt", "rpkiclient", "cloudflare", "ripe", "external", "api" (default: "ntt")
+    connector: one of "rpkiclient", "ntt", "cloudflare", "ripe", "external", "api" (default: "rpkiclient")
 };
 
 const rpki = new RpkiValidator(options);
 ```
 
-Example, to change the VRP provider to RIPE NCC:
+Example, to change the VRP provider to NTT:
 
 ```js
-const rpki = new RpkiValidator({ connector: "ripe" });
+const rpki = new RpkiValidator({ connector: "ntt" });
 ```
 
 The `connector` option changes the VRP provider for the `preCache()` method. All the validation done without cache rely on the online API offered by Cloudflare.
 
 ### RPKI auto-refresh limits
 Each connector has limits on how much time can be specified for the auto-refresh option:
-* ntt, 15 min
 * rpki-client, 15 min
+* ntt, 15 min
 * ripe, 15 min
 * cloudflare, 15 min
 * external, not available (based on when new data is applied)

@@ -12,7 +12,7 @@ const { validatePrefix, validateAS, validateVRP } = require("net-validations");
 
 const RpkiValidator = function (options) {
     const defaults = {
-        connector: "ntt",
+        connector: "rpkiclient",
         httpsAgent: null,
         axios: null,
         clientId: "rpki-validator_js"

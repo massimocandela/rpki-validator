@@ -18,11 +18,7 @@ module.exports = function (options) {
 
     this.getVRPs = function() {
         const url = brembo.build("https://stat.ripe.net/", {
-            path: ["data", "rpki-roas", "data.json"],
-            params: {
-                validator: "ripenccv3",
-                client: this.clientId
-            }
+            path: ["data", "rpki-roas", "data.json"]
         });
 
         return axios({

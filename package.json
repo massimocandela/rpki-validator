@@ -24,6 +24,7 @@
     "net-validations": "^1.0.4"
   },
   "devDependencies": {
+    "batch-promises": "^0.0.3",
     "chai": "^4.3.4",
     "chai-subset": "^1.6.0",
     "dotenv-cli": "^4.0.0",
