@@ -163,7 +163,7 @@ const RpkiValidator = function (options) {
             this.refreshVrpEveryMinutes = everyMinutes;
             if (everyMinutes) {
                 if (everyMinutes < this.connector.minimumRefreshRateMinutes) {
-                    return Promise.reject(new Error(`The VRP list can be updated at most once every ${this.connector.minimumRefreshRateSeconds} minutes.`));
+                    return Promise.reject(new Error(`The VRP list can be updated at most once every ${this.connector.minimumRefreshRateMinutes} minutes.`));
                 }
 
                 if (this.cacheTimer) {
