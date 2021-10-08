@@ -77,12 +77,16 @@ const RpkiValidator = function (options) {
     this._validateFromCache = (prefix, origin, verbose) =>
         Promise.resolve(this.validateFromCacheSync(prefix, origin, verbose));
 
-    this._validateOnline = (prefix, origin, verbose) => {
-        const key = "a" + [prefix, origin]
+    this._getKey = (prefix, origin) => {
+        return "a" + [prefix, origin]
             .join("AS")
             .replace(/\./g, "_")
             .replace(/\:/g, "_")
             .replace(/\//g, "_");
+    };
+
+    this._validateOnline = (prefix, origin, verbose) => {
+        const key = this._getKey(prefix, origin);
 
         if (!this.queue[key]) {
             const promise = new Promise((resolve, reject) => {
@@ -186,6 +190,12 @@ const RpkiValidator = function (options) {
         return this.preChachePromise;
     };
 
+    this.historicValidation = (timestamp, prefix, origin, verbose) => {
+        if (this.options.connector !== "external") {
+            return Promise.reject("the historic validation works only with the external connector");
+        }
+    };
+
     this.validate = (prefix, origin, verbose) => {
         if (origin == null || origin === "") {
             throw new Error("Origin AS missing");
@@ -204,20 +214,11 @@ const RpkiValidator = function (options) {
 
     this._validateBundle = () => {
         const items = Object.values(this.queue);
-        if (items.length) {
-            const bundledValidationRequests = {
-                query: 'query {' +
-                    items
-                        .filter(item => !item.ongoing)
-                        .map(item => {
-                            item.ongoing = true;
-                            return `${item.key}:validation(prefix:"${item.prefix}", asn:${item.origin}) {state, covering { asn, prefix { prefix, maxLength } }}`;
-                        })
-                        .join("") + '}'
-            };
 
-            const url = brembo.build("https://rpki.cloudflare.com/", {
-                path: ["api", "graphql"],
+        if (items.length) {
+
+            const url = brembo.build("https://rpki.massimocandela.com", {
+                path: ["api", "v1", "validate"],
                 params: {
                     client: this.options.clientId
                 }
@@ -227,54 +228,45 @@ const RpkiValidator = function (options) {
                 url,
                 responseType: "json",
                 method: "post",
-                data: bundledValidationRequests
+                data: items
+                    .map(i => {
+                        return {
+                            prefix: i.prefix,
+                            asn: i.origin
+                        };
+                    })
             })
                 .then(data => {
-                    const results = data.data.data;
+                    const results = data.data;
 
-                    if (results) {
-                        const aliases = Object.keys(results);
+                    if (results.length) {
                         let output;
-                        for (let alias of aliases) {
+                        for (let result of results) {
+                            const key = this._getKey(result.prefix, result.asn);
 
-                            if (results[alias].state === 'NotFound') {
+                            if (result.valid === null) {
 
-                                output = this.createOutput(null, null, this.queue[alias].verbose, null);
-                                this.queue[alias].resolve(output);
+                                output = this.createOutput(null, null, this.queue[key].verbose, null);
+                                this.queue[key].resolve(output);
 
-                            } else if (results[alias].state === 'Valid') {
+                            } else if (result.valid) {
 
-                                const covering = results[alias].covering
-                                    .map(i => {
-                                        return {
-                                            asn: i.asn,
-                                            prefix: i.prefix.prefix,
-                                            maxLength: i.prefix.maxLength
-                                        };
-                                    });
-                                output = this.createOutput(true, true, this.queue[alias].verbose, covering);
-                                this.queue[alias].resolve(output);
+                                const covering = result.covering;
+                                output = this.createOutput(true, true, this.queue[key].verbose, covering);
+                                this.queue[key].resolve(output);
 
                             } else {
 
-                                // let sameOrigin, validLength;
-                                const covering = results[alias].covering
-                                    .map(i => {
-                                        return {
-                                            asn: i.asn,
-                                            prefix: i.prefix.prefix,
-                                            maxLength: i.prefix.maxLength
-                                        };
-                                    });
+                                const covering = result.covering;
 
-                                output = this.checkCoveringROAs(this.queue[alias]["origin"],
-                                    this.queue[alias]["prefix"],
+                                output = this.checkCoveringROAs(this.queue[key]["origin"],
+                                    this.queue[key]["prefix"],
                                     covering,
-                                    this.queue[alias].verbose
+                                    this.queue[key].verbose
                                 );
-                                this.queue[alias].resolve(output);
+                                this.queue[key].resolve(output);
                             }
-                            delete this.queue[alias];
+                            delete this.queue[key];
                         }
                     }
                 })
