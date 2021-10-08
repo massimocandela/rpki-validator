@@ -2,12 +2,17 @@
 
 # rpki-validator
 
-This is a JavaScript tool which provides rpki validation functionalities.  
-This tool is designed to be used for data analysis and visualization, and it is able to check more than 20k prefixes per second.  
-It works both server-side with node.js or client-side in the browser.
+This is a JavaScript tool which provides RPKI lookup/validation functionalities.  
+This tool is designed to be used for data analysis and visualization, and it is able to check more than 20k prefixes per second. It works both server side with node.js or in the browser.
 
 > This tool is not designed for routing security implementation.
-> There is no cryptography involved in this tool, the validation is based on the Validated ROA Payloads (VRPs) lists provided by [NTT](https://www.gin.ntt.net/), [rpki-client.org](https://www.rpki-client.org/), [Cloudflare](https://cloudflare.com), and [RIPE NCC](https://www.ripe.net).
+> There is no cryptography involved in this tool, the validation is based on Validated ROA Payloads files (VRPs)
+
+VRP files are provided by:
+* [rpki-client.org](https://www.rpki-client.org/) ([rpki-client](https://www.rpki-client.org/))
+* [NTT](https://www.gin.ntt.net/) ([rpki-client](https://www.rpki-client.org/))
+* [RIPE NCC](https://www.ripe.net) ([Routinator](https://www.nlnetlabs.nl/projects/rpki/routinator/))
+* [Cloudflare](https://cloudflare.com) ([OctoRPKI](https://github.com/cloudflare/cfrpki))
 
 
 
@@ -23,7 +28,7 @@ To validate the a `<prefix, origin>` pair:
 
 ```
 const prefix = "165.254.225.0/24";
-const origin = "15562";
+const origin = 15562;
 const verbose = true;
 
 const rpki = new RpkiValidator();
@@ -49,9 +54,10 @@ If `verbose` is `true`, the result will be an object like:
     valid: true|false|null,
     reason: "A string describing the reason",
     covering: [{
-        asn: "15562",
+        asn: 15562,
         prefix: "165.254.225.0/21",
-        maxLength: 24
+        maxLength: 24,
+        expires: 1633702845
     }]
 }
 ```
@@ -64,6 +70,7 @@ Possible `reason` values are:
 
 The `covering` array is the list of ROAs covering the queried prefix.
 
+> IMPORTANT: In this case you are not using a VRP file, but an online API. Please, read the section below to understand how to load a VRP file and do more frequent validations.
 
 ## Multiple validations
 
@@ -97,7 +104,7 @@ It is possible to specify options while creating the validator. In the following
 
 ```
 const options = {
-    httpsAgent: an http(s) agent, e.g. to use a proxy https://www.npmjs.com/package/https-proxy-agent
+    httpsAgent: an http(s) agent, e.g., to use a proxy https://www.npmjs.com/package/https-proxy-agent
     connector: one of "rpkiclient", "ntt", "cloudflare", "ripe", "external", "api" (default: "rpkiclient")
 };
 
@@ -110,14 +117,14 @@ Example, to change the VRP provider to NTT:
 const rpki = new RpkiValidator({ connector: "ntt" });
 ```
 
-The `connector` option changes the VRP provider for the `preCache()` method. All the validation done without cache rely on the online API offered by Cloudflare.
+> IMPORTANT: The `connector` option changes the VRP provider for the `preCache()` method. All the validation done without cache rely on the online API offered by rpki.massimocandela.com.
 
 ### RPKI auto-refresh limits
 Each connector has limits on how much time can be specified for the auto-refresh option:
-* rpki-client, 15 min
+* rpkiclient, 5 min
 * ntt, 15 min
-* ripe, 15 min
-* cloudflare, 15 min
+* ripe, 10 min
+* cloudflare, 20 min
 * external, not available (based on when new data is applied)
 * api, 5 min
 
