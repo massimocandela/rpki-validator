@@ -1,7 +1,7 @@
 {
   "name": "rpki-validator",
   "version": "2.6.12",
-  "description": "A RPKI validator that works also in the browser.",
+  "description": "An RPKI validator that works also in the browser.",
   "main": "src/index.js",
   "scripts": {
     "release": "dotenv release-it",
