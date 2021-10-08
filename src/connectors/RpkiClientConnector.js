@@ -5,7 +5,7 @@ module.exports = function (options) {
 
     this.clientId = options.clientId;
 
-    this.minimumRefreshRateMinutes = 15;
+    this.minimumRefreshRateMinutes = 5;
 
     this.setVRPs = function(){
         throw new Error("You cannot set VRPs with this connector.");
