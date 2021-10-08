@@ -294,8 +294,10 @@ describe("Tests", function() {
                                     reason: null
                                 });
 
+                            expect(result.covering.length).to.equal(2);
+
                             expect(result.covering).to
-                                .eql([
+                                .containSubset([
                                     { prefix: '82.112.96.0/19', maxLength: 19, asn: 2914, ta: "ripe" },
                                     { prefix: '82.112.100.0/24', maxLength: 24, asn: 2914, ta: "ripe"  }
                                 ]);

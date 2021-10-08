@@ -66,7 +66,8 @@ const RpkiValidator = function (options) {
                     prefix: i.prefix,
                     maxLength: i.maxLength,
                     asn: i.asn,
-                    ta: i.ta || ""
+                    ta: i.ta || "",
+                    expires: i.expires || null
                 };
             })
 
