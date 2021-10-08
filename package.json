@@ -21,7 +21,7 @@
     "brembo": "^2.0.5",
     "ip-sub": "^1.1.2",
     "longest-prefix-match": "^1.1.12",
-    "net-validations": "^1.0.4"
+    "net-validations": "^1.0.5"
   },
   "devDependencies": {
     "batch-promises": "^0.0.3",
