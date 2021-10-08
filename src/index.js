@@ -32,7 +32,7 @@ const RpkiValidator = function (options) {
 
     this.queue = {};
     this.preCached = false;
-
+    this.lastUpdate = null;
     this.connectors = {
         ripe: new RIPEConnector(this.options),
         ntt: new NTTConnector(this.options),
@@ -141,6 +141,7 @@ const RpkiValidator = function (options) {
                     if (list) {
                         this.preCached = true;
                         this.longestPrefixMatch.reset();
+                        this.lastUpdate = new Date();
 
                         for (let vrp of list) {
                             try {
