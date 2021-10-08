@@ -6,7 +6,7 @@ chai.use(chaiSubset);
 
 const rpki = new rpkiValidator({
     connector: "api",
-    url: "https://rpki.gin.ntt.net/api/export.json?parameter=true" // A random param to test also param parsing
+    url: "https://console.rpki-client.org/vrps.json?parameter=true" // A random param to test also param parsing
 });
 
 const single = { // It must be in the vrp list
