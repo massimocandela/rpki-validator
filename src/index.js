@@ -186,7 +186,10 @@ const RpkiValidator = function (options) {
         }
 
         if (!this.preChachePromise) {
-            this.preChachePromise = this.getValidatedPrefixes();
+            this.preChachePromise = this.getValidatedPrefixes()
+                .catch(() => {
+                    return false;
+                });
         }
 
         return this.preChachePromise;
