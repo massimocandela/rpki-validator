@@ -16,8 +16,8 @@
     "registry": "https://registry.npmjs.com/"
   },
   "dependencies": {
-    "axios": "^0.23.0",
-    "brembo": "^2.0.5",
+    "axios": "^0.24.0",
+    "brembo": "^2.0.6",
     "ip-sub": "^1.1.2",
     "longest-prefix-match": "^1.1.13",
     "net-validations": "^1.0.5"
