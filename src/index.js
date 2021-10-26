@@ -32,6 +32,7 @@ const RpkiValidator = function (options) {
 
     this.queue = {};
     this.preCached = false;
+    this.onlineValidatorStatus = false;
     this.lastUpdate = null;
     this.connectors = {
         ripe: new RIPEConnector(this.options),
@@ -217,6 +218,33 @@ const RpkiValidator = function (options) {
         }
     };
 
+    this._checkOnlineValidatorStatus = () => {
+        if (!this.options.skipStatusCheck) {
+            const url = brembo.build("https://rpki.massimocandela.com", {
+                path: ["api", "v1", "status"],
+                params: {
+                    client: this.options.clientId
+                }
+            });
+
+            return axios({
+                url,
+                responseType: "json",
+                method: "get"
+            })
+                .then(data => {
+                    this.onlineValidatorStatus = !data.data.warning;
+                })
+                .catch(() => {
+                    this.onlineValidatorStatus = false;
+                });
+        }
+    };
+
+    this.getStatus = () => {
+        return this.onlineValidatorStatus;
+    };
+
     this._validateBundle = () => {
         const items = Object.values(this.queue);
 
@@ -321,6 +349,8 @@ const RpkiValidator = function (options) {
     };
 
     this.validationTimer = setInterval(this._validateBundle, 500);
+    setInterval(this._checkOnlineValidatorStatus, 10 * 60 * 1000);
+    this._checkOnlineValidatorStatus();
 };
 
 
