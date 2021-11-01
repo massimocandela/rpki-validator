@@ -347,10 +347,6 @@ const RpkiValidator = function (options) {
     };
 
     this.validationTimer = setInterval(this._validateBundle, 500);
-    if (!this.options.skipStatusCheck) {
-        setInterval(this.getStatus, 60 * 60 * 1000);
-        this.getStatus();
-    }
 };
 
 

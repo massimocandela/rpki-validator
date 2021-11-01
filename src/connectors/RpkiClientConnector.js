@@ -33,7 +33,7 @@ module.exports = function (options) {
                         out.push({
                             prefix: roa.prefix,
                             maxLength: roa.maxLength,
-                            asn: roa.asn,
+                            asn: parseInt(roa.asn.toString().replace('AS', '')),
                             ta: roa.ta,
                             expires: roa.expires || null
                         });
