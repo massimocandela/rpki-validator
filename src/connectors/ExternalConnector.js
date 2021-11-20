@@ -18,7 +18,8 @@ module.exports = function (options) {
                     asn: parseInt(origin),
                     maxLength: parseInt(maxLength),
                     ta: i.ta || "",
-                    expires: i.expires || null
+                    expires: i.expires || null,
+                    notBefore: i.notBefore || null,
                 }
             })
     };

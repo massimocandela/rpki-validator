@@ -26,7 +26,8 @@ module.exports = function (options) {
                             maxLength: parseInt(roa.maxLength),
                             asn: parseInt(roa.asn.toString().replace("AS", "")),
                             ta: roa.ta,
-                            expires: roa.expires || null
+                            expires: roa.expires || null,
+                            notBefore: roa.notBefore || null
                         });
                     }
                 }
