@@ -18,9 +18,9 @@
   "dependencies": {
     "axios": "^0.25.0",
     "brembo": "^2.0.6",
-    "ip-sub": "^1.2.1",
+    "ip-sub": "^1.2.2",
     "longest-prefix-match": "^1.1.14",
-    "net-validations": "^1.0.6"
+    "net-validations": "^1.0.7"
   },
   "devDependencies": {
     "batch-promises": "^0.0.3",
