@@ -5,3 +5,4 @@ tests/
 .npmrc
 .env
 .git/
+.github/
