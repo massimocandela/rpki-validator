@@ -10,9 +10,12 @@ const ip = require("ip-sub");
 const LongestPrefixMatch = require("longest-prefix-match");
 const { validatePrefix, validateAS, validateVRP } = require("net-validations");
 
+const providers = ["rpkiclient", "ntt", "ripe", "cloudflare"]; // First provider is the default one
+const connectors = providers.concat(["external", "api"]);
+
 const RpkiValidator = function (options) {
     const defaults = {
-        connector: "rpkiclient",
+        connector: providers[0],
         httpsAgent: null,
         axios: null,
         clientId: "rpki-validator_js",
@@ -226,7 +229,8 @@ const RpkiValidator = function (options) {
                 path: ["status"],
                 params: {
                     client: this.options.clientId
-                }
+                },
+                timeout: 2000
             });
 
             setTimeout(() => {this.onlineValidatorStatus = null}, 15 * 60 * 1000);
@@ -237,16 +241,16 @@ const RpkiValidator = function (options) {
                 method: "get"
             })
                 .then(data => {
-                    this.onlineValidatorStatus = !data.data.warning;
+                    this.onlineValidatorStatus = data.data;
                 })
                 .catch(() => {
-                    this.onlineValidatorStatus = false;
+                    this.onlineValidatorStatus = {warning: true};
                 })
                 .then(() => {
-                    return {warning: this.onlineValidatorStatus};
+                    return this.onlineValidatorStatus;
                 });
         } else {
-            return Promise.resolve({warning: this.onlineValidatorStatus});
+            return Promise.resolve(this.onlineValidatorStatus);
         }
     };
 
