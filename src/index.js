@@ -220,28 +220,34 @@ const RpkiValidator = function (options) {
         }
     };
 
-    this.getStatus = () => {
-        const url = brembo.build(this.options.defaultRpkiApi, {
-            path: ["status"],
-            params: {
-                client: this.options.clientId
-            }
-        });
-
-        return axios({
-            url,
-            responseType: "json",
-            method: "get"
-        })
-            .then(data => {
-                this.onlineValidatorStatus = !data.data.warning;
-            })
-            .catch(() => {
-                this.onlineValidatorStatus = false;
-            })
-            .then(() => {
-                return this.onlineValidatorStatus;
+    this.getApiStatus = () => {
+        if (this.onlineValidatorStatus === null) {
+            const url = brembo.build(this.options.defaultRpkiApi, {
+                path: ["status"],
+                params: {
+                    client: this.options.clientId
+                }
             });
+
+            setTimeout(() => {this.onlineValidatorStatus = null}, 15 * 60 * 1000);
+
+            return axios({
+                url,
+                responseType: "json",
+                method: "get"
+            })
+                .then(data => {
+                    this.onlineValidatorStatus = !data.data.warning;
+                })
+                .catch(() => {
+                    this.onlineValidatorStatus = false;
+                })
+                .then(() => {
+                    return {warning: this.onlineValidatorStatus};
+                });
+        } else {
+            return Promise.resolve({warning: this.onlineValidatorStatus});
+        }
     };
 
     this._validateBundle = () => {
@@ -347,13 +353,11 @@ const RpkiValidator = function (options) {
         return this.longestPrefixMatch.toArray();
     };
 
+    this.getLength = () => {
+        return this.longestPrefixMatch.length;
+    };
+
     this.validationTimer = setInterval(this._validateBundle, 500);
 };
 
-
 module.exports = RpkiValidator;
-
-
-
-
-
