@@ -1,5 +1,3 @@
-[![Build Status](https://api.travis-ci.com/massimocandela/rpki-validator.svg)](https://travis-ci.com/massimocandela/rpki-validator)
-
 # rpki-validator
 
 This is a JavaScript tool which provides RPKI lookup/validation functionalities.  
