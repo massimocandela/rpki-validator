@@ -14,7 +14,7 @@ const defaultRpkiApi = "https://rpki.massimocandela.com/api/v1";
 const providers = ["rpkiclient", "ntt", "ripe", "cloudflare"]; // First provider is the default one
 const connectors = ["external", "api"];
 
-export default class RpkiValidator {
+class RpkiValidator {
     #axios;
     #connectors;
     #connector;
@@ -402,3 +402,5 @@ export default class RpkiValidator {
         return this.#longestPrefixMatch._getMatch(binaryPrefix, af, true) || [];
     };
 }
+
+module.exports = RpkiValidator;

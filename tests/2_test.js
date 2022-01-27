@@ -1,7 +1,7 @@
 const chai = require("chai");
 const chaiSubset = require('chai-subset');
 const expect = chai.expect;
-const RpkiValidator = require("../src/index").default;
+const RpkiValidator = require("../src/index");
 chai.use(chaiSubset);
 
 const rpki = new RpkiValidator({

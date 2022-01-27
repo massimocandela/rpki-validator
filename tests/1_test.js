@@ -2,7 +2,7 @@ const chai = require("chai");
 const batchPromises = require("batch-promises");
 const chaiSubset = require('chai-subset');
 const expect = chai.expect;
-const RpkiValidator = require("../src/index").default;
+const RpkiValidator = require("../src/index");
 const fs = require("fs");
 chai.use(chaiSubset);
 

@@ -2,8 +2,10 @@
   "name": "rpki-validator",
   "version": "2.7.11",
   "description": "An RPKI validator that works also in the browser.",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "bin": "dist/index.js",
   "scripts": {
+    "babel": "node_modules/.bin/babel",
     "release": "dotenv release-it",
     "test": "./node_modules/.bin/mocha tests/*test.js --require @babel/register --exit",
     "compile": "rm -rf dist/ && ./node_modules/.bin/babel src -d dist"
@@ -32,7 +34,6 @@
     "@babel/plugin-transform-async-to-generator": "^7.16.8",
     "@babel/plugin-transform-runtime": "^7.16.10",
     "@babel/preset-env": "^7.16.11",
-    "@babel/preset-react": "^7.16.7",
     "batch-promises": "^0.0.3",
     "chai": "^4.3.6",
     "chai-subset": "^1.6.0",
