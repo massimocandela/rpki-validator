@@ -1,10 +1,10 @@
 const chai = require("chai");
 const chaiSubset = require('chai-subset');
 const expect = chai.expect;
-const rpkiValidator = require("../src/index");
+const RpkiValidator = require("../src/index").default;
 chai.use(chaiSubset);
 
-const rpki = new rpkiValidator({
+const rpki = new RpkiValidator({
     connector: "api",
     url: "https://console.rpki-client.org/vrps.json?parameter=true" // A random param to test also param parsing
 });

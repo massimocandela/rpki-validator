@@ -1,17 +1,12 @@
-const brembo = require("brembo");
+import brembo from "brembo";
+import Connector from "./Connector";
 
-module.exports = function (options) {
-    const axios = options.axios;
-
-    this.clientId = options.clientId;
-
-    this.minimumRefreshRateMinutes = 5;
-
-    this.setVRPs = function(){
-        throw new Error("You cannot set VRPs with this connector.");
+export default class RpkiClientConnector extends Connector {
+    constructor(options) {
+        super(options);
     };
 
-    this.getVRPs = function() {
+    getVRPs = () => {
         const url = brembo.build("https://console.rpki-client.org", {
             path: ["vrps.json"],
             params: {
@@ -19,7 +14,7 @@ module.exports = function (options) {
             }
         });
 
-        return axios({
+        return this.axios({
             method: "get",
             url,
             responseType: "json"
@@ -44,4 +39,4 @@ module.exports = function (options) {
             });
     };
 
-};
+}

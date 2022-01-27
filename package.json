@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "release": "dotenv release-it",
-    "test": "./node_modules/.bin/mocha --exit tests"
+    "test": "./node_modules/.bin/mocha tests/*test.js --require @babel/register --exit",
+    "compile": "rm -rf dist/ && ./node_modules/.bin/babel src -d dist"
   },
   "author": {
     "name": "Massimo Candela",
@@ -23,6 +24,15 @@
     "net-validations": "^1.0.7"
   },
   "devDependencies": {
+    "@babel/cli": "^7.16.8",
+    "@babel/core": "^7.16.12",
+    "@babel/node": "^7.16.8",
+    "@babel/plugin-proposal-class-properties": "^7.16.7",
+    "@babel/plugin-proposal-object-rest-spread": "^7.16.7",
+    "@babel/plugin-transform-async-to-generator": "^7.16.8",
+    "@babel/plugin-transform-runtime": "^7.16.10",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
     "batch-promises": "^0.0.3",
     "chai": "^4.3.6",
     "chai-subset": "^1.6.0",
@@ -50,8 +60,12 @@
       "before:init": [
         "npm ci"
       ],
+      "after:bump": [
+        "npm run compile"
+      ],
       "after:release": [
-        "echo Successfully released ${name} v${version} to ${repo.repository}."
+        "echo Successfully released ${name} v${version} to ${repo.repository}.",
+        "rm -r dist/"
       ]
     },
     "git": {

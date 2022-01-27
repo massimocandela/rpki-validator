@@ -18,7 +18,7 @@ VRP files are provided by:
 Run:
 `npm install rpki-validator`
 
-Place in your code: `const RpkiValidator = require("rpki-validator");`
+Place in your code: `import RpkiValidator from "rpki-validator";`
 
 ## Validate
 

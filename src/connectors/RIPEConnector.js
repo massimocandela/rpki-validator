@@ -1,27 +1,23 @@
-const brembo = require("brembo");
+import brembo from "brembo";
+import Connector from "./Connector";
 
-module.exports = function (options) {
-    const axios = options.axios;
-
-    this.clientId = options.clientId;
-
-    this.minimumRefreshRateMinutes = 10;
-
-    this.setVRPs = function(){
-        throw new Error("You cannot set VRPs with this connector.");
+export default class RIPEConnector extends Connector{
+    constructor(options) {
+        super(options);
+        this.minimumRefreshRateMinutes = 10;
     };
 
-    this.toStandardTa = function (ta) {
+    toStandardTa = (ta) => {
         const taComponents = ta.split(" ");
         return ((taComponents.length) ? taComponents[0] : "").toLowerCase();
     };
 
-    this.getVRPs = function() {
+    getVRPs = () => {
         const url = brembo.build("https://stat.ripe.net/", {
             path: ["data", "rpki-roas", "data.json"]
         });
 
-        return axios({
+        return this.axios({
             method: "get",
             url,
             responseType: "json"
@@ -44,5 +40,4 @@ module.exports = function (options) {
                 }
             });
     };
-
-};
+}

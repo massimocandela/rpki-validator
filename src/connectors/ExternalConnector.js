@@ -1,12 +1,14 @@
-const {validateVRP} = require("net-validations");
+import {validateVRP} from "net-validations";
+import Connector from "./Connector";
 
-module.exports = function (options) {
+export default class ExternalConnector extends Connector {
+    constructor(options) {
+        super(options);
+        this.minimumRefreshRateMinutes = 0;
+        this.vrps = [];
+    };
 
-    this.vrps = [];
-
-    this.minimumRefreshRateMinutes = 0;
-
-    this.setVRPs = function(vrps){
+    setVRPs = (vrps) => {
         vrps = (vrps || [])
             .map(item => {
                 const origin = item.asn.toString().replace('AS', '');
@@ -36,8 +38,7 @@ module.exports = function (options) {
         });
     };
 
-    this.getVRPs = function() {
+    getVRPs = () => {
         return Promise.resolve(this.vrps);
     };
-
-};
+}

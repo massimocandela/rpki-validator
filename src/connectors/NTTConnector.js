@@ -1,17 +1,13 @@
-const brembo = require("brembo");
+import Connector from "./Connector";
+import brembo from "brembo";
 
-module.exports = function (options) {
-    const axios = options.axios;
-
-    this.clientId = options.clientId;
-
-    this.minimumRefreshRateMinutes = 15;
-
-    this.setVRPs = function(){
-        throw new Error("You cannot set VRPs with this connector.");
+export default class NTTConnector extends Connector {
+    constructor(options) {
+        super(options);
+        this.minimumRefreshRateMinutes = 15;
     };
 
-    this.getVRPs = function() {
+    getVRPs = () => {
         const url = brembo.build("https://rpki.gin.ntt.net/", {
             path: ["api", "export.json"],
             params: {
@@ -19,7 +15,7 @@ module.exports = function (options) {
             }
         });
 
-        return axios({
+        return this.axios({
             method: "get",
             url,
             responseType: "json"
@@ -43,5 +39,4 @@ module.exports = function (options) {
                 }
             });
     };
-
-};
+}

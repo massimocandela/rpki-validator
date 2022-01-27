@@ -1,70 +1,132 @@
-const realAxios = require("axios");
-const brembo = require("brembo");
-const RIPEConnector = require("./connectors/RIPEConnector");
-const NTTConnector = require("./connectors/NTTConnector");
-const CloudflareConnector = require("./connectors/CloudflareConnector");
-const RpkiClientConnector = require("./connectors/RpkiClientConnector");
-const ExternalConnector = require("./connectors/ExternalConnector");
-const ApiConnector = require("./connectors/ApiConnector");
-const ip = require("ip-sub");
-const LongestPrefixMatch = require("longest-prefix-match");
-const { validatePrefix, validateAS, validateVRP } = require("net-validations");
+import realAxios from "axios";
+import brembo from "brembo";
+import RIPEConnector from "./connectors/RIPEConnector";
+import NTTConnector from "./connectors/NTTConnector";
+import CloudflareConnector from "./connectors/CloudflareConnector";
+import RpkiClientConnector from "./connectors/RpkiClientConnector";
+import ExternalConnector from "./connectors/ExternalConnector";
+import ApiConnector from "./connectors/ApiConnector";
+import ip from "ip-sub";
+import LongestPrefixMatch from "longest-prefix-match";
+import { validatePrefix, validateAS, validateVRP } from "net-validations";
 
+const defaultRpkiApi = "https://rpki.massimocandela.com/api/v1";
 const providers = ["rpkiclient", "ntt", "ripe", "cloudflare"]; // First provider is the default one
-const connectors = providers.concat(["external", "api"]);
+const connectors = ["external", "api"];
 
-const RpkiValidator = function (options) {
-    const defaults = {
-        connector: providers[0],
-        httpsAgent: null,
-        axios: null,
-        clientId: "rpki-validator_js",
-        defaultRpkiApi: "https://rpki.massimocandela.com/api/v1"
-    };
+export default class RpkiValidator {
+    #axios;
+    #connectors;
+    #connector;
+    #validationTimer;
+    #longestPrefixMatch;
+    #options;
+    #queue;
+    #onlineValidatorStatus;
 
-    this.longestPrefixMatch = new LongestPrefixMatch();
-    this.options = Object.assign({}, defaults, options);
+    constructor(options) {
+        const defaults = {
+            connector: providers[0],
+            httpsAgent: null,
+            axios: null,
+            clientId: "rpki-validator_js",
+            defaultRpkiApi
+        };
 
-    if (!this.options.axios) {
-        this.options.axios = realAxios;
-        if (this.options.httpsAgent) {
-            this.options.axios.defaults.httpsAgent = options.httpsAgent;
+        this.#longestPrefixMatch = new LongestPrefixMatch();
+        this.#options = Object.assign({}, defaults, options);
+
+        if (!this.#options.axios) {
+            this.#options.axios = realAxios;
+            if (this.#options.httpsAgent) {
+                this.#options.axios.defaults.httpsAgent = options.httpsAgent;
+            }
+            this.#options.axios.defaults.timeout = 180000;
         }
-        this.options.axios.defaults.timeout = 180000;
-    }
-    const axios = this.options.axios;
+        this.#axios = this.#options.axios;
 
-    this.queue = {};
-    this.preCached = false;
-    this.onlineValidatorStatus = null;
-    this.lastUpdate = null;
-    this.connectors = {
-        ripe: new RIPEConnector(this.options),
-        ntt: new NTTConnector(this.options),
-        cloudflare: new CloudflareConnector(this.options),
-        rpkiclient: new RpkiClientConnector(this.options),
-        external: new ExternalConnector(this.options),
-        api: new ApiConnector(this.options),
+        this.#queue = {};
+        this.preCached = false;
+        this.lastUpdate = null;
+        this.#connectors = {
+            ripe: new RIPEConnector(this.#options),
+            ntt: new NTTConnector(this.#options),
+            cloudflare: new CloudflareConnector(this.#options),
+            rpkiclient: new RpkiClientConnector(this.#options),
+            external: new ExternalConnector(this.#options),
+            api: new ApiConnector(this.#options),
+        };
+
+        this.#connector = this.#connectors[this.#options.connector];
+
+        if (!this.#connector) {
+            throw new Error("The specified connector is not valid");
+        }
+
+        this.#validationTimer = setInterval(this.#validateBundle, 500);
+
+        this.getApiStatus();
     };
 
-    this.connector = this.connectors[this.options.connector];
+    getApiStatus = () => {
+        if (this.#onlineValidatorStatus === null) {
+            const url = brembo.build(this.#options.defaultRpkiApi, {
+                path: ["status"],
+                params: {
+                    client: this.#options.clientId
+                },
+                timeout: 2000
+            });
 
-    if (!this.connector) {
-        throw new Error("The specified connector is not valid");
-    }
+            setTimeout(() => {this.#onlineValidatorStatus = null}, 60 * 60 * 1000);
 
-    this._getPrefixMatches = (prefix) => {
-        const af = ip.getAddressFamily(prefix);
-        const binaryPrefix = ip.applyNetmask(prefix, af);
-
-        return this.longestPrefixMatch._getMatch(binaryPrefix, af, true) || [];
+            return this.#axios({
+                url,
+                responseType: "json",
+                method: "get"
+            })
+                .then(data => {
+                    this.#onlineValidatorStatus = data.data;
+                })
+                .catch(() => {
+                    this.#onlineValidatorStatus = {warning: true};
+                })
+                .then(() => {
+                    return this.#onlineValidatorStatus;
+                });
+        } else {
+            return Promise.resolve(this.#onlineValidatorStatus);
+        }
     };
 
-    this.validateFromCacheSync = (prefix, origin, verbose) => {
-        const roas = this._getPrefixMatches(prefix);
+    setConnector = (name) => {
+        if (!this.#connector) {
+            throw new Error("The specified connector is not valid");
+        }
+
+        this.empty();
+        this.#connector = this.#connectors[name];
+    };
+
+    getAvailableConnectors = () => {
+        return this.getApiStatus()
+            .then(data => {
+                const workingConnectors = (data.data || []).filter(i => !i.warning).map(i => i.name).concat(connectors);
+
+                if (workingConnectors.length) {
+                    return workingConnectors[0];
+                }
+            })
+            .reject(() => {
+                return providers;
+            });
+    };
+
+    validateFromCacheSync = (prefix, origin, verbose) => {
+        const roas = this.#getPrefixMatches(prefix);
 
         if (roas.length === 0) {
-            return this.createOutput(null, null, verbose, null);
+            return this.#createOutput(null, null, verbose, null);
         }  else {
             const covering = roas.map(i => {
                 return {
@@ -77,14 +139,104 @@ const RpkiValidator = function (options) {
                 };
             })
 
-            return this.checkCoveringROAs(origin, prefix, covering, verbose);
+            return this.#checkCoveringROAs(origin, prefix, covering, verbose);
         }
     };
 
-    this._validateFromCache = (prefix, origin, verbose) =>
+    preCache = (everyMinutes) => {
+        if (everyMinutes !== this.refreshVrpEveryMinutes) {
+            this.refreshVrpEveryMinutes = everyMinutes;
+            if (everyMinutes) {
+                if (everyMinutes < this.#connector.minimumRefreshRateMinutes) {
+                    return Promise.reject(new Error(`The VRP list can be updated at most once every ${this.#connector.minimumRefreshRateMinutes} minutes.`));
+                }
+
+                if (this.cacheTimer) {
+                    clearInterval(this.cacheTimer);
+                }
+
+                this.cacheTimer = setInterval(() => {
+                    this.preChachePromise = this.#getValidatedPrefixes(true)
+                        .catch(() => {
+                            return false;
+                        });
+                }, everyMinutes * 60 * 1000);
+            } else {
+                if (this.cacheTimer) {
+                    clearInterval(this.cacheTimer);
+                }
+            }
+        }
+
+        if (!this.preChachePromise) {
+            this.preChachePromise = this.#getValidatedPrefixes()
+                .catch(() => {
+                    return false;
+                });
+        }
+
+        return this.preChachePromise;
+    };
+
+    historicValidation = (timestamp, prefix, origin, verbose) => {
+        if (this.#options.connector !== "external") {
+            return Promise.reject("the historic validation works only with the external connector");
+        }
+    };
+
+    validate = (prefix, origin, verbose) => {
+        if (origin == null || origin === "") {
+            throw new Error("Origin AS missing");
+        }
+        origin = parseInt(origin.toString().replace("AS", ""));
+
+        validateAS(origin);
+        validatePrefix(prefix);
+
+        if (this.preCached) {
+            return this.#validateFromCache(prefix, origin, verbose);
+        } else {
+            return this.#validateOnline(prefix, origin, verbose);
+        }
+    };
+
+    setVRPs = (vrps) => {
+        return this.#connector.setVRPs(vrps);
+    };
+
+    empty = () => {
+        if (this.cacheTimer) {
+            clearInterval(this.cacheTimer);
+        }
+        this.#longestPrefixMatch.reset();
+    };
+
+    destroy = () => { // Deprecated
+        return this.empty();
+    };
+
+    getVrps = () => {
+        return this.#connector.getVRPs();
+    };
+
+    getData = () => {
+        return this.#longestPrefixMatch.getData();
+    };
+
+    toArray = () => {
+        return this.#longestPrefixMatch.toArray();
+    };
+
+    getLength = () => {
+        return this.#longestPrefixMatch.length;
+    };
+
+
+    //-- private methods
+    #validateFromCache = (prefix, origin, verbose) =>
         Promise.resolve(this.validateFromCacheSync(prefix, origin, verbose));
 
-    this._getKey = (prefix, origin) => {
+    #getKey = (prefix, origin) => {
         return "a" + [prefix, origin]
             .join("AS")
             .replace(/\./g, "_")
@@ -92,12 +244,12 @@ const RpkiValidator = function (options) {
             .replace(/\//g, "_");
     };
 
-    this._validateOnline = (prefix, origin, verbose) => {
-        const key = this._getKey(prefix, origin);
+    #validateOnline = (prefix, origin, verbose) => {
+        const key = this.#getKey(prefix, origin);
 
-        if (!this.queue[key]) {
+        if (!this.#queue[key]) {
             const promise = new Promise((resolve, reject) => {
-                this.queue[key] = {
+                this.#queue[key] = {
                     prefix,
                     origin,
                     key,
@@ -107,14 +259,14 @@ const RpkiValidator = function (options) {
                 };
             });
 
-            this.queue[key].promise = promise;
+            this.#queue[key].promise = promise;
         }
 
-        return this.queue[key].promise;
+        return this.#queue[key].promise;
 
     };
 
-    this.createOutput = (sameOrigin, validLength, verbose, covering) => {
+    #createOutput = (sameOrigin, validLength, verbose, covering) => {
         let valid = sameOrigin && validLength;
         let reason = (!sameOrigin) ? "Not valid origin" :
             ((!validLength) ? "Not valid prefix length" : null);
@@ -135,138 +287,19 @@ const RpkiValidator = function (options) {
         }
     };
 
-    this.getValidatedPrefixes = (force) => {
-        if (!force && this.preCached) {
-            return new Promise((resolve, reject) => {
-                resolve(true);
-            });
-        } else {
-            return this.connector
-                .getVRPs()
-                .then(list => {
-                    if (list) {
-                        this.preCached = true;
-                        this.longestPrefixMatch.reset();
-                        this.lastUpdate = new Date();
-
-                        for (let vrp of list) {
-                            try {
-                                validateVRP(vrp);
-                                this.longestPrefixMatch.addPrefix(vrp.prefix, vrp);
-                            } catch (error) {
-                                // Just skip the insert
-                            }
-                        }
-
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-        }
-    };
-
-    this.preCache = (everyMinutes) => {
-        if (everyMinutes !== this.refreshVrpEveryMinutes) {
-            this.refreshVrpEveryMinutes = everyMinutes;
-            if (everyMinutes) {
-                if (everyMinutes < this.connector.minimumRefreshRateMinutes) {
-                    return Promise.reject(new Error(`The VRP list can be updated at most once every ${this.connector.minimumRefreshRateMinutes} minutes.`));
-                }
-
-                if (this.cacheTimer) {
-                    clearInterval(this.cacheTimer);
-                }
-
-                this.cacheTimer = setInterval(() => {
-                    this.preChachePromise = this.getValidatedPrefixes(true)
-                        .catch(() => {
-                            return false;
-                        });
-                }, everyMinutes * 60 * 1000);
-            } else {
-                if (this.cacheTimer) {
-                    clearInterval(this.cacheTimer);
-                }
-            }
-        }
-
-        if (!this.preChachePromise) {
-            this.preChachePromise = this.getValidatedPrefixes()
-                .catch(() => {
-                    return false;
-                });
-        }
-
-        return this.preChachePromise;
-    };
-
-    this.historicValidation = (timestamp, prefix, origin, verbose) => {
-        if (this.options.connector !== "external") {
-            return Promise.reject("the historic validation works only with the external connector");
-        }
-    };
-
-    this.validate = (prefix, origin, verbose) => {
-        if (origin == null || origin === "") {
-            throw new Error("Origin AS missing");
-        }
-        origin = parseInt(origin.toString().replace("AS", ""));
-
-        validateAS(origin);
-        validatePrefix(prefix);
-
-        if (this.preCached) {
-            return this._validateFromCache(prefix, origin, verbose);
-        } else {
-            return this._validateOnline(prefix, origin, verbose);
-        }
-    };
-
-    this.getApiStatus = () => {
-        if (this.onlineValidatorStatus === null) {
-            const url = brembo.build(this.options.defaultRpkiApi, {
-                path: ["status"],
-                params: {
-                    client: this.options.clientId
-                },
-                timeout: 2000
-            });
-
-            setTimeout(() => {this.onlineValidatorStatus = null}, 15 * 60 * 1000);
-
-            return axios({
-                url,
-                responseType: "json",
-                method: "get"
-            })
-                .then(data => {
-                    this.onlineValidatorStatus = data.data;
-                })
-                .catch(() => {
-                    this.onlineValidatorStatus = {warning: true};
-                })
-                .then(() => {
-                    return this.onlineValidatorStatus;
-                });
-        } else {
-            return Promise.resolve(this.onlineValidatorStatus);
-        }
-    };
-
-    this._validateBundle = () => {
-        const items = Object.values(this.queue);
+    #validateBundle = () => {
+        const items = Object.values(this.#queue);
 
         if (items.length) {
 
-            const url = brembo.build(this.options.defaultRpkiApi, {
+            const url = brembo.build(this.#options.defaultRpkiApi, {
                 path: ["validate"],
                 params: {
-                    client: this.options.clientId
+                    client: this.#options.clientId
                 }
             });
 
-            return axios({
+            return this.#axios({
                 url,
                 responseType: "json",
                 method: "post",
@@ -284,84 +317,88 @@ const RpkiValidator = function (options) {
                     if (results.length) {
                         let output;
                         for (let result of results) {
-                            const key = this._getKey(result.prefix, result.asn);
+                            const key = this.#getKey(result.prefix, result.asn);
 
                             if (result.valid === null) {
 
-                                output = this.createOutput(null, null, this.queue[key].verbose, null);
-                                this.queue[key].resolve(output);
+                                output = this.#createOutput(null, null, this.#queue[key].verbose, null);
+                                this.#queue[key].resolve(output);
 
                             } else if (result.valid) {
 
                                 const covering = result.covering;
-                                output = this.createOutput(true, true, this.queue[key].verbose, covering);
-                                this.queue[key].resolve(output);
+                                output = this.#createOutput(true, true, this.#queue[key].verbose, covering);
+                                this.#queue[key].resolve(output);
 
                             } else {
 
                                 const covering = result.covering;
 
-                                output = this.checkCoveringROAs(this.queue[key]["origin"],
-                                    this.queue[key]["prefix"],
+                                output = this.#checkCoveringROAs(this.#queue[key]["origin"],
+                                    this.#queue[key]["prefix"],
                                     covering,
-                                    this.queue[key].verbose
+                                    this.#queue[key].verbose
                                 );
-                                this.queue[key].resolve(output);
+                                this.#queue[key].resolve(output);
                             }
-                            delete this.queue[key];
+                            delete this.#queue[key];
                         }
                     }
                 })
                 .catch(error => {
                     for (let item of items) {
-                        if (this.queue[item.key]) {
-                            this.queue[item.key].reject(error);
-                            delete this.queue[item.key];
+                        if (this.#queue[item.key]) {
+                            this.#queue[item.key].reject(error);
+                            delete this.#queue[item.key];
                         }
                     }
                 });
         }
     };
 
-    this.checkCoveringROAs = function (origin, prefix, covering, verbose) {
+    #checkCoveringROAs = (origin, prefix, covering, verbose) => {
         const sameAsRoas = covering.filter(roa => roa.asn === parseInt(origin));
         const sameOrigin = sameAsRoas.length > 0;
         const validLength = sameAsRoas.some(roa => parseInt(prefix.split("/")[1]) <= roa.maxLength);
 
-        return this.createOutput(sameOrigin, validLength, verbose, covering);
+        return this.#createOutput(sameOrigin, validLength, verbose, covering);
     };
 
-    this.setVRPs = function(vrps) {
-        return this.connector.setVRPs(vrps);
-    };
+    #getValidatedPrefixes = (force) => {
+        if (!force && this.preCached) {
+            return new Promise((resolve, reject) => {
+                resolve(true);
+            });
+        } else {
+            return this.#connector
+                .getVRPs()
+                .then(list => {
+                    if (list) {
+                        this.preCached = true;
+                        this.#longestPrefixMatch.reset();
+                        this.lastUpdate = new Date();
 
-    this.destroy = function() {
-        if (this.validationTimer) {
-            clearInterval(this.validationTimer);
+                        for (let vrp of list) {
+                            try {
+                                validateVRP(vrp);
+                                this.#longestPrefixMatch.addPrefix(vrp.prefix, vrp);
+                            } catch (error) {
+                                // Just skip the insert
+                            }
+                        }
+
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
         }
-        if (this.cacheTimer) {
-            clearInterval(this.cacheTimer);
-        }
-        this.longestPrefixMatch.reset();
     };
 
-    this.getVrps = function () {
-        return this.connector.getVRPs();
+    #getPrefixMatches = (prefix) => {
+        const af = ip.getAddressFamily(prefix);
+        const binaryPrefix = ip.applyNetmask(prefix, af);
+
+        return this.#longestPrefixMatch._getMatch(binaryPrefix, af, true) || [];
     };
-
-    this.getData = function () {
-        return this.longestPrefixMatch.getData();
-    };
-
-    this.toArray = function () {
-        return this.longestPrefixMatch.toArray();
-    };
-
-    this.getLength = () => {
-        return this.longestPrefixMatch.length;
-    };
-
-    this.validationTimer = setInterval(this._validateBundle, 500);
-};
-
-module.exports = RpkiValidator;
+}

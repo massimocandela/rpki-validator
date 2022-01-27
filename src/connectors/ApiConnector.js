@@ -1,18 +1,15 @@
-module.exports = function (options) {
-    const axios = options.axios;
-    this.clientId = options.clientId;
-    this.minimumRefreshRateMinutes = 5;
+import Connector from "./Connector";
 
-    this.setVRPs = function(){
-        throw new Error("You cannot set VRPs with this connector.");
+export default class ApiConnector extends Connector {
+    constructor(options) {
+        super(options);
+        this.url = options.url
     };
 
-    this.getVRPs = function() {
-        const url = options.url;
-
-        return axios({
+    getVRPs = () => {
+        return this.axios({
             method: "get",
-            url: url,
+            url: this.url,
             responseType: "json"
         })
             .then(data => {
@@ -36,4 +33,4 @@ module.exports = function (options) {
             });
     };
 
-};
+}

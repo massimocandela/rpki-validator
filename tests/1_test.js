@@ -2,13 +2,13 @@ const chai = require("chai");
 const batchPromises = require("batch-promises");
 const chaiSubset = require('chai-subset');
 const expect = chai.expect;
-const rpkiValidator = require("../src/index");
+const RpkiValidator = require("../src/index").default;
 const fs = require("fs");
 chai.use(chaiSubset);
 
 const asyncTimeout = 120000;
 
-const rpki = new rpkiValidator();
+const rpki = new RpkiValidator();
 
 const prefixList = JSON.parse(fs.readFileSync("tests/test.json", "utf8"));
 const single = { // It must be in the vrp list
@@ -470,7 +470,7 @@ describe("Tests", function() {
 
     describe("External VRPs", function () {
 
-        const rpki2 = new rpkiValidator({ connector: "external" });
+        const rpki2 = new RpkiValidator({ connector: "external" });
 
         rpki2.setVRPs([{
             prefix: "213.7.5.0/24",
@@ -518,7 +518,7 @@ describe("Tests", function() {
 
     describe("Exporting Data", function () {
 
-        const rpki2 = new rpkiValidator({ connector: "external" });
+        const rpki2 = new RpkiValidator({ connector: "external" });
 
         rpki2.setVRPs([{
             prefix: "213.7.5.0/24",

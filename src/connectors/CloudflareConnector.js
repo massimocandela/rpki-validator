@@ -1,21 +1,17 @@
-const brembo = require("brembo");
+import brembo from "brembo";
+import Connector from "./Connector";
 
-module.exports = function (options) {
-    const axios = options.axios;
-
-    this.clientId = options.clientId;
-
-    this.minimumRefreshRateMinutes = 20;
-
-    this.setVRPs = function(){
-        throw new Error("You cannot set VRPs with this connector.");
+export default class CloudflareConnector extends Connector {
+    constructor(options) {
+        super(options);
+        this.minimumRefreshRateMinutes = 20;
     };
 
-    this.toStandardTa = function (ta) {
+    toStandardTa = (ta) => {
         return ta.replace("Cloudflare - ", "").toLowerCase();
     };
 
-    this.getVRPs = function() {
+    getVRPs = () => {
         const url = brembo.build("https://rpki.cloudflare.com", {
             path: ["rpki.json"],
             params: {
@@ -23,7 +19,7 @@ module.exports = function (options) {
             }
         });
 
-        return axios({
+        return this.axios({
             method: "get",
             url,
             responseType: "json"
@@ -47,4 +43,4 @@ module.exports = function (options) {
             });
     };
 
-};
+}
