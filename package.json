@@ -19,12 +19,12 @@
     "axios": "^0.25.0",
     "brembo": "^2.0.6",
     "ip-sub": "^1.2.2",
-    "longest-prefix-match": "^1.1.15",
+    "longest-prefix-match": "^1.1.16",
     "net-validations": "^1.0.7"
   },
   "devDependencies": {
     "batch-promises": "^0.0.3",
-    "chai": "^4.3.4",
+    "chai": "^4.3.6",
     "chai-subset": "^1.6.0",
     "dotenv-cli": "^4.1.1",
     "mocha": "^9.2.0",
