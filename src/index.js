@@ -12,7 +12,6 @@ import { validatePrefix, validateAS, validateVRP } from "net-validations";
 
 const defaultRpkiApi = "https://rpki.massimocandela.com/api/v1";
 const providers = ["rpkiclient", "ntt", "ripe", "cloudflare"]; // First provider is the default one
-const connectors = ["external", "api"];
 
 class RpkiValidator {
     #axios;
@@ -45,6 +44,11 @@ class RpkiValidator {
         }
         this.#axios = this.#options.axios;
 
+        this.#options.axios.defaults.headers.common = {
+            ...(this.#options.axios.defaults.headers.common || {}),
+            "User-Agent": defaults.clientId
+        };
+
         this.#queue = {};
         this.preCached = false;
         this.lastUpdate = null;
@@ -69,56 +73,65 @@ class RpkiValidator {
     };
 
     getApiStatus = () => {
-        if (this.#onlineValidatorStatus === null) {
-            const url = brembo.build(this.#options.defaultRpkiApi, {
-                path: ["status"],
-                params: {
-                    client: this.#options.clientId
-                },
-                timeout: 2000
-            });
-
-            setTimeout(() => {this.#onlineValidatorStatus = null}, 60 * 60 * 1000);
-
-            return this.#axios({
-                url,
-                responseType: "json",
-                method: "get"
-            })
-                .then(data => {
-                    this.#onlineValidatorStatus = data.data;
-                })
-                .catch(() => {
-                    this.#onlineValidatorStatus = {warning: true};
-                })
-                .then(() => {
-                    return this.#onlineValidatorStatus;
+        return new Promise((resolve, reject) => {
+            if (!this.#onlineValidatorStatus) {
+                const url = brembo.build(this.#options.defaultRpkiApi, {
+                    path: ["status"],
+                    params: {
+                        client: this.#options.clientId
+                    }
                 });
-        } else {
-            return Promise.resolve(this.#onlineValidatorStatus);
-        }
+
+                const tmr = setTimeout(() => {
+                    this.#onlineValidatorStatus = {warning: true};
+                    resolve(this.#onlineValidatorStatus);
+                }, 2000)
+
+                setTimeout(() => {this.#onlineValidatorStatus = null}, 60 * 60 * 1000);
+
+                this.#axios({
+                    url,
+                    responseType: "json",
+                    method: "get",
+                    timeout: 2000
+                })
+                    .then(data => {
+                        this.#onlineValidatorStatus = data.data;
+                    })
+                    .catch(() => {
+                        this.#onlineValidatorStatus = {warning: true};
+                    })
+                    .then(() => {
+                        clearTimeout(tmr);
+                        resolve(this.#onlineValidatorStatus);
+                    });
+            } else {
+                resolve(this.#onlineValidatorStatus);
+            }
+        });
     };
 
     setConnector = (name) => {
-        if (!this.#connector) {
+        if (!this.#connectors[name]) {
             throw new Error("The specified connector is not valid");
         }
 
+        this.#options.connector = name;
         this.empty();
+        this.preCached = false;
         this.#connector = this.#connectors[name];
     };
 
     getAvailableConnectors = () => {
         return this.getApiStatus()
             .then(data => {
-                const workingConnectors = (data.data || []).filter(i => !i.warning).map(i => i.name).concat(connectors);
+                const workingConnectors = (data.data || []).filter(i => !i.warning).map(i => i.name);
 
                 if (workingConnectors.length) {
                     return workingConnectors[0];
+                } else {
+                    return Promise.reject()
                 }
-            })
-            .reject(() => {
-                return providers;
             });
     };
 
@@ -295,6 +308,7 @@ class RpkiValidator {
             const url = brembo.build(this.#options.defaultRpkiApi, {
                 path: ["validate"],
                 params: {
+                    validator: this.#options.connector,
                     client: this.#options.clientId
                 }
             });
