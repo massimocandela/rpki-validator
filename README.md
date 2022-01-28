@@ -100,10 +100,10 @@ The `.preCache()` method can take an optional parameter indicating after how man
 
 It is possible to specify options while creating the validator. In the following way:
 
-```
+```js
 const options = {
-    httpsAgent: an http(s) agent, e.g., to use a proxy https://www.npmjs.com/package/https-proxy-agent
-    connector: one of "rpkiclient", "ntt", "cloudflare", "ripe", "external", "api" (default: "rpkiclient")
+    httpsAgent, // an http(s) agent, e.g., to use a proxy https://www.npmjs.com/package/https-proxy-agent
+    connector //one of "rpkiclient", "ntt", "cloudflare", "ripe", "external", "api" (default: "rpkiclient")
 };
 
 const rpki = new RpkiValidator(options);
@@ -115,7 +115,12 @@ Example, to change the VRP provider to NTT:
 const rpki = new RpkiValidator({ connector: "ntt" });
 ```
 
-> IMPORTANT: The `connector` option changes the VRP provider for the `preCache()` method. All the validation done without cache rely on the online API offered by rpki.massimocandela.com.
+The VRP provider can also be changed at runtime
+
+```js
+rpki.setConnector("ripe");
+```
+
 
 ### RPKI auto-refresh limits
 Each connector has limits on how much time can be specified for the auto-refresh option:
