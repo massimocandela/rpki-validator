@@ -23,6 +23,8 @@ class RpkiValidator {
     #queue;
     #onlineValidatorStatus;
 
+    static providers = providers;
+
     constructor(options) {
         const defaults = {
             connector: providers[0],
@@ -118,7 +120,6 @@ class RpkiValidator {
 
         this.#options.connector = name;
         this.empty();
-        this.preCached = false;
         this.#connector = this.#connectors[name];
     };
 
@@ -218,6 +219,11 @@ class RpkiValidator {
     };
 
     empty = () => {
+        this.preCached = false;
+        this.lastUpdate = null;
+        delete this.refreshVrpEveryMinutes;
+        delete this.preChachePromise;
+
         if (this.cacheTimer) {
             clearInterval(this.cacheTimer);
         }
