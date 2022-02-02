@@ -8,7 +8,7 @@ export default class RIPEConnector extends Connector{
     };
 
     toStandardTa = (ta) => {
-        const taComponents = ta.split(" ");
+        const taComponents = ta.split(".");
         return ((taComponents.length) ? taComponents[0] : "").toLowerCase();
     };
 
