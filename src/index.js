@@ -129,7 +129,7 @@ class RpkiValidator {
                 const workingConnectors = (data.data || []).filter(i => !i.warning).map(i => i.name);
 
                 if (workingConnectors.length) {
-                    return workingConnectors[0];
+                    return workingConnectors;
                 } else {
                     return Promise.reject()
                 }
