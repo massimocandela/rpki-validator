@@ -26,13 +26,13 @@
     "net-validations": "^1.0.7"
   },
   "devDependencies": {
-    "@babel/cli": "^7.16.8",
-    "@babel/core": "^7.16.12",
+    "@babel/cli": "^7.17.0",
+    "@babel/core": "^7.17.0",
     "@babel/node": "^7.16.8",
     "@babel/plugin-proposal-class-properties": "^7.16.7",
     "@babel/plugin-proposal-object-rest-spread": "^7.16.7",
     "@babel/plugin-transform-async-to-generator": "^7.16.8",
-    "@babel/plugin-transform-runtime": "^7.16.10",
+    "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
     "batch-promises": "^0.0.3",
     "chai": "^4.3.6",
