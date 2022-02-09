@@ -260,7 +260,7 @@ class RpkiValidator {
 
     //-- private methods
     #setMetadata = (metadata={}) => {
-        return {
+        this.#lastMetadata = {
             ...this.#lastMetadata,
             ...metadata,
         }
