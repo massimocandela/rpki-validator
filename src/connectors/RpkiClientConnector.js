@@ -4,6 +4,8 @@ import Connector from "./Connector";
 export default class RpkiClientConnector extends Connector {
     constructor(options) {
         super(options);
+
+        this.metadata = {};
     };
 
     getVRPs = () => {
@@ -22,6 +24,13 @@ export default class RpkiClientConnector extends Connector {
             .then(data => {
                 if (data && data.data && data.data.roas) {
                     const roas = data.data.roas;
+
+                    this.metadata = {
+                        buildmachine: data.data.buildmachine,
+                        buildtime: data.data.buildtime,
+                        elapsedtime: data.data.elapsedtime
+                    };
+
                     const out = [];
 
                     for (let roa of roas) {
