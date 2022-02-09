@@ -22,6 +22,7 @@ class RpkiValidator {
     #options;
     #queue;
     #onlineValidatorStatus;
+    #lastMetadata = {};
 
     static providers = providers;
 
@@ -54,6 +55,7 @@ class RpkiValidator {
         this.#queue = {};
         this.preCached = false;
         this.lastUpdate = null;
+        this.#lastMetadata = {};
         this.#connectors = {
             ripe: new RIPEConnector(this.#options),
             ntt: new NTTConnector(this.#options),
@@ -221,6 +223,7 @@ class RpkiValidator {
     empty = () => {
         this.preCached = false;
         this.lastUpdate = null;
+        this.#lastMetadata = {};
         delete this.refreshVrpEveryMinutes;
         delete this.preChachePromise;
 
@@ -250,8 +253,19 @@ class RpkiValidator {
         return this.#longestPrefixMatch.length;
     };
 
+    getMetadata = () => {
+        return this.#lastMetadata;
+    };
+
 
     //-- private methods
+    #setMetadata = (metadata={}) => {
+        return {
+            ...this.#lastMetadata,
+            ...metadata,
+        }
+    }
+
     #validateFromCache = (prefix, origin, verbose) =>
         Promise.resolve(this.validateFromCacheSync(prefix, origin, verbose));
 
@@ -396,7 +410,22 @@ class RpkiValidator {
                     if (list) {
                         this.preCached = true;
                         this.#longestPrefixMatch.reset();
-                        this.lastUpdate = new Date();
+                        const now = new Date();
+                        this.#setMetadata({lastAttempt: now});
+
+                        if (this.#connector?.metadata?.buildtime) {
+                            const currentBuild = Date.parse(this.#connector.metadata.buildtime);
+                            const newBuild = Date.parse(this.#lastMetadata.buildtime);
+
+                            if (newBuild <= currentBuild) {
+                                return false; // The new vrp definition is older than the previous one
+                            } else {
+                                this.#setMetadata({lastUpdate: now});
+                            }
+                        }
+
+
+                        this.lastUpdate =  this.#lastMetadata.lastUpdate; // back compatible, it will be deprecated
 
                         for (let vrp of list) {
                             try {
