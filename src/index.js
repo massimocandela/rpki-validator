@@ -49,7 +49,8 @@ class RpkiValidator {
 
         this.#options.axios.defaults.headers.common = {
             ...(this.#options.axios.defaults.headers.common || {}),
-            "User-Agent": defaults.clientId
+            "User-Agent": defaults.clientId,
+            'Accept-Encoding': 'gzip'
         };
 
         this.#queue = {};
