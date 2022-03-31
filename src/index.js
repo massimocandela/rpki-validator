@@ -55,7 +55,6 @@ class RpkiValidator {
 
         this.#queue = {};
         this.preCached = false;
-        this.lastUpdate = null;
         this.#lastMetadata = {};
         this.#connectors = {
             ripe: new RIPEConnector(this.#options),
@@ -223,7 +222,6 @@ class RpkiValidator {
 
     empty = () => {
         this.preCached = false;
-        this.lastUpdate = null;
         this.#lastMetadata = {};
         delete this.refreshVrpEveryMinutes;
         delete this.preChachePromise;
@@ -423,10 +421,9 @@ class RpkiValidator {
                             } else {
                                 this.#setMetadata({lastUpdate: now});
                             }
+                        } else {
+                            this.#setMetadata({lastUpdate: now});
                         }
-
-
-                        this.lastUpdate =  this.#lastMetadata.lastUpdate; // back compatible, it will be deprecated
 
                         for (let vrp of list) {
                             try {
