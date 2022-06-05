@@ -13,10 +13,7 @@ export default class CloudflareConnector extends Connector {
 
     getVRPs = () => {
         const url = brembo.build("https://rpki.cloudflare.com", {
-            path: ["rpki.json"],
-            params: {
-                client: this.clientId
-            }
+            path: ["rpki.json"]
         });
 
         return this.axios({
