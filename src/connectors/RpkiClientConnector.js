@@ -1,11 +1,42 @@
 import brembo from "brembo";
 import Connector from "./Connector";
+import MetaIndex from "../util/advancedStatsParser";
 
 export default class RpkiClientConnector extends Connector {
     constructor(options) {
         super(options);
 
         this.metadata = {};
+    };
+
+    getAdvancedStats = () => {
+        const url = brembo.build("https://console.rpki-client.org", {
+            path: ["dump.json"],
+            params: {
+                client: this.clientId
+            }
+        });
+
+        return this.axios({
+            method: "get",
+            url
+        })
+            .then(({data}) => {
+                const index = new MetaIndex();
+                const items = data.split('\n');
+
+                for (let item of items) {
+                    try {
+                        const trimmedItem = item.trim();
+                        if (trimmedItem.length > 1) {
+                            index.add(JSON.parse(trimmedItem));
+                        }
+                    } catch (e) {}
+                }
+
+
+                return index;
+            });
     };
 
     getVRPs = () => {

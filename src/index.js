@@ -43,7 +43,7 @@ class RpkiValidator {
             if (this.#options.httpsAgent) {
                 this.#options.axios.defaults.httpsAgent = options.httpsAgent;
             }
-            this.#options.axios.defaults.timeout = 180000;
+            this.#options.axios.defaults.timeout = 300000;
         }
         this.#axios = this.#options.axios;
 
@@ -75,6 +75,10 @@ class RpkiValidator {
 
         this.getApiStatus();
     };
+
+    getAdvancedStats = () => {
+        return this.#connector.getAdvancedStats();
+    }
 
     getApiStatus = () => {
         return new Promise((resolve, reject) => {
@@ -230,10 +234,6 @@ class RpkiValidator {
             clearInterval(this.cacheTimer);
         }
         this.#longestPrefixMatch.reset();
-    };
-
-    destroy = () => { // Deprecated
-        return this.empty();
     };
 
     getVrps = () => {
