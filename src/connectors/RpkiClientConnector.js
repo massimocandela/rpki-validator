@@ -7,6 +7,9 @@ export default class RpkiClientConnector extends Connector {
         super(options);
 
         this.metadata = {};
+        this.cache = null;
+
+        setInterval(() => this.cache = null, 2 * 60 * 60 * 1000);
     };
 
     getAdvancedStats = () => {
@@ -17,26 +20,32 @@ export default class RpkiClientConnector extends Connector {
             }
         });
 
-        return this.axios({
-            method: "get",
-            url
-        })
-            .then(({data}) => {
-                const index = new MetaIndex();
-                const items = data.split('\n');
+        if (this.cache) {
+            return Promise.resolve(this.cache);
+        } else {
+            return this.axios({
+                method: "get",
+                url
+            })
+                .then(({data}) => {
+                    const index = new MetaIndex();
+                    const items = data.split('\n');
 
-                for (let item of items) {
-                    try {
-                        const trimmedItem = item.trim();
-                        if (trimmedItem.length > 1) {
-                            index.add(JSON.parse(trimmedItem));
+                    for (let item of items) {
+                        try {
+                            const trimmedItem = item.trim();
+                            if (trimmedItem.length > 1) {
+                                index.add(JSON.parse(trimmedItem));
+                            }
+                        } catch (e) {
                         }
-                    } catch (e) {}
-                }
+                    }
 
+                    this.cache = index;
 
-                return index;
-            });
+                    return index;
+                });
+        }
     };
 
     getVRPs = () => {

@@ -3,7 +3,7 @@ function getVrpKey(vrp) {
 }
 
 export default class MetaIndex {
-    hashes = {};
+    ids = {};
     type = {};
     vrps = {};
     ski = {};
@@ -11,7 +11,10 @@ export default class MetaIndex {
     constructor() {}
 
     add = (item) => {
-        this.hashes[item["hash_id"]] = item;
+        item["id"] = item["hash_id"];
+        delete item["hash_id"];
+
+        this.ids[item["id"]] = item;
 
         this.type[item.type] ??= [];
         this.type[item.type].push(item);
@@ -29,19 +32,11 @@ export default class MetaIndex {
         }
     }
 
-    getSky = (ski) => {
-        return this.ski[ski];
+    get = (id) => {
+        return this.ids[id];
     }
 
-    getAki = (aki) => {
-        return this.aki[aki];
-    }
-
-    getHash = (hash) => {
-        return this.hashes[hash];
-    }
-
-    getType = (type) => {
+    getByType = (type) => {
         return this.type[type];
     }
 
@@ -54,7 +49,7 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return data.map(i => this.getSky(i.aki)).flat();
+        return data.map(i => this.#getSki(i.aki)).flat();
     }
 
     getChildren = (data) => {
@@ -62,6 +57,14 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return data.map(i => this.getAki(i.ski)).flat();
+        return data.map(i => this.#getAki(i.ski)).flat();
+    }
+
+    #getSki = (ski) => {
+        return this.ski[ski];
+    }
+
+    #getAki = (aki) => {
+        return this.aki[aki];
     }
 }
