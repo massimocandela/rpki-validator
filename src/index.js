@@ -77,7 +77,7 @@ class RpkiValidator {
     };
 
     getAdvancedStats = () => {
-        return this.#connector.getAdvancedStats();
+        return this.#connectors["rpkiclient"].getAdvancedStats();
     }
 
     getApiStatus = () => {
