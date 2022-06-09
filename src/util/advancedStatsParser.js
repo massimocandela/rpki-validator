@@ -41,7 +41,7 @@ export default class MetaIndex {
     }
 
     getVRPs = (vrp) => {
-        return this.vrps[getVrpKey(vrp)];
+        return this.#makeUnique(this.vrps[getVrpKey(vrp)]);
     }
 
     getParents = (data) => {
@@ -49,7 +49,7 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return data.map(i => this.#getSki(i.aki)).flat();
+        return this.#makeUnique(data.map(i => this.#getSki(i.aki)).flat());
     }
 
     getChildren = (data) => {
@@ -57,7 +57,17 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return data.map(i => this.#getAki(i.ski)).flat();
+        return this.#makeUnique(data.map(i => this.#getAki(i.ski)).flat());
+    }
+
+    #makeUnique = (arr) => {
+        const uniq = {};
+
+        for (let item of arr) {
+            uniq[item.id] = item;
+        }
+
+        return Object.values(uniq);
     }
 
     #getSki = (ski) => {
