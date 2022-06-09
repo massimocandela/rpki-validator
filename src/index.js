@@ -236,7 +236,7 @@ class RpkiValidator {
         this.#longestPrefixMatch.reset();
     };
 
-    getVrps = () => {
+    getVRPs = () => {
         return this.#connector.getVRPs();
     };
 

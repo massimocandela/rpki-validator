@@ -40,11 +40,11 @@ export default class MetaIndex {
         return this.type[type];
     }
 
-    getVRP = (vrp) => {
+    getVRPs = (vrp) => {
         return this.vrps[getVrpKey(vrp)];
     }
 
-    getParent = (data) => {
+    getParents = (data) => {
         if (!Array.isArray(data)) {
             data = [data];
         }
