@@ -49,7 +49,7 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return this.#makeUnique(data.map(i => this.#getSki(i.aki)).flat());
+        return this.#makeUnique(data.map(i => this.#getSki(i.aki)).flat().filter(i => !!i));
     }
 
     getChildren = (data) => {
@@ -71,7 +71,11 @@ export default class MetaIndex {
     }
 
     #getSki = (ski) => {
-        return this.ski[ski];
+        if (ski) {
+            return this.ski[ski];
+        } else {
+            return null;
+        }
     }
 
     #getAki = (aki) => {
