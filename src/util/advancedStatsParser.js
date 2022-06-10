@@ -2,6 +2,18 @@ function getVrpKey(vrp) {
     return `${vrp.prefix}-${vrp.asid ?? vrp.asn}-${vrp.maxlen ?? vrp.maxLength}`;
 }
 
+function makeUnique(arr) {
+    const uniq = {};
+
+    if (!!arr) {
+        for (let item of arr) {
+            uniq[item.id] = item;
+        }
+    }
+
+    return Object.values(uniq);
+}
+
 export default class MetaIndex {
     ids = {};
     type = {};
@@ -25,7 +37,7 @@ export default class MetaIndex {
         this.aki[item["aki"]] ??= [];
         this.aki[item["aki"]].push(item);
 
-        for (let vrp of item.vrps ?? []) {
+        for (let vrp of item?.vrps ?? []) {
             const key = getVrpKey(vrp);
             this.vrps[key] ??= [];
             this.vrps[key].push(item);
@@ -41,7 +53,7 @@ export default class MetaIndex {
     }
 
     getVRPs = (vrp) => {
-        return this.#makeUnique(this.vrps[getVrpKey(vrp)]);
+        return makeUnique(this.vrps[getVrpKey(vrp)]);
     }
 
     getParents = (data) => {
@@ -49,7 +61,7 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return this.#makeUnique(data.map(i => this.#getSki(i.aki)).flat().filter(i => !!i));
+        return makeUnique(data.map(i => this._getSki(i.aki)).flat().filter(i => !!i));
     }
 
     getChildren = (data) => {
@@ -57,20 +69,10 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return this.#makeUnique(data.map(i => this.#getAki(i.ski)).flat());
+        return makeUnique(data.map(i => this._getAki(i.ski)).flat());
     }
 
-    #makeUnique = (arr) => {
-        const uniq = {};
-
-        for (let item of arr) {
-            uniq[item.id] = item;
-        }
-
-        return Object.values(uniq);
-    }
-
-    #getSki = (ski) => {
+    _getSki = (ski) => {
         if (ski) {
             return this.ski[ski];
         } else {
@@ -78,7 +80,11 @@ export default class MetaIndex {
         }
     }
 
-    #getAki = (aki) => {
-        return this.aki[aki];
+    _getAki = (aki) => {
+        if (aki) {
+            return this.aki[aki];
+        } else {
+            return null;
+        }
     }
 }
