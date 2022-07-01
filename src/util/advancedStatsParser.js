@@ -22,25 +22,37 @@ export default class MetaIndex {
     aki = {};
     constructor() {}
 
+    destroy = () => {
+        this.ids = {};
+        this.type = {};
+        this.vrps = {};
+        this.ski = {};
+        this.aki = {};
+    }
+
     add = (item) => {
-        item["id"] = item["hash_id"];
-        delete item["hash_id"];
+        const {type, valid_since, valid_until, file, hash_id, ski, aki} = item;
+        const cleanItem = {type, valid_since, valid_until, file};
 
-        this.ids[item["id"]] = item;
+        this.ids[hash_id] = cleanItem;
 
-        this.type[item.type] ??= [];
-        this.type[item.type].push(item);
+        this.type[type] ??= [];
+        this.type[type].push(cleanItem);
 
-        this.ski[item["ski"]] ??= [];
-        this.ski[item["ski"]].push(item);
+        if (ski) {
+            this.ski[ski] ??= [];
+            this.ski[ski].push(cleanItem);
+        }
 
-        this.aki[item["aki"]] ??= [];
-        this.aki[item["aki"]].push(item);
+        if (aki) {
+            this.aki[aki] ??= [];
+            this.aki[aki].push(cleanItem);
+        }
 
         for (let vrp of item?.vrps ?? []) {
             const key = getVrpKey(vrp);
             this.vrps[key] ??= [];
-            this.vrps[key].push(item);
+            this.vrps[key].push(cleanItem);
         }
     }
 

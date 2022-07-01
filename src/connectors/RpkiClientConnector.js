@@ -9,7 +9,12 @@ export default class RpkiClientConnector extends Connector {
         this.metadata = {};
         this.cache = null;
 
-        setInterval(() => this.cache = null, 2 * 60 * 60 * 1000);
+        setInterval(() => {
+            if (this.cache) {
+                this.cache.destroy();
+                this.cache = null;
+            }
+        }, 2 * 60 * 60 * 1000);
     };
 
     getAdvancedStats = () => {
