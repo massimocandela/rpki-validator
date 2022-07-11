@@ -37,7 +37,7 @@
     "batch-promises": "^0.0.3",
     "chai": "^4.3.6",
     "chai-subset": "^1.6.0",
-    "dotenv-cli": "^5.1.0",
+    "dotenv-cli": "^6.0.0",
     "mocha": "^10.0.0",
     "release-it": "^15.1.1"
   },
