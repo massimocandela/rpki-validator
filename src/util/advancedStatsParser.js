@@ -30,7 +30,7 @@ export default class MetaIndex {
         this.aki = {};
     }
 
-    add = ({type, valid_since, valid_until, file, hash_id, ski, aki}) => {
+    add = ({type, valid_since, valid_until, file, hash_id, ski, aki, vrps=[]}) => {
         const item = {type, valid_since, valid_until, file, hash_id, ski, aki};
 
         this.ids[hash_id] = item;
@@ -48,7 +48,7 @@ export default class MetaIndex {
             this.aki[aki].push(this.ids[hash_id]);
         }
 
-        for (let vrp of item?.vrps ?? []) {
+        for (let vrp of vrps) {
             const key = getVrpKey(vrp);
             this.vrps[key] ??= [];
             this.vrps[key].push(this.ids[hash_id]);
