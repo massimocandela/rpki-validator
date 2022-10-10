@@ -30,7 +30,9 @@ export default class RpkiClientConnector extends Connector {
         } else {
             return this.axios({
                 method: "get",
-                url
+                url,
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity
             })
                 .then(({data}) => {
                     const index = new MetaIndex();
