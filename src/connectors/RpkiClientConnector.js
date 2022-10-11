@@ -18,7 +18,7 @@ export default class RpkiClientConnector extends Connector {
     };
 
     getAdvancedStats = () => {
-        const url = brembo.build("https://console.rpki-client.org", {
+        const url = brembo.build(this.options.host ?? "https://console.rpki-client.org", {
             path: ["dump.json"],
             params: {
                 client: this.clientId
@@ -56,7 +56,7 @@ export default class RpkiClientConnector extends Connector {
     };
 
     getVRPs = () => {
-        const url = brembo.build("https://console.rpki-client.org", {
+        const url = brembo.build(this.options.host ?? "https://console.rpki-client.org", {
             path: ["vrps.json"],
             params: {
                 client: this.clientId
