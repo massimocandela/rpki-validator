@@ -7,51 +7,53 @@ export default class RpkiClientConnector extends Connector {
         super(options);
 
         this.metadata = {};
-        this.cache = null;
+        this.metaIndex = null;
+        this.metaIndexPromise = null;
 
         setInterval(() => {
-            if (this.cache) {
-                this.cache.destroy();
-                this.cache = null;
+            if (this.metaIndex) {
+                this.metaIndex.destroy();
+                this.metaIndex = null;
             }
         }, 2 * 60 * 60 * 1000);
     };
 
     getAdvancedStats = () => {
-        const url = brembo.build(this.options.host ?? "https://console.rpki-client.org", {
-            path: ["dump.json"],
-            params: {
-                client: this.clientId
-            }
-        });
-
-        if (this.cache) {
-            return Promise.resolve(this.cache);
+        if (this.metaIndex) {
+            return Promise.resolve(this.metaIndex);
         } else {
-            return this.axios({
+            const url = brembo.build(this.options.host ?? "https://console.rpki-client.org", {
+                path: ["dump.json"],
+                params: {
+                    client: this.clientId
+                }
+            });
+
+            this.metaIndexPromise = this.axios({
                 method: "get",
                 url,
                 maxContentLength: Infinity,
                 maxBodyLength: Infinity
             })
                 .then(({data}) => {
-                    const index = new MetaIndex();
+                    this.metaIndex?.destroy();
+                    this.metaIndex = new MetaIndex();
                     const items = data.split('\n');
 
                     for (let item of items) {
                         try {
                             const trimmedItem = item.trim();
                             if (trimmedItem.length > 1) {
-                                index.add(JSON.parse(trimmedItem));
+                                this.metaIndex.add(JSON.parse(trimmedItem));
                             }
                         } catch (e) {
                         }
                     }
 
-                    this.cache = index;
-
-                    return index;
+                    return this.metaIndex;
                 });
+
+            return this.metaIndexPromise;
         }
     };
 
