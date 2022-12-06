@@ -85,16 +85,18 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return makeUnique(data.map(i => this._getSki(i.aki)).flat().filter(i => !!i));
+        return makeUnique(data.map(i => this._getSki(i.aki).filter(p => i.hash_id !== p.hash_id)).flat().filter(i => !!i));
     }
 
     getStructure = (vrp) => {
         const tree  = [];
+        let count = 100;
         let item = makeUnique(this.vrps[getVrpKey(vrp)]);
 
-        while (item.length) {
+        while (item.length && count > 0) {
             tree.push(item);
             item = this.getParents(item);
+            count--;
         }
 
 
@@ -103,16 +105,15 @@ export default class MetaIndex {
 
     getFlattenStructure = (vrp) => {
         const items = this.getStructure(vrp);
-        const out = [];
+        const manifests = [];
         for (let item of items) {
             if (item.manifest) {
-                out.push(item.manifest);
+                manifests.push(item.manifest);
                 delete item.manifest;
             }
-            out.push(item);
         }
 
-        return out;
+        return [...items, ...manifests];
     }
 
     getExpiring = (vrp, expires, now) => {
