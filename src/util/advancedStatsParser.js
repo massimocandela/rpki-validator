@@ -85,7 +85,7 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return makeUnique(data.map(i => this._getSki(i.aki).filter(p => i.hash_id !== p.hash_id)).flat().filter(i => !!i));
+        return makeUnique(data.map(i => this._getSki(i.aki)?.filter(p => i.hash_id !== p.hash_id)).flat().filter(i => !!i));
     }
 
     getStructure = (vrp) => {
