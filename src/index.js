@@ -410,7 +410,7 @@ class RpkiValidator {
                         this.preCached = true;
                         this.#longestPrefixMatch.reset();
                         const now = new Date();
-                        this.#setMetadata({lastAttempt: now});
+                        this.#setMetadata({...(this.#connector?.metadata ?? {}), lastAttempt: now});
 
                         if (this.#connector?.metadata?.buildtime) {
                             const currentBuild = Date.parse(this.#connector.metadata.buildtime);
