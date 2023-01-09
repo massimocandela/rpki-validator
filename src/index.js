@@ -9,9 +9,10 @@ import ApiConnector from "./connectors/ApiConnector";
 import ip from "ip-sub";
 import LongestPrefixMatch from "longest-prefix-match";
 import { validatePrefix, validateAS, validateVRP } from "net-validations";
+import PacketVisConnector from "./connectors/PacketVisConnector";
 
 const defaultRpkiApi = "https://rpki.massimocandela.com/api/v1";
-const providers = ["rpkiclient", "ntt", "ripe", "cloudflare"]; // First provider is the default one
+const providers = ["rpkiclient", "ntt", "ripe", "cloudflare", "packetvis"]; // First provider is the default one
 
 class RpkiValidator {
     #axios;
@@ -61,6 +62,7 @@ class RpkiValidator {
             ntt: new NTTConnector(this.#options),
             cloudflare: new CloudflareConnector(this.#options),
             rpkiclient: new RpkiClientConnector(this.#options),
+            packetvis: new PacketVisConnector(this.#options),
             external: new ExternalConnector(this.#options),
             api: new ApiConnector(this.#options),
         };

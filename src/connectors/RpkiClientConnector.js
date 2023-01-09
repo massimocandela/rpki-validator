@@ -10,6 +10,8 @@ export default class RpkiClientConnector extends Connector {
         this.metaIndex = null;
         this.metaIndexPromise = null;
 
+        this.host = this.options.host ?? "https://console.rpki-client.org";
+
         setInterval(() => {
             if (this.metaIndex) {
                 this.metaIndex.destroy();
@@ -22,7 +24,7 @@ export default class RpkiClientConnector extends Connector {
         if (this.metaIndex) {
             return Promise.resolve(this.metaIndex);
         } else {
-            const url = brembo.build(this.options.host ?? "https://console.rpki-client.org", {
+            const url = brembo.build(this.host, {
                 path: ["dump.json"],
                 params: {
                     client: this.clientId
@@ -58,7 +60,7 @@ export default class RpkiClientConnector extends Connector {
     };
 
     getVRPs = () => {
-        const url = brembo.build(this.options.host ?? "https://console.rpki-client.org", {
+        const url = brembo.build(this.host, {
             path: ["vrps.json"],
             params: {
                 client: this.clientId
