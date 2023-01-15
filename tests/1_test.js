@@ -466,6 +466,20 @@ describe("Tests", function() {
                 .catch(done);
         }).timeout(asyncTimeout);
 
+        it("multiple (100000 validations)", function(done) {
+
+            rpki.preCache()
+                .then(() => {
+                    Promise.all([...first20000, ...first20000, ...first20000, ...first20000, ...first20000].map(i => rpki.validate(i.prefix, i.asn, false)))
+                        .then((list) => {
+                            expect(list.length).to.equal(100000);
+                            done();
+                        })
+                        .catch(done);
+                })
+                .catch(done);
+        }).timeout(asyncTimeout);
+
     });
 
     describe("External VRPs", function () {

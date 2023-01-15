@@ -445,10 +445,7 @@ class RpkiValidator {
     };
 
     #getPrefixMatches = (prefix) => {
-        const af = ip.getAddressFamily(prefix);
-        const binaryPrefix = ip.applyNetmask(prefix, af);
-
-        return this.#longestPrefixMatch._getMatch(binaryPrefix, af, true) || [];
+        return this.#longestPrefixMatch.getMatch(prefix, true) || [];
     };
 }
 
