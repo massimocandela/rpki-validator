@@ -447,8 +447,8 @@ class RpkiValidator {
         return this.#longestPrefixMatch.getMatch(prefix, true) || [];
     };
 
-    getExpiringElements = (vrp, expires) => {
-        return this.#connector.getExpiringElements(vrp, expires);
+    getExpiringElements = (vrp, expires, now) => {
+        return this.#connector.getExpiringElements(vrp, expires, now);
     }
 }
 
