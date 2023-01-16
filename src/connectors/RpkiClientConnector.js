@@ -99,4 +99,8 @@ export default class RpkiClientConnector extends Connector {
             });
     };
 
+    getExpiringElements = (vrp, expires, now) => {
+        return this.getAdvancedStats()
+            .then(index => index.getExpiring(vrp, expires, now));
+    }
 }

@@ -7,7 +7,11 @@ export default class Connector {
     };
 
     getAdvancedStats = () => {
-        return Promise.reject("This method is not implemented for this provider");
+        return Promise.reject("Advanced RPKI statistics are not enabled for this provider.");
+    };
+
+    getExpiringElements = () => {
+        return Promise.reject("Advanced RPKI statistics are not enabled for this provider.");
     };
 
     setVRPs = () => {

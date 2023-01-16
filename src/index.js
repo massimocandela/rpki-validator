@@ -6,7 +6,6 @@ import CloudflareConnector from "./connectors/CloudflareConnector";
 import RpkiClientConnector from "./connectors/RpkiClientConnector";
 import ExternalConnector from "./connectors/ExternalConnector";
 import ApiConnector from "./connectors/ApiConnector";
-import ip from "ip-sub";
 import LongestPrefixMatch from "longest-prefix-match";
 import { validatePrefix, validateAS, validateVRP } from "net-validations";
 import PacketVisConnector from "./connectors/PacketVisConnector";
@@ -79,7 +78,7 @@ class RpkiValidator {
     };
 
     getAdvancedStats = () => {
-        return this.#connectors["rpkiclient"].getAdvancedStats();
+        return this.#connector.getAdvancedStats();
     }
 
     getApiStatus = () => {
@@ -447,6 +446,10 @@ class RpkiValidator {
     #getPrefixMatches = (prefix) => {
         return this.#longestPrefixMatch.getMatch(prefix, true) || [];
     };
+
+    getExpiringElements = (vrp, expires) => {
+        return this.#connector.getExpiringElements(vrp, expires);
+    }
 }
 
 module.exports = RpkiValidator;
