@@ -7,56 +7,56 @@ export default class RpkiClientConnector extends Connector {
         super(options);
 
         this.metadata = {};
-        this.metaIndex = null;
-        this.metaIndexPromise = null;
+        this.index = null;
 
         this.host = this.options.host ?? "https://console.rpki-client.org";
-
-        setInterval(() => {
-            if (this.metaIndex) {
-                this.metaIndex.destroy();
-                this.metaIndex = null;
-            }
-        }, 2 * 60 * 60 * 1000);
     };
 
     getAdvancedStats = () => {
-        if (this.metaIndex) {
-            return Promise.resolve(this.metaIndex);
-        } else {
-            const url = brembo.build(this.host, {
-                path: ["dump.json"],
-                params: {
-                    client: this.clientId
-                }
-            });
 
-            this.metaIndexPromise = this.axios({
-                method: "get",
-                url,
-                maxContentLength: Infinity,
-                maxBodyLength: Infinity
-            })
-                .then(({data}) => {
-                    this.metaIndex?.destroy();
-                    this.metaIndex = new MetaIndex();
-                    const items = data.split('\n');
-
-                    for (let item of items) {
-                        try {
-                            const trimmedItem = item.trim();
-                            if (trimmedItem.length > 1) {
-                                this.metaIndex.add(JSON.parse(trimmedItem));
-                            }
-                        } catch (e) {
-                        }
-                    }
-
-                    return this.metaIndex;
-                });
-
-            return this.metaIndexPromise;
+        if (this.index) {
+            return Promise.resolve(this.index);
         }
+
+        if (!this.setAdvancedStatsTimer) {
+            this.setAdvancedStatsTimer = setInterval(this._setAdvancedStats, 2 * 3600 * 1000);
+        }
+
+        return this._setAdvancedStats();
+    }
+
+    _setAdvancedStats = () => {
+        const url = brembo.build(this.host, {
+            path: ["dump.json"],
+            params: {
+                client: this.clientId
+            }
+        });
+
+        return this.axios({
+            method: "get",
+            url,
+            maxContentLength: Infinity,
+            maxBodyLength: Infinity
+        })
+            .then(({data}) => {
+                const metaIndex = new MetaIndex();
+                const items = data.split('\n');
+
+                for (let item of items) {
+                    try {
+                        const trimmedItem = item.trim();
+                        if (trimmedItem.length > 1) {
+                            metaIndex.add(JSON.parse(trimmedItem));
+                        }
+                    } catch (e) {
+                    }
+                }
+
+                this.index = metaIndex;
+
+                return metaIndex;
+            });
     };
 
     getVRPs = () => {
