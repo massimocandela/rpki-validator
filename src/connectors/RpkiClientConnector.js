@@ -13,16 +13,16 @@ export default class RpkiClientConnector extends Connector {
     };
 
     getAdvancedStats = () => {
+        if (!this.setAdvancedStatsTimer) {
+            this.setAdvancedStatsTimer = setInterval(this._setAdvancedStats, 2 * 3600 * 1000);
+            this._setAdvancedStats();
+        }
 
         if (this.index) {
             return Promise.resolve(this.index);
+        } else {
+            return Promise.reject("Index not ready");
         }
-
-        if (!this.setAdvancedStatsTimer) {
-            this.setAdvancedStatsTimer = setInterval(this._setAdvancedStats, 2 * 3600 * 1000);
-        }
-
-        return this._setAdvancedStats();
     }
 
     _setAdvancedStats = () => {
@@ -40,22 +40,20 @@ export default class RpkiClientConnector extends Connector {
             maxBodyLength: Infinity
         })
             .then(({data}) => {
-                const metaIndex = new MetaIndex();
+                this.index = new MetaIndex();
                 const items = data.split('\n');
 
                 for (let item of items) {
                     try {
                         const trimmedItem = item.trim();
                         if (trimmedItem.length > 1) {
-                            metaIndex.add(JSON.parse(trimmedItem));
+                            this.index.add(JSON.parse(trimmedItem));
                         }
                     } catch (e) {
                     }
                 }
 
-                this.index = metaIndex;
-
-                return metaIndex;
+                return this.index;
             });
     };
 
