@@ -28,6 +28,7 @@ class RpkiValidator {
 
     constructor(options) {
         const defaults = {
+            timeout: 30000,
             connector: providers[0],
             httpsAgent: null,
             axios: null,
@@ -43,7 +44,7 @@ class RpkiValidator {
             if (this.#options.httpsAgent) {
                 this.#options.axios.defaults.httpsAgent = options.httpsAgent;
             }
-            this.#options.axios.defaults.timeout = 300000;
+            this.#options.axios.defaults.timeout = this.#options.timeout;
         }
         this.#axios = this.#options.axios;
 

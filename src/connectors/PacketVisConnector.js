@@ -23,8 +23,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
 
             return this.axios({
                 method: "get",
-                url,
-                timeout: this.options?.timeout ?? 30000
+                url
             })
                 .then(({data}) => data.data);
         }
