@@ -538,22 +538,25 @@ describe("Tests", function() {
         }).timeout(asyncTimeout);
 
         it("advanced RPKI stats", function(done) {
-            rpki.preCache()
-                .then(() => {
-                    return rpki.getExpiringElements({prefix: "190.224.0.0/13", asn: 7303, maxLength: 24}, 1774321200) // This test will fail in 2026
-                        .then(result => {
-                            expect(result[0]).to
-                                .containSubset({
-                                    type: 'roa',
-                                    valid_until: 1774321200,
-                                    file: 'repository.lacnic.net/rpki/lacnic/532b2097-ea08-4780-b94f-03c338b5aa57/a327a8fed3c8e8336fed6cce405a3d93311d45d2.roa',
-                                });
-                            done();
-                        })
-                        .catch(done);
-                })
-                .catch(done);
-        }).timeout(120000);
+
+            const rpki3 = new RpkiValidator({ connector: "packetvis" });
+
+            setTimeout(() => {
+                rpki3.getExpiringElements({prefix: "190.224.0.0/13", asn: 7303, maxLength: 24}, 1774321200) // This test will fail in 2026
+                    .then(result => {
+                        expect(result[0]).to
+                            .containSubset({
+                                type: 'roa',
+                                valid_until: 1774321200,
+                                file: 'repository.lacnic.net/rpki/lacnic/532b2097-ea08-4780-b94f-03c338b5aa57/a327a8fed3c8e8336fed6cce405a3d93311d45d2.roa',
+                            });
+                        done();
+                    })
+                    .catch(done);
+            }, 30000)
+
+
+        }).timeout(60000);
 
     });
 
