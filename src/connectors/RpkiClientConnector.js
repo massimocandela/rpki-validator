@@ -73,11 +73,12 @@ export default class RpkiClientConnector extends Connector {
             .then(data => {
                 if (data && data.data && data.data.roas) {
                     const roas = data.data.roas;
+                    const metadata = data.data?.metadata;
 
                     this.metadata = {
-                        buildmachine: data.data.buildmachine,
-                        buildtime: data.data.buildtime,
-                        elapsedtime: data.data.elapsedtime
+                        buildmachine: metadata?.buildmachine,
+                        buildtime: metadata?.buildtime,
+                        elapsedtime: metadata?.elapsedtime
                     };
 
                     const out = [];

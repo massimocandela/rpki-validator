@@ -410,22 +410,19 @@ class RpkiValidator {
                 .then(list => {
                     if (list) {
                         this.preCached = true;
-                        this.#longestPrefixMatch.reset();
                         const now = new Date();
-                        this.#setMetadata({...(this.#connector?.metadata ?? {}), lastAttempt: now});
+                        this.#setMetadata({lastAttempt: now});
 
-                        if (this.#connector?.metadata?.buildtime) {
-                            const currentBuild = Date.parse(this.#connector.metadata.buildtime);
-                            const newBuild = Date.parse(this.#lastMetadata.buildtime);
+                        const newBuild = this.#connector?.metadata?.buildtime;
+                        const currentBuild = this.#lastMetadata?.buildtime;
 
-                            if (newBuild <= currentBuild) {
-                                return false; // The new vrp definition is older than the previous one
-                            } else {
-                                this.#setMetadata({lastUpdate: now});
-                            }
-                        } else {
-                            this.#setMetadata({lastUpdate: now});
+                        if (newBuild && currentBuild && Date.parse(newBuild) <= Date.parse(currentBuild)) {
+                            return false; // The new vrp definition is older than the previous one
                         }
+
+                        this.#setMetadata({lastUpdate: now});
+                        this.#setMetadata(this.#connector?.metadata);
+                        this.#longestPrefixMatch.reset();
 
                         for (let vrp of list) {
                             try {
