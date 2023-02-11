@@ -25,6 +25,8 @@ export default class MetaIndex {
     ski = {};
     aki = {};
     manifests = {};
+    metadata = {};
+
 
     constructor() {}
 
@@ -35,9 +37,26 @@ export default class MetaIndex {
         this.ski = {};
         this.aki = {};
         this.manifests = {};
+        this.metadata = {};
     }
 
-    add = ({type, valid_since, valid_until, file, hash_id, ski, aki, vrps=[], manifest}) => {
+    add = (item) => {
+        if (!item.type) {
+            return false; // Skip line
+        }
+
+        if (item.type === "metadata") {
+            this.metadata = item;
+        } else {
+            try {
+                this._add(item);
+            } catch (e) {
+                return true; // Skip malformed line
+            }
+        }
+    }
+
+    _add = ({type, valid_since, valid_until, file, hash_id, ski, aki, vrps=[], manifest}) => {
         const item = {type, valid_since, valid_until, file, hash_id, ski, aki, manifest: manifest ? getManifestKey(manifest): undefined};
 
         this.ids[hash_id] = item;
