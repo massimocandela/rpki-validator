@@ -51,7 +51,7 @@ export default class MetaIndex {
             try {
                 this._add(item);
             } catch (e) {
-                return true; // Skip malformed line
+                return false; // Skip malformed line
             }
         }
     }
