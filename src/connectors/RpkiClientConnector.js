@@ -10,6 +10,7 @@ export default class RpkiClientConnector extends Connector {
         this.index = null;
 
         this.host = this.options.host ?? "https://console.rpki-client.org";
+        this.dumpModified = null;
     };
 
     getAdvancedStats = () => {
@@ -33,6 +34,11 @@ export default class RpkiClientConnector extends Connector {
             }
         });
 
+        const headers = {};
+        if (this.dumpModified) {
+            headers["If-Modified-Since"] = this.dumpModified.toUTCString();
+        }
+
         return this.axios({
             method: "get",
             url,
@@ -40,6 +46,7 @@ export default class RpkiClientConnector extends Connector {
             maxBodyLength: Infinity
         })
             .then(({data}) => {
+                this.dumpModified = new Date();
                 this.index = new MetaIndex();
                 const items = data.split('\n');
 
@@ -65,9 +72,15 @@ export default class RpkiClientConnector extends Connector {
             }
         });
 
+        const headers = {};
+        if (this.metadata?.buildtime) {
+            headers["If-Modified-Since"] = new Date(this.metadata.buildtime).toUTCString();
+        }
+
         return this.axios({
             method: "get",
             url,
+            headers,
             responseType: "json"
         })
             .then(data => {
@@ -77,7 +90,7 @@ export default class RpkiClientConnector extends Connector {
 
                     this.metadata = {
                         buildmachine: metadata?.buildmachine,
-                        buildtime: metadata?.buildtime,
+                        buildtime: metadata?.buildtime, // if modified since
                         elapsedtime: metadata?.elapsedtime
                     };
 
@@ -95,6 +108,13 @@ export default class RpkiClientConnector extends Connector {
 
                     return out;
                 }
+            })
+            .catch(error => {
+                if (error.response.status !== 304) {
+                    return Promise.reject(error);
+                }
+
+                return null;
             });
     };
 
