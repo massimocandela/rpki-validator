@@ -12,11 +12,12 @@ export default class RpkiClientConnector extends Connector {
         this.host = this.options.host ?? "https://console.rpki-client.org";
         this.dumpModified = null;
         this.minimumRefreshRateMinutes = 5;
+        this.advancedStatsRefreshRateMinutes = Math.max(10, this.options.advancedStatsRefreshRateMinutes);
     };
 
     getAdvancedStats = () => {
         if (!this.setAdvancedStatsTimer) {
-            this.setAdvancedStatsTimer = setInterval(this._setAdvancedStats, 2 * 3600 * 1000);
+            this.setAdvancedStatsTimer = setInterval(this._setAdvancedStats, this.advancedStatsRefreshRateMinutes * 60 * 1000);
             this._setAdvancedStats();
         }
 
