@@ -29,7 +29,7 @@ class RpkiValidator {
     constructor(options) {
         const defaults = {
             timeout: 30000,
-            advancedStatsRefreshRateMinutes: 10,
+            advancedStatsRefreshRateMinutes: 120,
             connector: providers[0],
             httpsAgent: null,
             axios: null,
