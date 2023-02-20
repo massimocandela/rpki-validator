@@ -3,7 +3,7 @@ export default class Connector {
         this.options = options;
         this.axios = options.axios;
         this.clientId = options.clientId;
-        this.minimumRefreshRateMinutes = 5;
+        this.minimumRefreshRateMinutes = 1;
     };
 
     getAdvancedStats = () => {

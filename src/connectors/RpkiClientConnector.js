@@ -11,6 +11,7 @@ export default class RpkiClientConnector extends Connector {
 
         this.host = this.options.host ?? "https://console.rpki-client.org";
         this.dumpModified = null;
+        this.minimumRefreshRateMinutes = 5;
     };
 
     getAdvancedStats = () => {

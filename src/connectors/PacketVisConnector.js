@@ -4,6 +4,7 @@ import brembo from "brembo";
 export default class PacketVisConnector extends RpkiClientConnector {
     constructor(options) {
         super({...options, host: "https://api.packetvis.com/v1/rpki/meta/"});
+        this.minimumRefreshRateMinutes = 1;
     };
 
     getExpiringElements = (vrp, expires, now) => {
