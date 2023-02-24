@@ -59,16 +59,16 @@ class RpkiValidator {
         this.preCached = false;
         this.#lastMetadata = {};
         this.#connectors = {
-            ripe: new RIPEConnector(this.#options),
-            ntt: new NTTConnector(this.#options),
-            cloudflare: new CloudflareConnector(this.#options),
-            rpkiclient: new RpkiClientConnector(this.#options),
-            packetvis: new PacketVisConnector(this.#options),
-            external: new ExternalConnector(this.#options),
-            api: new ApiConnector(this.#options),
+            ripe: RIPEConnector,
+            ntt: NTTConnector,
+            cloudflare: CloudflareConnector,
+            rpkiclient: RpkiClientConnector,
+            packetvis: PacketVisConnector,
+            external: ExternalConnector,
+            api: ApiConnector,
         };
 
-        this.#connector = this.#connectors[this.#options.connector];
+        this.setConnector(this.#options.connector);
 
         if (!this.#connector) {
             throw new Error("The specified connector is not valid");
@@ -129,7 +129,7 @@ class RpkiValidator {
 
         this.#options.connector = name;
         this.empty();
-        this.#connector = this.#connectors[name];
+        this.#connector = new this.#connectors[name](this.#options);
     };
 
     getAvailableConnectors = () => {
