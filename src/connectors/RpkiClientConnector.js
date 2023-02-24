@@ -47,23 +47,24 @@ export default class RpkiClientConnector extends Connector {
             maxContentLength: Infinity,
             maxBodyLength: Infinity
         })
-            .then(({data}) => {
-                this.dumpModified = new Date();
-                this.index = new MetaIndex();
-                const items = data.split('\n');
+            .then((data) => {
+                if (data && data.data) {
+                    this.dumpModified = new Date();
+                    this.index = new MetaIndex();
+                    const items = data.data.split('\n');
 
-                for (let item of items) {
-                    try {
-                        const trimmedItem = item.trim();
-                        if (trimmedItem.length > 1) {
-                            this.index.add(JSON.parse(trimmedItem));
+                    for (let item of items) {
+                        try {
+                            const trimmedItem = item.trim();
+                            if (trimmedItem.length > 1) {
+                                this.index.add(JSON.parse(trimmedItem));
+                            }
+                        } catch (e) {
                         }
-                    } catch (e) {
                     }
                 }
-
-                return this.index;
-            });
+            })
+            .catch(() => {});
     };
 
     getVRPs = () => {
@@ -76,7 +77,7 @@ export default class RpkiClientConnector extends Connector {
 
         const headers = {};
         if (this.metadata?.buildtime) {
-            headers["If-Modified-Since"] = new Date(this.metadata.buildtime).toUTCString();
+            headers["If-Modified-Since"] = new Date(this.metadata.lastModified).toUTCString();
         }
 
         return this.axios({
@@ -89,8 +90,10 @@ export default class RpkiClientConnector extends Connector {
                 if (data && data.data && data.data.roas) {
                     const roas = data.data.roas;
                     const metadata = data.data?.metadata;
+                    const headers = data.headers;
 
                     this.metadata = {
+                        lastModified: headers["last-modified"],
                         buildmachine: metadata?.buildmachine,
                         buildtime: metadata?.buildtime, // if modified since
                         elapsedtime: metadata?.elapsedtime
