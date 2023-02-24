@@ -49,7 +49,7 @@ export default class RpkiClientConnector extends Connector {
         })
             .then((data) => {
                 if (data && data.data) {
-                    this.dumpModified = new Date();
+                    this.dumpModified = new Date(data.headers["last-modified"]);
                     this.index = new MetaIndex();
                     const items = data.data.split('\n');
 
