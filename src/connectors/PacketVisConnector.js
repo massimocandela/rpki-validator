@@ -1,7 +1,7 @@
 import RpkiClientConnector from "./RpkiClientConnector";
 import brembo from "brembo";
 
-const defaultHost = "http://68ab0f0.packetvis.com/v1/rpki/static/";
+const defaultHost = "http://rpki.local.packetvis.com/v1/rpki/static/";
 const hosts = [
     defaultHost,
     "https://console.rpki-client.org/"
