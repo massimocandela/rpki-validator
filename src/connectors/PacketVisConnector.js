@@ -6,6 +6,7 @@ const hosts = [
     defaultHost,
     "https://console.rpki-client.org/"
 ];
+const api = "https://api.packetvis.com/v1/rpki/meta/";
 export default class PacketVisConnector extends RpkiClientConnector {
     constructor(options) {
         super({...options, host: defaultHost});
@@ -51,7 +52,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
         if (this.metaIndex) {
             return Promise.resolve(this.metaIndex.getExpiring(vrp, expires, now));
         } else {
-            const url = brembo.build(this.host, {
+            const url = brembo.build(api, {
                 path: ["expiring"],
                 params: {
                     prefix: vrp.prefix,
