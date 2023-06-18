@@ -40,6 +40,8 @@ export default class PacketVisConnector extends RpkiClientConnector {
                 if (availableHosts.includes(defaultHost)) {
                     this.host = defaultHost;
                 } else if (availableHosts[0]){
+                    console.log("Switching to RPKI server:", availableHosts[0]);
+
                     this.host = availableHosts[0];
                 } else {
                     console.log("Cannot connect to any RPKI data server. Probably a problem with this host.");
