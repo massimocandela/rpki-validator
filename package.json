@@ -1,6 +1,6 @@
 {
   "name": "rpki-validator",
-  "version": "2.12.9",
+  "version": "2.13.0",
   "description": "An RPKI validator that works also in the browser.",
   "main": "dist/index.js",
   "bin": "dist/index.js",
