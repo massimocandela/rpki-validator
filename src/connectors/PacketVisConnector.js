@@ -64,10 +64,11 @@ export default class PacketVisConnector extends RpkiClientConnector {
                     this.cacheConnector.setVRPs(JSON.parse(fs.readFileSync(file, 'utf8')).roas);
 
                     return this.cacheConnector.getVRPs();
-                } else {
-                    throw new Error("Cache too old, switching to remote");
                 }
+                throw new Error("Cache too old, switching to remote");
             }
+
+            throw new Error("Cache not available, switching to remote");
 
         } catch (error) {
             console.log(error);
