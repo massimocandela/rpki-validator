@@ -33,7 +33,7 @@ export default class ExternalConnector extends Connector {
                 return true;
             } catch(e) {
                 // Skip malformed vrp
-                return false
+                return false;
             }
         });
     };

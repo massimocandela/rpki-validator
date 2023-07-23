@@ -68,6 +68,10 @@ export default class RpkiClientConnector extends Connector {
     };
 
     getVRPs = () => {
+        return this._getVRPs();
+    }
+
+    _getVRPs = () => {
         const url = brembo.build(this.host, {
             path: ["vrps.json"],
             params: {

@@ -1,5 +1,6 @@
 import RpkiClientConnector from "./RpkiClientConnector";
 import brembo from "brembo";
+import ExternalConnector from './ExternalConnector';
 
 const defaultHost = "http://rpki.local.packetvis.com/v1/rpki/static/";
 const hosts = [
@@ -11,6 +12,8 @@ export default class PacketVisConnector extends RpkiClientConnector {
     constructor(options) {
         super({...options, host: defaultHost});
         this.minimumRefreshRateMinutes = 1;
+
+        this.cacheConnector = new ExternalConnector({});
 
         this.selectServer();
         setInterval(this.selectServer, 15 * 60 * 1000);
@@ -47,6 +50,29 @@ export default class PacketVisConnector extends RpkiClientConnector {
                     console.log("Cannot connect to any RPKI data server. Probably a problem with this host.");
                 }
             });
+    }
+
+    getVRPs = () => {
+        try {
+            const fs = require('fs');
+            const file = ".cache/vrps.json";
+
+            if (fs.existsSync(file)) {
+                const stats = fs.statSync(file);
+
+                if (((new Date) - stats.mtime) < 15 * 60 * 1000) { // Newer than 15 min
+                    this.cacheConnector.setVRPs(JSON.parse(fs.readFileSync(file, 'utf8')).roas);
+
+                    return this.cacheConnector.getVRPs();
+                } else {
+                    throw new Error("Cache too old, switching to remote");
+                }
+            }
+
+        } catch (error) {
+            console.log(error);
+            return this._getVRPs();
+        }
     }
 
 

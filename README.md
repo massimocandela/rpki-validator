@@ -93,7 +93,7 @@ If you instead do validations outside the `.then`, these will be executed online
 The `.preCache()` method can take an optional parameter indicating after how many minutes the cache will be automatically refreshed (see [below](#rpki-auto-refresh-limits) for more info). E.g., `prki.preCache(60)` to refresh the cache every hour.
 
 
-> IMPORTANT: `preCache` uses a good amount of memory (at the moment ~20Mb, but this will grow in the future) to store the cache. This may be less suitable for running in a browser.
+> IMPORTANT: `preCache` uses a good amount of memory (at the moment ~40Mb, but this will grow in the future) to store the cache. This may be less suitable for running in a browser.
 
 
 ## Options
