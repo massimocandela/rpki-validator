@@ -27,15 +27,16 @@ export default class ExternalConnector extends Connector {
                 }
             });
 
-        this.vrps = vrps.filter(item => {
-            try {
-                validateVRP(item);
-                return true;
-            } catch(e) {
-                // Skip malformed vrp
-                return false;
-            }
-        });
+        this.vrps = vrps
+            .filter(item => {
+                try {
+                    validateVRP(item);
+                    return true;
+                } catch(e) {
+                    // Skip malformed vrp
+                    return false;
+                }
+            });
     };
 
     getVRPs = () => {

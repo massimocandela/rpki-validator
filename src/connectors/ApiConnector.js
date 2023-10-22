@@ -13,23 +13,23 @@ export default class ApiConnector extends Connector {
             responseType: "json"
         })
             .then(data => {
-                const out = [];
+
                 if (data && data.data) {
                     const roas = (data.data.roas && data.data.roas.length) ? data.data.roas : data.data || [];
 
-                    for (let roa of roas) {
-                        out.push({
+                    return roas.map(roa => {
+                        return {
                             prefix: roa.prefix,
                             maxLength: parseInt(roa.maxLength),
                             asn: parseInt(roa.asn.toString().replace("AS", "")),
                             ta: roa.ta,
                             expires: roa.expires || null,
                             notBefore: roa.notBefore || null
-                        });
-                    }
+                        }
+                    });
                 }
 
-                return out;
+                return [];
             });
     };
 

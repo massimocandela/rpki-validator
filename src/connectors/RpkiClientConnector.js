@@ -103,19 +103,16 @@ export default class RpkiClientConnector extends Connector {
                         elapsedtime: metadata?.elapsedtime
                     };
 
-                    const out = [];
-
-                    for (let roa of roas) {
-                        out.push({
-                            prefix: roa.prefix,
-                            maxLength: roa.maxLength,
-                            asn: parseInt(roa.asn.toString().replace('AS', '')),
-                            ta: roa.ta,
-                            expires: roa.expires || null
+                    return roas
+                        .map(roa => {
+                            return {
+                                prefix: roa.prefix,
+                                maxLength: roa.maxLength,
+                                asn: parseInt(roa.asn.toString().replace('AS', '')),
+                                ta: roa.ta,
+                                expires: roa.expires || null
+                            };
                         });
-                    }
-
-                    return out;
                 }
             })
             .catch(error => {

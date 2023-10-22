@@ -22,20 +22,17 @@ export default class NTTConnector extends Connector {
         })
             .then(data => {
                 if (data && data.data && data.data.roas) {
-                    const roas = data.data.roas;
-                    const out = [];
 
-                    for (let roa of roas) {
-                        out.push({
-                            prefix: roa.prefix,
-                            maxLength: parseInt(roa.maxLength),
-                            asn: parseInt(roa.asn.toString().replace('AS', '')),
-                            ta: roa.ta,
-                            expires: roa.expires || null
+                    return data.data.roas
+                        .map(roa => {
+                            return {
+                                prefix: roa.prefix,
+                                maxLength: parseInt(roa.maxLength),
+                                asn: parseInt(roa.asn.toString().replace('AS', '')),
+                                ta: roa.ta,
+                                expires: roa.expires || null
+                            };
                         });
-                    }
-
-                    return out;
                 }
             });
     };

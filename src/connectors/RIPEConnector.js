@@ -24,19 +24,16 @@ export default class RIPEConnector extends Connector{
         })
             .then(data => {
                 if (data && data.data && data.data.data && data.data.data.roas) {
-                    const roas = data.data.data.roas;
-                    const out = [];
 
-                    for (let roa of roas) {
-                        out.push({
-                            prefix: roa.prefix,
-                            maxLength: parseInt(roa.maxLength),
-                            asn: parseInt(roa.asn),
-                            ta: this.toStandardTa(roa.ta)
+                    return data.data.data.roas
+                        .map(roa => {
+                            return {
+                                prefix: roa.prefix,
+                                maxLength: parseInt(roa.maxLength),
+                                asn: parseInt(roa.asn),
+                                ta: this.toStandardTa(roa.ta)
+                            };
                         });
-                    }
-
-                    return out;
                 }
             });
     };
