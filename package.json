@@ -22,7 +22,7 @@
     "axios": "=0.27.1",
     "brembo": "^2.0.7",
     "ip-sub": "^1.3.9",
-    "longest-prefix-match": "^1.2.5",
+    "longest-prefix-match": "^1.2.6",
     "net-validations": "^1.0.7"
   },
   "devDependencies": {
