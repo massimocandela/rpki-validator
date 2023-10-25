@@ -28,6 +28,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
                     responseType: "json"
                 })
                     .then(data => {
+
                         const lastModified = data?.headers["last-modified"] ? new Date(data?.headers["last-modified"]) : null;
 
                         if (!lastModified || new Date().getTime() - lastModified.getTime() >  40 * 60 * 1000) {
@@ -61,7 +62,15 @@ export default class PacketVisConnector extends RpkiClientConnector {
                 const stats = fs.statSync(file);
 
                 if (((new Date) - stats.mtime) < 15 * 60 * 1000) { // Newer than 15 min
-                    this.cacheConnector.setVRPs(JSON.parse(fs.readFileSync(file, 'utf8')).roas);
+                    const payload = JSON.parse(fs.readFileSync(file, 'utf8'));
+                    this.cacheConnector.setVRPs(payload.roas);
+
+                    this.metadata = {
+                        lastModified: stats.mtime.toISOString(),
+                        buildmachine: payload?.metadata?.buildmachine,
+                        buildtime: payload?.metadata?.buildtime,
+                        elapsedtime: payload?.metadata?.elapsedtime
+                    };
 
                     return this.cacheConnector.getVRPs();
                 }
