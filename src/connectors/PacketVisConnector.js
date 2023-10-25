@@ -2,89 +2,44 @@ import RpkiClientConnector from "./RpkiClientConnector";
 import brembo from "brembo";
 import ExternalConnector from './ExternalConnector';
 
-const defaultHost = "http://rpki.local.packetvis.com/v1/rpki/static/";
-const hosts = [
-    defaultHost,
-    "https://console.rpki-client.org/"
-];
 const api = "https://api.packetvis.com/v1/rpki/meta/";
+
 export default class PacketVisConnector extends RpkiClientConnector {
     constructor(options) {
-        super({...options, host: defaultHost});
+        super({...options});
         this.minimumRefreshRateMinutes = 1;
 
         this.cacheConnector = new ExternalConnector({});
-
-        this.selectServer();
-        setInterval(this.selectServer, 15 * 60 * 1000);
     };
-
-    selectServer = () => {
-        Promise.all(hosts
-            .map(host => {
-                return this.axios({
-                    method: "HEAD",
-                    url: brembo.build(host, {path: ["vrps.json"]}),
-                    responseType: "json"
-                })
-                    .then(data => {
-
-                        const lastModified = data?.headers["last-modified"] ? new Date(data?.headers["last-modified"]) : null;
-
-                        if (!lastModified || new Date().getTime() - lastModified.getTime() >  40 * 60 * 1000) {
-                            return false;
-                        } else {
-                            return host;
-                        }
-                    })
-                    .catch(() => false);
-            }))
-            .then(hosts => hosts.filter(i => !!i))
-            .then(availableHosts => {
-                if (availableHosts.includes(defaultHost)) {
-                    this.host = defaultHost;
-                } else if (availableHosts[0]){
-                    console.log("Switching to RPKI server:", availableHosts[0]);
-
-                    this.host = availableHosts[0];
-                } else {
-                    console.log("Cannot connect to any RPKI data server. Probably a problem with this host.");
-                }
-            });
-    }
 
     getVRPs = () => {
         try {
-            const fs = require('fs');
+            const fs = require('fs'); // Load only for node
             const file = ".cache/vrps.json";
 
             if (fs.existsSync(file)) {
                 const stats = fs.statSync(file);
 
-                if (((new Date) - stats.mtime) < 15 * 60 * 1000) { // Newer than 15 min
-                    const payload = JSON.parse(fs.readFileSync(file, 'utf8'));
-                    this.cacheConnector.setVRPs(payload.roas);
+                if (((new Date) - stats.mtime) < 30 * 60 * 1000) { // Newer than 30 min
 
-                    this.metadata = {
-                        lastModified: stats.mtime.toISOString(),
-                        buildmachine: payload?.metadata?.buildmachine,
-                        buildtime: payload?.metadata?.buildtime,
-                        elapsedtime: payload?.metadata?.elapsedtime
-                    };
+                    const payload = JSON.parse(fs.readFileSync(file, 'utf8'));
+
+                    this.cacheConnector.setVRPs(payload.roas);
+                    this._applyRpkiClientMetadata(payload?.metadata);
+                    this.metadata.lastModified = stats.mtime.toISOString();
 
                     return this.cacheConnector.getVRPs();
+                } else {
+                    throw new Error("RPKI cache too old .cache/vrps.json");
                 }
-                throw new Error("Cache too old, switching to remote");
+            } else {
+                throw new Error("RPKI cache missing .cache/vrps.json");
             }
 
-            throw new Error("Cache not available, switching to remote");
-
         } catch (error) {
-            console.log(error);
-            return this._getVRPs();
+            return Promise.reject(error);
         }
     }
-
 
     getExpiringElements = (vrp, expires, now) => {
         if (this.metaIndex) {

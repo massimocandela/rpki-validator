@@ -71,6 +71,14 @@ export default class RpkiClientConnector extends Connector {
         return this._getVRPs();
     }
 
+    _applyRpkiClientMetadata = (metadata={}) => {
+        this.metadata = {
+            buildmachine: metadata?.buildmachine,
+            buildtime: metadata?.buildtime ? new Date(metadata?.buildtime).toISOString() : null, // used for if-modified-since
+            elapsedtime: metadata?.elapsedtime
+        };
+    }
+
     _getVRPs = () => {
         const url = brembo.build(this.host, {
             path: ["vrps.json"],
@@ -80,7 +88,7 @@ export default class RpkiClientConnector extends Connector {
         });
 
         const headers = {};
-        if (this.metadata?.buildtime) {
+        if (this.metadata?.lastModified) {
             headers["If-Modified-Since"] = new Date(this.metadata.lastModified).toUTCString();
         }
 
@@ -96,12 +104,8 @@ export default class RpkiClientConnector extends Connector {
                     const metadata = data.data?.metadata;
                     const headers = data.headers;
 
-                    this.metadata = {
-                        lastModified: headers["last-modified"],
-                        buildmachine: metadata?.buildmachine,
-                        buildtime: metadata?.buildtime, // if modified since
-                        elapsedtime: metadata?.elapsedtime
-                    };
+                    this._applyRpkiClientMetadata(metadata);
+                    this.metadata.lastModified = headers["last-modified"] ? new Date(headers["last-modified"]).toISOString() : null;
 
                     return roas
                         .map(roa => {

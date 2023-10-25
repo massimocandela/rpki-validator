@@ -180,9 +180,11 @@ class RpkiValidator {
 
                 this.cacheTimer = setInterval(() => {
                     this.preChachePromise = this.#getValidatedPrefixes(true)
-                        .catch(() => {
+                        .catch(error => {
+                            console.log(error);
                             return false;
                         });
+
                 }, everyMinutes * 60 * 1000);
             } else {
                 if (this.cacheTimer) {
@@ -192,10 +194,7 @@ class RpkiValidator {
         }
 
         if (!this.preChachePromise) {
-            this.preChachePromise = this.#getValidatedPrefixes()
-                .catch(() => {
-                    return false;
-                });
+            this.preChachePromise = this.#getValidatedPrefixes();
         }
 
         return this.preChachePromise;
@@ -414,11 +413,17 @@ class RpkiValidator {
                         const now = new Date();
                         this.#setMetadata({lastAttempt: now});
 
-                        const newBuild = this.#connector?.metadata?.buildtime;
-                        const currentBuild = this.#lastMetadata?.buildtime;
+                        const newBuild = this.#connector?.metadata?.buildtime ? Date.parse(this.#connector?.metadata?.buildtime) : null;
+                        const currentBuild = this.#lastMetadata?.buildtime ? Date.parse(this.#lastMetadata?.buildtime) : null;
 
-                        if (newBuild && currentBuild && Date.parse(newBuild) <= Date.parse(currentBuild)) {
-                            return false; // The new vrp definition is older than the previous one
+                        if (!!newBuild && (now.getTime() - newBuild) >  2 * 60 * 60 * 1000) {
+                            return Promise.reject("The new vrp data is older than 2 hours");
+                        } else if (newBuild && currentBuild) {
+                            if (newBuild < currentBuild) {
+                                return Promise.reject("The new vrp data is older than the previous one");
+                            } else if (newBuild === currentBuild) {
+                                return Promise.resolve(true);
+                            }
                         }
 
                         this.#setMetadata({lastUpdate: now});
@@ -434,9 +439,9 @@ class RpkiValidator {
                             }
                         }
 
-                        return true;
+                        return Promise.resolve(true);
                     } else {
-                        return false;
+                        return Promise.reject("VRPs not found");
                     }
                 });
         }
