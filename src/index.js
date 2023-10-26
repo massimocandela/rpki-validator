@@ -10,7 +10,7 @@ import LongestPrefixMatch from "longest-prefix-match";
 import { validatePrefix, validateAS, validateVRP } from "net-validations";
 import PacketVisConnector from "./connectors/PacketVisConnector";
 
-const defaultRpkiApi = "http://rpki.local.packetvis.com/api/v1";
+const defaultRpkiApi = "https://rpki.massimocandela.com/api/v1";
 const providers = ["rpkiclient", "ntt", "ripe", "cloudflare", "packetvis"]; // First provider is the default one
 
 class RpkiValidator {
