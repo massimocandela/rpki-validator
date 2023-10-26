@@ -1,6 +1,7 @@
 export default class Connector {
     constructor(options) {
         this.options = options;
+        this.metadata = {};
         this.axios = options.axios;
         this.clientId = options.clientId;
         this.minimumRefreshRateMinutes = 1;

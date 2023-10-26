@@ -6,9 +6,7 @@ export default class RpkiClientConnector extends Connector {
     constructor(options) {
         super(options);
 
-        this.metadata = {};
         this.index = null;
-
         this.host = this.options.host ?? "https://console.rpki-client.org";
         this.dumpModified = null;
         this.minimumRefreshRateMinutes = 5;
@@ -49,6 +47,9 @@ export default class RpkiClientConnector extends Connector {
         })
             .then((data) => {
                 if (data && data.data) {
+                    if (this.options.verbose) {
+                        console.log("Loading new roa data");
+                    }
                     this.dumpModified = new Date(data.headers["last-modified"]);
                     this.index = new MetaIndex();
                     const items = data.data.split('\n');
@@ -67,10 +68,6 @@ export default class RpkiClientConnector extends Connector {
             .catch(() => {});
     };
 
-    getVRPs = () => {
-        return this._getVRPs();
-    }
-
     _applyRpkiClientMetadata = (metadata={}) => {
         this.metadata = {
             buildmachine: metadata?.buildmachine,
@@ -79,7 +76,7 @@ export default class RpkiClientConnector extends Connector {
         };
     }
 
-    _getVRPs = () => {
+    getVRPs = () => {
         const url = brembo.build(this.host, {
             path: ["vrps.json"],
             params: {

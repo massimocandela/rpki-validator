@@ -2,12 +2,13 @@ import RpkiClientConnector from "./RpkiClientConnector";
 import brembo from "brembo";
 import ExternalConnector from './ExternalConnector';
 
-const api = "https://api.packetvis.com/v1/rpki/meta/";
+const api = "https://api.packetvis.com/v1/rpki/";
 
 export default class PacketVisConnector extends RpkiClientConnector {
     constructor(options) {
-        super({...options});
+        super({...options, verbose: true, host: brembo.build(options.host ?? api, {path: ["static"]})});
         this.minimumRefreshRateMinutes = 1;
+        this.vrpHost = options.host ?? api;
 
         this.cacheConnector = new ExternalConnector({});
     };
@@ -25,6 +26,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
                     const payload = JSON.parse(fs.readFileSync(file, 'utf8'));
 
                     this.cacheConnector.setVRPs(payload.roas);
+
                     this._applyRpkiClientMetadata(payload?.metadata);
                     this.metadata.lastModified = stats.mtime.toISOString();
 
@@ -45,8 +47,8 @@ export default class PacketVisConnector extends RpkiClientConnector {
         if (this.metaIndex) {
             return Promise.resolve(this.metaIndex.getExpiring(vrp, expires, now));
         } else {
-            const url = brembo.build(api, {
-                path: ["expiring"],
+            const url = brembo.build(this.vrpHost, {
+                path: ["meta", "expiring"],
                 params: {
                     prefix: vrp.prefix,
                     asn: vrp.asn,
