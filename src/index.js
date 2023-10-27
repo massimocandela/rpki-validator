@@ -405,13 +405,15 @@ class RpkiValidator {
                 resolve(true);
             });
         } else {
+            const now = new Date();
+
+            this.#setMetadata({lastAttempt: now});
+
             return this.#connector
                 .getVRPs()
                 .then(list => {
                     if (list) {
                         this.preCached = true;
-                        const now = new Date();
-                        this.#setMetadata({lastAttempt: now});
 
                         const newBuild = this.#connector?.metadata?.buildtime ? Date.parse(this.#connector?.metadata?.buildtime) : null;
                         const currentBuild = this.#lastMetadata?.buildtime ? Date.parse(this.#lastMetadata?.buildtime) : null;
