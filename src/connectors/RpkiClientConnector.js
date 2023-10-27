@@ -117,7 +117,7 @@ export default class RpkiClientConnector extends Connector {
                 }
             })
             .catch(error => {
-                if (error.response.status !== 304) {
+                if (error.response?.status !== 304) {
                     return Promise.reject(error);
                 }
 
