@@ -1,4 +1,4 @@
-import realAxios from "axios";
+import realAxios from 'redaxios';
 import brembo from "brembo";
 import RIPEConnector from "./connectors/RIPEConnector";
 import NTTConnector from "./connectors/NTTConnector";
@@ -48,6 +48,10 @@ class RpkiValidator {
             this.#options.axios.defaults.timeout = this.#options.timeout;
         }
         this.#axios = this.#options.axios;
+
+        this.#options.axios.defaults ??= {};
+        this.#options.axios.defaults.headers ??= {};
+        this.#options.axios.defaults.headers.common ??= {};
 
         this.#options.axios.defaults.headers.common = {
             ...(this.#options.axios.defaults.headers.common || {}),
