@@ -23,6 +23,7 @@
     "ip-sub": "^1.5.1",
     "longest-prefix-match": "^1.2.6",
     "net-validations": "^1.0.7",
+    "node-fetch": "^2.7.0",
     "redaxios": "^0.5.1"
   },
   "devDependencies": {
