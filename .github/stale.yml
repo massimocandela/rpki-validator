@@ -1,20 +1,32 @@
-# Number of days of inactivity before an issue becomes stale
-daysUntilStale: 90
-# Number of days of inactivity before a stale issue is closed
-daysUntilClose: 1
-# Issues with these labels will never be considered stale
-exemptLabels:
-  - pinned
-  - security
-  - no-stale
+name: Close stale issues
+on:
+  schedule:
+    - cron: '0 1 * * *'
 
-# Label to use when marking an issue as stale
-staleLabel: wontfix
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v8
+        with:
+          days-before-issue-stale: 90
+          days-before-pr-stale: 90
+          days-before-issue-close: 1
+          days-before-pr-close: 1
 
-markComment: false
+          stale-issue-label: "status:stale"
+          stale-pr-label: "status:stale"
 
-# Comment to post when marking an issue as stale. Set to `false` to disable
-closeComment: >
-  This issue has been automatically closed as stale.
-  This mechanism helps to prioritize feature requests which received more support from the community.
-  If you want to open again this issue you have to provide a Pull Request.
+          exempt-issue-labels: >
+            no-stale,
+            pinned
+
+          close-issue-message: >
+            This issue has been automatically closed as stale.
+            This mechanism helps to prioritize feature requests which received more support from the community.
+            If you want to open again this issue you have to provide a Pull Request.
+
+          close-pr-message: >
+            This pr has been automatically closed as stale.
+            This mechanism helps to prioritize feature requests which received more support from the community.
+            A pr may become stale because there is no interest or bandwidth in margin it.
