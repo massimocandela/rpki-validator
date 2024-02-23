@@ -3,7 +3,7 @@
 # You can adjust the behavior by modifying this file.
 # For more information, see:
 # https://github.com/actions/stale
-name: Mark stale issues and pull requests
+name: Stale
 
 on:
   workflow_dispatch:
@@ -23,13 +23,13 @@ jobs:
         with:
           days-before-issue-stale: 90
           days-before-pr-stale: 90
-          days-before-issue-close: 1
-          days-before-pr-close: 1
+          days-before-issue-close: 0
+          days-before-pr-close: 0
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           exempt-issue-labels: >
             no-stale,
             pinned
-          stale-issue-message: >
+          close-issue-message: >
             This issue has been automatically closed as stale.
             This mechanism helps to prioritize feature requests which received more support from the community.
             If you want to open again this issue you have to provide a Pull Request.
