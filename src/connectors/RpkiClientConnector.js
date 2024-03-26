@@ -16,13 +16,14 @@ export default class RpkiClientConnector extends Connector {
     getAdvancedStats = () => {
         if (!this.setAdvancedStatsTimer) {
             this.setAdvancedStatsTimer = setInterval(this._setAdvancedStats, this.advancedStatsRefreshRateMinutes * 60 * 1000);
-            this._setAdvancedStats();
+            this._advancedStatsPromise = this._setAdvancedStats();
         }
 
         if (this.index) {
             return Promise.resolve(this.index);
         } else {
-            return Promise.reject("Index not ready");
+            return this._advancedStatsPromise
+                .then(() => this.index)
         }
     }
 
@@ -64,8 +65,7 @@ export default class RpkiClientConnector extends Connector {
                         }
                     }
                 }
-            })
-            .catch(() => {});
+            });
     };
 
     _applyRpkiClientMetadata = (metadata={}) => {

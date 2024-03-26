@@ -44,8 +44,8 @@ export default class PacketVisConnector extends RpkiClientConnector {
     }
 
     getExpiringElements = (vrp, expires, now) => {
-        if (this.metaIndex) {
-            return Promise.resolve(this.metaIndex.getExpiring(vrp, expires, now));
+        if (this.index) {
+            return Promise.resolve(this.index.getExpiring(vrp, expires, now));
         } else {
             const url = brembo.build(this.vrpHost, {
                 path: ["meta", "expiring"],
