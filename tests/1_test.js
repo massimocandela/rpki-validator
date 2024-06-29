@@ -317,10 +317,10 @@ describe("Tests", function() {
                 .catch(done);
         }).timeout(asyncTimeout);
 
-        it("single not valid - 23.11.254.0/23", function(done) {
+        it("single not valid - 7.251.0.0/17", function(done) {
             rpki.preCache()
                 .then(() => {
-                    return rpki.validate("23.11.254.0/23", uncovered.asn, verbose)
+                    return rpki.validate("7.251.0.0/17", uncovered.asn, verbose)
                         .then(result => {
                             expect(result).to
                                 .containSubset({
