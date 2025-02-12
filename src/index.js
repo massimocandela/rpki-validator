@@ -85,7 +85,8 @@ class RpkiValidator {
 
         this.#validationTimer = setInterval(this.#validateBundle, 500);
 
-        this.getApiStatus().catch(console.log);
+        this.getApiStatus()
+            .catch(() => {}); // Nothing
     };
 
     getAdvancedStats = () => {
