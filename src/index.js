@@ -85,7 +85,7 @@ class RpkiValidator {
 
         this.#validationTimer = setInterval(this.#validateBundle, 500);
 
-        this.getApiStatus();
+        this.getApiStatus().catch(console.log);
     };
 
     getAdvancedStats = () => {
@@ -95,6 +95,11 @@ class RpkiValidator {
     getApiStatus = () => {
         return new Promise((resolve, reject) => {
             if (!this.#onlineValidatorStatus) {
+
+                if (!this.#options.defaultRpkiApi) {
+                    return reject();
+                }
+
                 const url = brembo.build(this.#options.defaultRpkiApi, {
                     path: ["status"],
                     params: {
