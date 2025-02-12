@@ -1,4 +1,4 @@
-import realAxios from 'redaxios';
+import realAxios from "redaxios";
 import nodeFetch from "node-fetch";
 import brembo from "brembo";
 import RIPEConnector from "./connectors/RIPEConnector";
@@ -8,7 +8,7 @@ import RpkiClientConnector from "./connectors/RpkiClientConnector";
 import ExternalConnector from "./connectors/ExternalConnector";
 import ApiConnector from "./connectors/ApiConnector";
 import LongestPrefixMatch from "longest-prefix-match";
-import { validatePrefix, validateAS, validateVRP } from "net-validations";
+import {validateAS, validatePrefix, validateVRP} from "net-validations";
 import PacketVisConnector from "./connectors/PacketVisConnector";
 
 const defaultRpkiApi = "https://rpki.massimocandela.com/api/v1";
@@ -55,14 +55,14 @@ class RpkiValidator {
         this.#options.axios.defaults.headers ??= {};
         this.#options.axios.defaults.headers.common ??= {};
 
-        if (typeof(fetch) === 'undefined') {
+        if (typeof (fetch) === "undefined") {
             this.#options.axios.defaults.fetch = nodeFetch;
         }
 
         this.#options.axios.defaults.headers.common = {
             ...(this.#options.axios.defaults.headers.common || {}),
             "User-Agent": defaults.clientId,
-            'Accept-Encoding': 'gzip'
+            "Accept-Encoding": "gzip"
         };
 
         this.#queue = {};
@@ -75,7 +75,7 @@ class RpkiValidator {
             rpkiclient: RpkiClientConnector,
             packetvis: PacketVisConnector,
             external: ExternalConnector,
-            api: ApiConnector,
+            api: ApiConnector
         };
 
         this.setConnector(this.#options.connector);
@@ -91,7 +91,7 @@ class RpkiValidator {
 
     getAdvancedStats = () => {
         return this.#connector.getAdvancedStats();
-    }
+    };
 
     getApiStatus = () => {
         return new Promise((resolve, reject) => {
@@ -106,9 +106,9 @@ class RpkiValidator {
                 const tmr = setTimeout(() => {
                     this.#onlineValidatorStatus = {warning: true};
                     resolve(this.#onlineValidatorStatus);
-                }, 2000)
+                }, 2000);
 
-                setTimeout(() => {this.#onlineValidatorStatus = null}, 60 * 60 * 1000);
+                setTimeout(() => {this.#onlineValidatorStatus = null;}, 60 * 60 * 1000);
 
                 this.#axios({
                     url,
@@ -150,7 +150,7 @@ class RpkiValidator {
                 if (workingConnectors.length) {
                     return workingConnectors;
                 } else {
-                    return Promise.reject()
+                    return Promise.reject();
                 }
             });
     };
@@ -160,7 +160,7 @@ class RpkiValidator {
 
         if (roas.length === 0) {
             return this.#createOutput(null, null, verbose, null);
-        }  else {
+        } else {
             const covering = roas.map(i => {
                 return {
                     prefix: i.prefix,
@@ -170,7 +170,7 @@ class RpkiValidator {
                     expires: i.expires || null,
                     notBefore: i.notBefore || null
                 };
-            })
+            });
 
             return this.#checkCoveringROAs(origin, prefix, covering, verbose);
         }
@@ -217,18 +217,22 @@ class RpkiValidator {
     };
 
     validate = (prefix, origin, verbose) => {
-        if (origin == null || origin === "") {
-            throw new Error("Origin AS missing");
-        }
-        origin = parseInt(origin.toString().replace("AS", ""));
+        try {
+            if (origin == null || origin === "") {
+                throw new Error("Origin AS missing");
+            }
+            origin = parseInt(origin.toString().replace("AS", ""));
 
-        validateAS(origin);
-        validatePrefix(prefix);
+            validateAS(origin);
+            validatePrefix(prefix);
 
-        if (this.preCached) {
-            return this.#validateFromCache(prefix, origin, verbose);
-        } else {
-            return this.#validateOnline(prefix, origin, verbose);
+            if (this.preCached) {
+                return this.#validateFromCache(prefix, origin, verbose);
+            } else {
+                return this.#validateOnline(prefix, origin, verbose);
+            }
+        } catch (error) {
+            return Promise.reject(error);
         }
     };
 
@@ -270,12 +274,12 @@ class RpkiValidator {
 
 
     //-- private methods
-    #setMetadata = (metadata={}) => {
+    #setMetadata = (metadata = {}) => {
         this.#lastMetadata = {
             ...this.#lastMetadata,
-            ...metadata,
-        }
-    }
+            ...metadata
+        };
+    };
 
     #validateFromCache = (prefix, origin, verbose) =>
         Promise.resolve(this.validateFromCacheSync(prefix, origin, verbose));
@@ -289,25 +293,28 @@ class RpkiValidator {
     };
 
     #validateOnline = (prefix, origin, verbose) => {
-        const key = this.#getKey(prefix, origin);
+        if (this.#options.defaultRpkiApi) {
+            const key = this.#getKey(prefix, origin);
 
-        if (!this.#queue[key]) {
+            if (!this.#queue[key]) {
             const promise = new Promise((resolve, reject) => {
-                this.#queue[key] = {
-                    prefix,
-                    origin,
-                    key,
-                    resolve,
-                    reject,
-                    verbose
-                };
-            });
+                    this.#queue[key] = {
+                        prefix,
+                        origin,
+                        key,
+                        resolve,
+                        reject,
+                        verbose
+                    };
+                });
 
             this.#queue[key].promise = promise;
+            }
+
+            return this.#queue[key].promise;
+        } else {
+            return Promise.reject("An online validator is not available. Please specify a defaultRpkiApi.");
         }
-
-        return this.#queue[key].promise;
-
     };
 
     #createOutput = (sameOrigin, validLength, verbose, covering) => {
@@ -428,7 +435,7 @@ class RpkiValidator {
                         const newBuild = this.#connector?.metadata?.buildtime ? Date.parse(this.#connector?.metadata?.buildtime) : null;
                         const currentBuild = this.#lastMetadata?.buildtime ? Date.parse(this.#lastMetadata?.buildtime) : null;
 
-                        if (!!newBuild && (now.getTime() - newBuild) >  2 * 60 * 60 * 1000) {
+                        if (!!newBuild && (now.getTime() - newBuild) > 2 * 60 * 60 * 1000) {
                             return Promise.reject("The new vrp data is older than 2 hours");
                         } else if (newBuild && currentBuild) {
                             if (newBuild < currentBuild) {
@@ -465,7 +472,7 @@ class RpkiValidator {
 
     getExpiringElements = (vrp, expires, now) => {
         return this.#connector.getExpiringElements(vrp, expires, now);
-    }
+    };
 }
 
 module.exports = RpkiValidator;
