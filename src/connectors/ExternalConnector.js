@@ -11,7 +11,7 @@ export default class ExternalConnector extends Connector {
     setVRPs = (vrps) => {
         vrps = (vrps || [])
             .map(item => {
-                const origin = item.asn.toString().replace('AS', '');
+                const origin = item.asn.toString().replace("AS", "");
                 const maxLength = item.maxLength;
                 if (!!item.prefix && isNaN(origin) && isNaN(maxLength)) {
                     throw new Error("Not valid ROA format");
@@ -23,8 +23,8 @@ export default class ExternalConnector extends Connector {
                     maxLength: parseInt(maxLength),
                     ta: item.ta || "",
                     expires: item.expires || null,
-                    notBefore: item.notBefore || null,
-                }
+                    notBefore: item.notBefore || null
+                };
             });
 
         this.vrps = vrps
@@ -32,7 +32,7 @@ export default class ExternalConnector extends Connector {
                 try {
                     validateVRP(item);
                     return true;
-                } catch(e) {
+                } catch (e) {
                     // Skip malformed vrp
                     return false;
                 }

@@ -23,9 +23,9 @@ export default class RpkiClientConnector extends Connector {
             return Promise.resolve(this.index);
         } else {
             return this._advancedStatsPromise
-                .then(() => this.index)
+                .then(() => this.index);
         }
-    }
+    };
 
     _setAdvancedStats = () => {
         const url = brembo.build(this.host, {
@@ -53,7 +53,7 @@ export default class RpkiClientConnector extends Connector {
                     }
                     this.dumpModified = new Date(data.headers["last-modified"]);
                     this.index = new MetaIndex();
-                    const items = data.data.split('\n');
+                    const items = data.data.split("\n");
 
                     for (let item of items) {
                         try {
@@ -68,13 +68,13 @@ export default class RpkiClientConnector extends Connector {
             });
     };
 
-    _applyRpkiClientMetadata = (metadata={}) => {
+    _applyRpkiClientMetadata = (metadata = {}) => {
         this.metadata = {
             buildmachine: metadata?.buildmachine,
             buildtime: metadata?.buildtime ? new Date(metadata?.buildtime).toISOString() : null, // used for if-modified-since
             elapsedtime: metadata?.elapsedtime
         };
-    }
+    };
 
     getVRPs = () => {
         const url = brembo.build(this.host, {
@@ -109,7 +109,7 @@ export default class RpkiClientConnector extends Connector {
                             return {
                                 prefix: roa.prefix,
                                 maxLength: roa.maxLength,
-                                asn: parseInt(roa.asn.toString().replace('AS', '')),
+                                asn: parseInt(roa.asn.toString().replace("AS", "")),
                                 ta: roa.ta,
                                 expires: roa.expires || null
                             };
@@ -128,5 +128,5 @@ export default class RpkiClientConnector extends Connector {
     getExpiringElements = (vrp, expires, now) => {
         return this.getAdvancedStats()
             .then(index => index.getExpiring(vrp, expires, now));
-    }
+    };
 }

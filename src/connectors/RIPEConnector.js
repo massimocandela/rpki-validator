@@ -1,7 +1,7 @@
 import brembo from "brembo";
 import Connector from "./Connector";
 
-export default class RIPEConnector extends Connector{
+export default class RIPEConnector extends Connector {
     constructor(options) {
         super(options);
         this.minimumRefreshRateMinutes = 10;

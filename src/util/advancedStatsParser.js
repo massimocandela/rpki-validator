@@ -38,7 +38,7 @@ export default class MetaIndex {
         this.aki = {};
         this.manifests = {};
         this.metadata = {};
-    }
+    };
 
     add = (item) => {
         if (!item.type) {
@@ -54,10 +54,10 @@ export default class MetaIndex {
                 return false; // Skip malformed line
             }
         }
-    }
+    };
 
-    _add = ({type, valid_since, valid_until, file, hash_id, ski, aki, vrps=[], manifest}) => {
-        const item = {type, valid_since, valid_until, file, hash_id, ski, aki, manifest: manifest ? getManifestKey(manifest): undefined};
+    _add = ({type, valid_since, valid_until, file, hash_id, ski, aki, vrps = [], manifest}) => {
+        const item = {type, valid_since, valid_until, file, hash_id, ski, aki, manifest: manifest ? getManifestKey(manifest) : undefined};
 
         this.ids[hash_id] = item;
 
@@ -85,19 +85,19 @@ export default class MetaIndex {
                 this.vrps[key].push(this.ids[hash_id]);
             }
         }
-    }
+    };
 
     get = (id) => {
         return this.ids[id];
-    }
+    };
 
     getByType = (type) => {
         return this.type[type];
-    }
+    };
 
     getVRPs = (vrp) => {
         return makeUnique(this.vrps[getVrpKey(vrp)]);
-    }
+    };
 
     getParents = (data) => {
         if (!Array.isArray(data)) {
@@ -105,10 +105,10 @@ export default class MetaIndex {
         }
 
         return makeUnique(data.map(i => this._getSki(i.aki)?.filter(p => i.hash_id !== p.hash_id)).flat().filter(i => !!i));
-    }
+    };
 
     getStructure = (vrp) => {
-        const tree  = [];
+        const tree = [];
         let count = 100;
         let item = makeUnique(this.vrps[getVrpKey(vrp)]);
 
@@ -120,7 +120,7 @@ export default class MetaIndex {
 
 
         return tree.flat().map(i => ({...i, manifest: i.manifest ? this.manifests[i.manifest] : undefined}));
-    }
+    };
 
     getFlattenStructure = (vrp) => {
         const items = this.getStructure(vrp);
@@ -133,14 +133,14 @@ export default class MetaIndex {
         }
 
         return [...items, ...manifests];
-    }
+    };
 
     getExpiring = (vrp, expires, now) => {
         return this.getFlattenStructure(vrp)
             .filter(i => {
                 return i.valid_until === expires && (!i.valid_since || !now || i.valid_since <= now);
             });
-    }
+    };
 
     getChildren = (data) => {
         if (!Array.isArray(data)) {
@@ -148,7 +148,7 @@ export default class MetaIndex {
         }
 
         return makeUnique(data.map(i => this._getAki(i.ski)).flat());
-    }
+    };
 
     _getSki = (ski) => {
         if (ski) {
@@ -156,7 +156,7 @@ export default class MetaIndex {
         } else {
             return null;
         }
-    }
+    };
 
     _getAki = (aki) => {
         if (aki) {
@@ -164,5 +164,5 @@ export default class MetaIndex {
         } else {
             return null;
         }
-    }
+    };
 }

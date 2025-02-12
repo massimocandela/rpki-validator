@@ -1,107 +1,107 @@
 {
-  "name": "rpki-validator",
-  "version": "2.13.15",
-  "description": "An RPKI validator that works also in the browser.",
-  "main": "dist/index.js",
-  "bin": "dist/index.js",
-  "scripts": {
-    "babel": "node_modules/.bin/babel",
-    "release": "dotenv release-it",
-    "test": "./node_modules/.bin/mocha tests/*test.js --require @babel/register --exit",
-    "compile": "rm -rf dist/ && ./node_modules/.bin/babel src -d dist"
-  },
-  "author": {
-    "name": "Massimo Candela",
-    "url": "https://massimocandela.com"
-  },
-  "license": "BSD-3-Clause",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.com/"
-  },
-  "dependencies": {
-    "brembo": "^2.1.5",
-    "ip-sub": "^1.6.2",
-    "longest-prefix-match": "^1.2.8",
-    "net-validations": "^1.0.9",
-    "node-fetch": "^2.7.0",
-    "redaxios": "^0.5.1"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.26.4",
-    "@babel/core": "^7.26.8",
-    "@babel/node": "^7.26.0",
-    "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
-    "@babel/plugin-transform-async-to-generator": "^7.25.9",
-    "@babel/plugin-transform-runtime": "^7.26.8",
-    "@babel/preset-env": "^7.26.8",
-    "batch-promises": "^0.0.3",
-    "chai": "^4.3.10",
-    "chai-subset": "^1.6.0",
-    "dotenv-cli": "^7.4.2",
-    "mocha": "^10.5.2",
-    "release-it": "^17.11.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/massimocandela/rpki-validator.git"
-  },
-  "keywords": [
-    "rpki",
-    "bgp",
-    "validator",
-    "origin validation",
-    "roa"
-  ],
-  "bugs": {
-    "url": "https://github.com/massimocandela/rpki-validator/issues"
-  },
-  "homepage": "https://github.com/massimocandela/rpki-validator#readme",
-  "release-it": {
-    "hooks": {
-      "before:init": [
-        "npm ci"
-      ],
-      "after:bump": [
-        "npm run compile"
-      ],
-      "after:release": [
-        "echo Successfully released ${name} v${version} to ${repo.repository}.",
-        "rm -r dist/"
-      ]
+    "name": "rpki-validator",
+    "version": "2.13.15",
+    "description": "An RPKI validator that works also in the browser.",
+    "main": "dist/index.js",
+    "bin": "dist/index.js",
+    "scripts": {
+        "babel": "node_modules/.bin/babel",
+        "release": "dotenv release-it",
+        "test": "./node_modules/.bin/mocha tests/*test.js --require @babel/register --exit",
+        "compile": "rm -rf dist/ && ./node_modules/.bin/babel src -d dist"
     },
-    "git": {
-      "changelog": "git log --pretty=format:\"* %s (%h)\" ${from}...${to}",
-      "requireCleanWorkingDir": true,
-      "requireBranch": "main",
-      "requireUpstream": true,
-      "requireCommits": false,
-      "addUntrackedFiles": false,
-      "commit": true,
-      "commitMessage": "Release v${version}",
-      "commitArgs": [],
-      "tag": true,
-      "tagName": null,
-      "tagAnnotation": "Release v${version}",
-      "tagArgs": [],
-      "push": true,
-      "pushArgs": [
-        "--follow-tags"
-      ],
-      "pushRepo": ""
+    "author": {
+        "name": "Massimo Candela",
+        "url": "https://massimocandela.com"
     },
-    "gitlab": {
-      "release": false
+    "license": "BSD-3-Clause",
+    "publishConfig": {
+        "registry": "https://registry.npmjs.com/"
     },
-    "npm": {
-      "publish": true
+    "dependencies": {
+        "brembo": "^2.1.5",
+        "ip-sub": "^1.6.2",
+        "longest-prefix-match": "^1.2.8",
+        "net-validations": "^1.0.9",
+        "node-fetch": "^2.7.0",
+        "redaxios": "^0.5.1"
     },
-    "github": {
-      "release": true,
-      "releaseName": "v${version}",
-      "tokenRef": "GITHUB_TOKEN",
-      "origin": null,
-      "skipChecks": false
+    "devDependencies": {
+        "@babel/cli": "^7.26.4",
+        "@babel/core": "^7.26.8",
+        "@babel/node": "^7.26.0",
+        "@babel/plugin-proposal-class-properties": "^7.18.6",
+        "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
+        "@babel/plugin-transform-async-to-generator": "^7.25.9",
+        "@babel/plugin-transform-runtime": "^7.26.8",
+        "@babel/preset-env": "^7.26.8",
+        "batch-promises": "^0.0.3",
+        "chai": "^4.3.10",
+        "chai-subset": "^1.6.0",
+        "dotenv-cli": "^7.4.2",
+        "mocha": "^10.5.2",
+        "release-it": "^17.11.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/massimocandela/rpki-validator.git"
+    },
+    "keywords": [
+        "rpki",
+        "bgp",
+        "validator",
+        "origin validation",
+        "roa"
+    ],
+    "bugs": {
+        "url": "https://github.com/massimocandela/rpki-validator/issues"
+    },
+    "homepage": "https://github.com/massimocandela/rpki-validator#readme",
+    "release-it": {
+        "hooks": {
+            "before:init": [
+                "npm ci"
+            ],
+            "after:bump": [
+                "npm run compile"
+            ],
+            "after:release": [
+                "echo Successfully released ${name} v${version} to ${repo.repository}.",
+                "rm -r dist/"
+            ]
+        },
+        "git": {
+            "changelog": "git log --pretty=format:\"* %s (%h)\" ${from}...${to}",
+            "requireCleanWorkingDir": true,
+            "requireBranch": "main",
+            "requireUpstream": true,
+            "requireCommits": false,
+            "addUntrackedFiles": false,
+            "commit": true,
+            "commitMessage": "Release v${version}",
+            "commitArgs": [],
+            "tag": true,
+            "tagName": null,
+            "tagAnnotation": "Release v${version}",
+            "tagArgs": [],
+            "push": true,
+            "pushArgs": [
+                "--follow-tags"
+            ],
+            "pushRepo": ""
+        },
+        "gitlab": {
+            "release": false
+        },
+        "npm": {
+            "publish": true
+        },
+        "github": {
+            "release": true,
+            "releaseName": "v${version}",
+            "tokenRef": "GITHUB_TOKEN",
+            "origin": null,
+            "skipChecks": false
+        }
     }
-  }
 }

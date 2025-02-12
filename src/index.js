@@ -15,6 +15,7 @@ const defaultRpkiApi = "https://rpki.massimocandela.com/api/v1";
 const providers = ["rpkiclient", "ntt", "ripe", "cloudflare", "packetvis"]; // First provider is the default one
 
 class RpkiValidator {
+    static providers = providers;
     #axios;
     #connectors;
     #connector;
@@ -24,8 +25,6 @@ class RpkiValidator {
     #queue;
     #onlineValidatorStatus;
     #lastMetadata = {};
-
-    static providers = providers;
 
     constructor(options) {
         const defaults = {
@@ -297,7 +296,7 @@ class RpkiValidator {
             const key = this.#getKey(prefix, origin);
 
             if (!this.#queue[key]) {
-            const promise = new Promise((resolve, reject) => {
+                const promise = new Promise((resolve, reject) => {
                     this.#queue[key] = {
                         prefix,
                         origin,
@@ -308,7 +307,7 @@ class RpkiValidator {
                     };
                 });
 
-            this.#queue[key].promise = promise;
+                this.#queue[key].promise = promise;
             }
 
             return this.#queue[key].promise;

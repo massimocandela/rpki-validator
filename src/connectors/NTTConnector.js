@@ -28,7 +28,7 @@ export default class NTTConnector extends Connector {
                             return {
                                 prefix: roa.prefix,
                                 maxLength: parseInt(roa.maxLength),
-                                asn: parseInt(roa.asn.toString().replace('AS', '')),
+                                asn: parseInt(roa.asn.toString().replace("AS", "")),
                                 ta: roa.ta,
                                 expires: roa.expires || null
                             };

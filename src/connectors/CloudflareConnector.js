@@ -29,9 +29,9 @@ export default class CloudflareConnector extends Connector {
                             return {
                                 prefix: roa.prefix,
                                 maxLength: parseInt(roa.maxLength),
-                                asn: parseInt(roa.asn.toString().replace('AS', '')),
+                                asn: parseInt(roa.asn.toString().replace("AS", "")),
                                 ta: this.toStandardTa(roa.ta)
-                            }
+                            };
                         });
                 }
             });

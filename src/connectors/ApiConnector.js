@@ -3,7 +3,7 @@ import Connector from "./Connector";
 export default class ApiConnector extends Connector {
     constructor(options) {
         super(options);
-        this.url = options.url
+        this.url = options.url;
     };
 
     getVRPs = () => {
@@ -25,7 +25,7 @@ export default class ApiConnector extends Connector {
                             ta: roa.ta,
                             expires: roa.expires || null,
                             notBefore: roa.notBefore || null
-                        }
+                        };
                     });
                 }
 

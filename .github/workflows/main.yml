@@ -41,28 +41,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Javascript/Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18.19.0
+      - name: Set up Javascript/Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.19.0
 
-    - name: Check out code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: '0'
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
 
-    - name: Cache multiple paths
-      uses: actions/cache@v4
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+      - name: Cache multiple paths
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-    - name: Install
-      run: |
-        npm ci
+      - name: Install
+        run: |
+          npm ci
 
-    - name: Tests
-      run: |
-        npm run test
+      - name: Tests
+        run: |
+          npm run test

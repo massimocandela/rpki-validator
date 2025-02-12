@@ -1,6 +1,6 @@
 import RpkiClientConnector from "./RpkiClientConnector";
 import brembo from "brembo";
-import ExternalConnector from './ExternalConnector';
+import ExternalConnector from "./ExternalConnector";
 
 const api = "http://rpki.local.packetvis.com/v1/rpki/";
 
@@ -15,7 +15,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
 
     getVRPs = () => {
         try {
-            const fs = require('fs'); // Load only for node
+            const fs = require("fs"); // Load only for node
             const file = ".cache/vrps.json";
 
             if (fs.existsSync(file)) {
@@ -23,7 +23,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
 
                 if (((new Date) - stats.mtime) < 30 * 60 * 1000) { // Newer than 30 min
 
-                    const payload = JSON.parse(fs.readFileSync(file, 'utf8'));
+                    const payload = JSON.parse(fs.readFileSync(file, "utf8"));
 
                     this.cacheConnector.setVRPs(payload.roas);
 
@@ -41,7 +41,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
         } catch (error) {
             return Promise.reject(error);
         }
-    }
+    };
 
     getExpiringElements = (vrp, expires, now) => {
         if (this.index) {
@@ -64,5 +64,5 @@ export default class PacketVisConnector extends RpkiClientConnector {
             })
                 .then(({data}) => data.data);
         }
-    }
+    };
 }
