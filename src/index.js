@@ -12,7 +12,7 @@ import {validateAS, validatePrefix, validateVRP} from "net-validations";
 import PacketVisConnector from "./connectors/PacketVisConnector";
 
 const defaultRpkiApi = "https://rpki.massimocandela.com/api/v1";
-const providers = ["rpkiclient", "ntt", "ripe", "cloudflare", "packetvis"]; // The first provider is the default one
+const providers = ["rpkiclient", "ntt", "ripe", "cloudflare", "packetvis"]; // First provider is the default one
 
 class RpkiValidator {
     static providers = providers;
@@ -302,7 +302,7 @@ class RpkiValidator {
             const key = this.#getKey(prefix, origin);
 
             if (!this.#queue[key]) {
-                this.#queue[key].promise = new Promise((resolve, reject) => {
+                const promise = new Promise((resolve, reject) => {
                     this.#queue[key] = {
                         prefix,
                         origin,
@@ -312,6 +312,8 @@ class RpkiValidator {
                         verbose
                     };
                 });
+
+                this.#queue[key].promise = promise;
             }
 
             return this.#queue[key].promise;
