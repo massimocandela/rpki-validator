@@ -111,6 +111,8 @@ export default class PacketVisConnector extends RpkiClientConnector {
                 url
             })
                 .then(({data}) => data.data);
+        } else {
+            return Promise.reject("Cannot load index");
         }
     };
 }
