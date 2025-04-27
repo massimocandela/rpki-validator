@@ -1,6 +1,7 @@
 import RpkiClientConnector from "./RpkiClientConnector";
 import brembo from "brembo";
 import ExternalConnector from "./ExternalConnector";
+import MetaIndex from "../util/advancedStatsParser";
 
 const api = "http://rpki.local.packetvis.com/v1/rpki/";
 
@@ -11,6 +12,40 @@ export default class PacketVisConnector extends RpkiClientConnector {
         this.vrpHost = options.host ?? api;
 
         this.cacheConnector = new ExternalConnector({});
+    };
+
+    _setAdvancedStats = () => {
+        try {
+            const fs = require("fs"); // Load only for node
+            const file = ".cache/dump.json";
+
+            if (fs.existsSync(file)) {
+                const stats = fs.statSync(file);
+
+                if (((new Date) - stats.mtime) < this.advancedStatsRefreshRateMinutes * 60 * 1000) { // Newer last time
+
+                    const payload = JSON.parse(fs.readFileSync(file, "utf8"));
+
+                    this.index = new MetaIndex();
+                    const items = payload.split("\n");
+
+                    for (let item of items) {
+                        try {
+                            const trimmedItem = item.trim();
+                            if (trimmedItem.length > 1) {
+                                this.index.add(JSON.parse(trimmedItem));
+                            }
+                        } catch (e) {
+                        }
+                    }
+                }
+            } else {
+                throw new Error(`RPKI cache missing ${file}`);
+            }
+
+        } catch (error) {
+            return Promise.reject(error);
+        }
     };
 
     getVRPs = () => {
@@ -32,10 +67,10 @@ export default class PacketVisConnector extends RpkiClientConnector {
 
                     return this.cacheConnector.getVRPs();
                 } else {
-                    throw new Error("RPKI cache too old .cache/vrps.json");
+                    throw new Error(`RPKI cache too old ${file}`);
                 }
             } else {
-                throw new Error("RPKI cache missing .cache/vrps.json");
+                throw new Error(`RPKI cache missing ${file}`);
             }
 
         } catch (error) {
