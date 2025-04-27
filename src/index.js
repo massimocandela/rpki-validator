@@ -302,7 +302,7 @@ class RpkiValidator {
             const key = this.#getKey(prefix, origin);
 
             if (!this.#queue[key]) {
-                const promise = new Promise((resolve, reject) => {
+                this.#queue[key].promise = new Promise((resolve, reject) => {
                     this.#queue[key] = {
                         prefix,
                         origin,
@@ -312,8 +312,6 @@ class RpkiValidator {
                         verbose
                     };
                 });
-
-                this.#queue[key].promise = promise;
             }
 
             return this.#queue[key].promise;
