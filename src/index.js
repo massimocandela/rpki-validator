@@ -12,7 +12,7 @@ import {validateAS, validatePrefix, validateVRP} from "net-validations";
 import PacketVisConnector from "./connectors/PacketVisConnector";
 
 const defaultRpkiApi = "https://rpki.massimocandela.com/api/v1";
-const providers = ["rpkiclient", "ntt", "ripe", "cloudflare", "packetvis"]; // First provider is the default one
+const providers = ["rpkiclient", "ntt", "ripe", "cloudflare", "packetvis"]; // The first provider is the default one
 
 class RpkiValidator {
     static providers = providers;
