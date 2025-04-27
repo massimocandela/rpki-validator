@@ -13,7 +13,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
 
         this.cacheModified = {
             vrps: 0,
-            dump
+            dump: 0
         };
 
         this.cacheConnector = new ExternalConnector({});
