@@ -11,6 +11,11 @@ export default class PacketVisConnector extends RpkiClientConnector {
         this.minimumRefreshRateMinutes = 1;
         this.vrpHost = options.host ?? api;
 
+        this.cacheModified = {
+            vrps: 0,
+            dump
+        };
+
         this.cacheConnector = new ExternalConnector({});
     };
 
@@ -22,7 +27,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
             if (fs.existsSync(file)) {
                 const stats = fs.statSync(file);
 
-                if (((new Date) - stats.mtime) < this.advancedStatsRefreshRateMinutes * 60 * 1000) { // Newer last time
+                if (this.cacheModified.dump < stats.mtime) { // Newer than last time
 
                     const payload = JSON.parse(fs.readFileSync(file, "utf8"));
 
@@ -38,6 +43,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
                         } catch (e) {
                         }
                     }
+                    this.cacheModified.dump = stats.mtime;
                 }
             } else {
                 throw new Error(`RPKI cache missing ${file}`);
@@ -56,18 +62,25 @@ export default class PacketVisConnector extends RpkiClientConnector {
             if (fs.existsSync(file)) {
                 const stats = fs.statSync(file);
 
-                if (((new Date) - stats.mtime) < 30 * 60 * 1000) { // Newer than 30 min
+                if (this.cacheModified.vrps < stats.mtime) {
 
-                    const payload = JSON.parse(fs.readFileSync(file, "utf8"));
+                    if (((new Date) - stats.mtime) < 30 * 60 * 1000) { // Newer than 30 min
 
-                    this.cacheConnector.setVRPs(payload.roas);
+                        const payload = JSON.parse(fs.readFileSync(file, "utf8"));
 
-                    this._applyRpkiClientMetadata(payload?.metadata);
-                    this.metadata.lastModified = stats.mtime.toISOString();
+                        this.cacheConnector.setVRPs(payload.roas);
 
-                    return this.cacheConnector.getVRPs();
+                        this._applyRpkiClientMetadata(payload?.metadata);
+                        this.metadata.lastModified = stats.mtime.toISOString();
+
+                        this.cacheModified.vrps = stats.mtime;
+
+                        return this.cacheConnector.getVRPs();
+                    } else {
+                        throw new Error(`RPKI cache too old ${file}`);
+                    }
                 } else {
-                    throw new Error(`RPKI cache too old ${file}`);
+                    throw new Error(`RPKI same file ${file} - skipping update`);
                 }
             } else {
                 throw new Error(`RPKI cache missing ${file}`);
