@@ -29,7 +29,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
 
                 if (this.cacheModified.dump < stats.mtime) { // Newer than last time
 
-                    const payload = JSON.parse(fs.readFileSync(file, "utf8"));
+                    const payload = fs.readFileSync(file, "utf8");
 
                     this.index = new MetaIndex();
                     const items = payload.split("\n");
