@@ -80,7 +80,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
                         throw new Error(`RPKI cache too old ${file}`);
                     }
                 } else {
-                    throw new Error(`RPKI same file ${file} - skipping update`);
+                    return Promise.reject();
                 }
             } else {
                 throw new Error(`RPKI cache missing ${file}`);
