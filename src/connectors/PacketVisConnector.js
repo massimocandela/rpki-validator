@@ -3,7 +3,7 @@ import brembo from "brembo";
 import ExternalConnector from "./ExternalConnector";
 import MetaIndex from "../util/advancedStatsParser";
 
-const api = "http://rpki.local.packetvis.com/v1/rpki/";
+const api = "https://api.packetvis.com/v1/rpki/";
 
 export default class PacketVisConnector extends RpkiClientConnector {
     constructor(options) {
