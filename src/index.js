@@ -450,7 +450,7 @@ class RpkiValidator {
                             }
                         }
 
-                        this.#setMetadata({lastUpdate: now});
+                        this.#setMetadata({lastUpdate: now, vrps: list.length});
                         this.#setMetadata(this.#connector?.metadata);
                         this.#longestPrefixMatch.reset();
 
