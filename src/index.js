@@ -1,5 +1,4 @@
 import realAxios from "redaxios";
-import nodeFetch from "node-fetch";
 import brembo from "brembo";
 import RIPEConnector from "./connectors/RIPEConnector";
 import NTTConnector from "./connectors/NTTConnector";
@@ -53,10 +52,6 @@ class RpkiValidator {
         this.#options.axios.defaults ??= {};
         this.#options.axios.defaults.headers ??= {};
         this.#options.axios.defaults.headers.common ??= {};
-
-        if (typeof (fetch) === "undefined") {
-            this.#options.axios.defaults.fetch = nodeFetch;
-        }
 
         this.#options.axios.defaults.headers.common = {
             ...(this.#options.axios.defaults.headers.common || {}),
