@@ -7,11 +7,6 @@ export default class RIPEConnector extends Connector {
         this.minimumRefreshRateMinutes = 10;
     };
 
-    toStandardTa = (ta) => {
-        const taComponents = ta.split(".");
-        return ((taComponents.length) ? taComponents[0] : "").toLowerCase();
-    };
-
     getVRPs = () => {
         const url = brembo.build("https://stat.ripe.net/", {
             path: ["data", "rpki-roas", "data.json"]
@@ -31,7 +26,7 @@ export default class RIPEConnector extends Connector {
                                 prefix: roa.prefix,
                                 maxLength: parseInt(roa.maxLength),
                                 asn: parseInt(roa.asn),
-                                ta: this.toStandardTa(roa.ta)
+                                ta: this.toStandardTa(roa.ta?.toLowerCase())
                             };
                         });
                 }

@@ -21,7 +21,7 @@ export default class ExternalConnector extends Connector {
                     prefix: item.prefix,
                     asn: parseInt(origin),
                     maxLength: parseInt(maxLength),
-                    ta: item.ta || "",
+                    ta: this.toStandardTa(item.ta?.toLowerCase() ?? ""),
                     expires: item.expires || null,
                     notBefore: item.notBefore || null
                 };

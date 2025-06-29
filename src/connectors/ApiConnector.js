@@ -22,7 +22,7 @@ export default class ApiConnector extends Connector {
                             prefix: roa.prefix,
                             maxLength: parseInt(roa.maxLength),
                             asn: parseInt(roa.asn.toString().replace("AS", "")),
-                            ta: roa.ta,
+                            ta: this.toStandardTa(roa.ta?.toLowerCase()),
                             expires: roa.expires || null,
                             notBefore: roa.notBefore || null
                         };

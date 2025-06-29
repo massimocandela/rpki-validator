@@ -7,10 +7,6 @@ export default class CloudflareConnector extends Connector {
         this.minimumRefreshRateMinutes = 20;
     };
 
-    toStandardTa = (ta) => {
-        return ta.replace("Cloudflare - ", "").toLowerCase();
-    };
-
     getVRPs = () => {
         const url = brembo.build("https://rpki.cloudflare.com", {
             path: ["rpki.json"]
@@ -30,7 +26,7 @@ export default class CloudflareConnector extends Connector {
                                 prefix: roa.prefix,
                                 maxLength: parseInt(roa.maxLength),
                                 asn: parseInt(roa.asn.toString().replace("AS", "")),
-                                ta: this.toStandardTa(roa.ta)
+                                ta: this.toStandardTa(roa?.ta?.toLowerCase())
                             };
                         });
                 }

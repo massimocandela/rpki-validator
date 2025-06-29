@@ -110,7 +110,7 @@ export default class RpkiClientConnector extends Connector {
                                 prefix: roa.prefix,
                                 maxLength: roa.maxLength,
                                 asn: parseInt(roa.asn.toString().replace("AS", "")),
-                                ta: roa.ta,
+                                ta: this.toStandardTa(roa.ta?.toLowerCase()),
                                 expires: roa.expires || null
                             };
                         });
