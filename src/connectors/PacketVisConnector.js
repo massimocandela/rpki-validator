@@ -21,34 +21,43 @@ export default class PacketVisConnector extends RpkiClientConnector {
 
     _setAdvancedStats = () => {
         try {
-            const fs = require("fs"); // Load only for node
+            const fs = require("fs");
+            const readline = require("readline");
             const file = ".cache/dump.json";
 
             if (fs.existsSync(file)) {
                 const stats = fs.statSync(file);
 
                 if (this.cacheModified.dump < stats.mtime) { // Newer than last time
-
-                    const payload = fs.readFileSync(file, "utf8");
-
                     this.index = new MetaIndex();
-                    const items = payload.split("\n");
 
-                    for (let item of items) {
+                    const rl = readline.createInterface({
+                        input: fs.createReadStream(file),
+                        crlfDelay: Infinity
+                    });
+
+                    rl.on("line", (line) => {
                         try {
-                            const trimmedItem = item.trim();
-                            if (trimmedItem.length > 1) {
-                                this.index.add(JSON.parse(trimmedItem));
+                            const trimmed = line.trim();
+                            if (trimmed.length > 1) {
+                                this.index.add(JSON.parse(trimmed));
                             }
                         } catch (e) {
+                            // ignore parse errors
                         }
-                    }
-                    this.cacheModified.dump = stats.mtime;
+                    });
+
+                    return new Promise((resolve, reject) => {
+                        rl.on("close", () => {
+                            this.cacheModified.dump = stats.mtime;
+                            resolve();
+                        });
+                        rl.on("error", reject);
+                    });
                 }
             } else {
                 throw new Error(`RPKI cache missing ${file}`);
             }
-
         } catch (error) {
             return Promise.reject(error);
         }
