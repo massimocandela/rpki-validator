@@ -17,7 +17,7 @@ describe("Advanced stats", function () {
 
     const verbose = true;
 
-    it("roa", function (done) {
+    it("find roa", function (done) {
         rpki.getAdvancedStats()
             .then(index => {
                 expect(!!Object.keys(index.vrps).find(i => i === "83.231.128.0/17-2914-17")).to.equal(true);
