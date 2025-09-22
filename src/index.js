@@ -10,7 +10,7 @@ import LongestPrefixMatch from "longest-prefix-match";
 import {validateAS, validatePrefix, validateVRP} from "net-validations";
 import PacketVisConnector from "./connectors/PacketVisConnector";
 
-const defaultRpkiApi = "https://rpki.massimocandela.com/api/v1";
+const defaultRpkiApi = "https://rpki.massimocandela.com/api/v2";
 const providers = ["rpkiclient", "ntt", "ripe", "cloudflare", "packetvis"]; // The first provider is the default one
 
 class RpkiValidator {
@@ -40,24 +40,23 @@ class RpkiValidator {
         this.#options = Object.assign({}, defaults, options);
 
         if (!this.#options.axios) {
-            this.#options.axios = realAxios;
+
+            const defaultPayload = {
+                timeout: this.#options.timeout,
+                headers: {
+                    "User-Agent": defaults.clientId,
+                    "Accept-Encoding": "gzip"
+                }
+            };
             if (this.#options.httpsAgent) {
-                this.#options.axios.defaults.httpsAgent = options.httpsAgent;
+                defaultPayload.httpsAgent = options.httpsAgent;
             }
-            this.#options.axios.defaults.timeout = this.#options.timeout;
+
+            this.#options.axios = (payload) => realAxios({...payload, ...defaultPayload});
         }
 
         this.#axios = this.#options.axios;
 
-        this.#options.axios.defaults ??= {};
-        this.#options.axios.defaults.headers ??= {};
-        this.#options.axios.defaults.headers.common ??= {};
-
-        this.#options.axios.defaults.headers.common = {
-            ...(this.#options.axios.defaults.headers.common || {}),
-            "User-Agent": defaults.clientId,
-            "Accept-Encoding": "gzip"
-        };
 
         this.#queue = {};
         this.preCached = false;
@@ -92,7 +91,7 @@ class RpkiValidator {
         return new Promise((resolve, reject) => {
             if (!this.#onlineValidatorStatus) {
 
-                if (!this.#options.defaultRpkiApi) {
+                if (this.#options.defaultRpkiApi === null) {
                     return reject();
                 }
 
