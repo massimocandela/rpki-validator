@@ -28,10 +28,10 @@ export default class RpkiClientConnector extends Connector {
     fetchAndParseGz = (url) => {
         const headers = {
             "User-Agent": this.clientId,
-            ...(this.dumpModified ? { "If-Modified-Since": this.dumpModified.toUTCString() } : {})
+            ...(this.dumpModified ? {"If-Modified-Since": this.dumpModified.toUTCString()} : {})
         };
 
-        return fetch(url, { headers })
+        return fetch(url, {headers})
             .then(res => {
                 this.dumpModified = new Date(res.headers.get("last-modified"));
                 const stream = res.body
@@ -45,7 +45,9 @@ export default class RpkiClientConnector extends Connector {
                 const process = (result) => {
                     if (result.done) {
                         buffer.split("\n").forEach(l => {
-                            if (l.trim().length > 1) try { this.index.add(JSON.parse(l)); } catch {}
+                            if (l.trim().length > 1) {
+                                try { this.index.add(JSON.parse(l)); } catch {}
+                            }
                         });
                         return this.index;
                     }
@@ -54,7 +56,9 @@ export default class RpkiClientConnector extends Connector {
                     const parts = buffer.split("\n");
                     buffer = parts.pop();
                     parts.forEach(l => {
-                        if (l.trim().length > 1) try { this.index.add(JSON.parse(l)); } catch {}
+                        if (l.trim().length > 1) {
+                            try { this.index.add(JSON.parse(l)); } catch {}
+                        }
                     });
 
                     return reader.read().then(process);

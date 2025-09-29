@@ -20,47 +20,48 @@ export default class PacketVisConnector extends RpkiClientConnector {
     };
 
     _setAdvancedStats = () => {
-        try {
-            const fs = require("fs");
-            const readline = require("readline");
-            const file = ".cache/dump.json";
+        return new Promise((resolve, reject) => {
+            try {
+                const fs = require("fs");
+                const readline = require("readline");
+                const file = ".cache/dump.json";
 
-            if (fs.existsSync(file)) {
-                const stats = fs.statSync(file);
+                if (fs.existsSync(file)) {
+                    const stats = fs.statSync(file);
 
-                if (this.cacheModified.dump < stats.mtime) { // Newer than last time
-                    this.index = new MetaIndex();
+                    if (this.cacheModified.dump < stats.mtime) { // Newer than last time
+                        this.index = new MetaIndex();
 
-                    const rl = readline.createInterface({
-                        input: fs.createReadStream(file),
-                        crlfDelay: Infinity
-                    });
+                        const rl = readline.createInterface({
+                            input: fs.createReadStream(file),
+                            crlfDelay: Infinity
+                        });
 
-                    rl.on("line", (line) => {
-                        try {
-                            const trimmed = line.trim();
-                            if (trimmed.length > 1) {
-                                this.index.add(JSON.parse(trimmed));
+                        rl.on("line", (line) => {
+                            try {
+                                const trimmed = line.trim();
+                                if (trimmed.length > 1) {
+                                    this.index.add(JSON.parse(trimmed));
+                                }
+                            } catch (e) {
+                                // ignore parse errors
                             }
-                        } catch (e) {
-                            // ignore parse errors
-                        }
-                    });
+                        });
 
-                    return new Promise((resolve, reject) => {
                         rl.on("close", () => {
                             this.cacheModified.dump = stats.mtime;
-                            resolve();
+                            resolve(this.index);
                         });
+
                         rl.on("error", reject);
-                    });
+                    }
+                } else {
+                    reject(`RPKI cache missing ${file}`);
                 }
-            } else {
-                throw new Error(`RPKI cache missing ${file}`);
+            } catch (error) {
+                reject(error);
             }
-        } catch (error) {
-            return Promise.reject(error);
-        }
+        });
     };
 
     getVRPs = () => {
