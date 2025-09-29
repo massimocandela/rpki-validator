@@ -20,9 +20,9 @@
     },
     "dependencies": {
         "brembo": "^2.1.5",
-        "ip-sub": "^1.7.1",
-        "longest-prefix-match": "^1.2.10",
-        "net-validations": "^1.1.0",
+        "ip-sub": "^1.7.2",
+        "longest-prefix-match": "^1.2.11",
+        "net-validations": "^1.1.1",
         "redaxios": "^0.5.1"
     },
     "devDependencies": {
