@@ -10,7 +10,12 @@ export default class ApiConnector extends Connector {
         return this.axios({
             method: "get",
             url: this.url,
-            responseType: "json"
+            responseType: "json",
+            timeout: 120000,
+            headers: {
+                "User-Agent": this.clientId,
+                "Accept-Encoding": "gzip"
+            }
         })
             .then(data => {
 

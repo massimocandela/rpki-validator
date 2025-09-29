@@ -116,8 +116,13 @@ export default class PacketVisConnector extends RpkiClientConnector {
             });
 
             return this.axios({
+                timeout: 120000,
                 method: "get",
-                url
+                url,
+                headers: {
+                    "User-Agent": this.clientId,
+                    "Accept-Encoding": "gzip"
+                }
             })
                 .then(({data}) => data.data);
         } else {

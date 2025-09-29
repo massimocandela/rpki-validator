@@ -15,7 +15,12 @@ export default class CloudflareConnector extends Connector {
         return this.axios({
             method: "get",
             url,
-            responseType: "json"
+            timeout: 120000,
+            responseType: "json",
+            headers: {
+                "User-Agent": this.clientId,
+                "Accept-Encoding": "gzip"
+            }
         })
             .then(data => {
                 if (data && data.data && data.data.roas) {
