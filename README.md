@@ -1,20 +1,21 @@
 # rpki-validator
 
 This is a JavaScript tool which provides RPKI lookup/validation functionalities.  
-This tool is designed to be used for data analysis and visualization, and it is able to check more than 20k prefixes per second. It works both server side with node.js or in the browser.
+This tool is designed to be used for data analysis and visualization, and it is able to check more than 20k prefixes per
+second. It works both server side with node.js or in the browser.
 
 > This tool is not designed for routing security implementation.
 > There is no cryptography involved in this tool, the validation is based on Validated ROA Payloads files (VRPs)
 
 VRP files are provided by:
+
 * [rpki-client.org](https://www.rpki-client.org/) ([rpki-client](https://www.rpki-client.org/))
 * [NTT](https://www.gin.ntt.net/) ([rpki-client](https://www.rpki-client.org/))
 * [RIPE NCC](https://www.ripe.net) ([Routinator](https://www.nlnetlabs.nl/projects/rpki/routinator/))
 * [Cloudflare](https://cloudflare.com) ([OctoRPKI](https://github.com/cloudflare/cfrpki))
 
-
-
 ## Install
+
 Run:
 `npm install rpki-validator`
 
@@ -40,10 +41,10 @@ rpki.validate(prefix, origin, verbose)
 The parameter `verbose` defines the amount of information provided as a result.
 
 If `verbose` is `false` or missing, the result will be one of:
+
 * `true` - if rpki valid
 * `false` - if rpki invalid
 * `null` - if no ROA was found for this prefix
-
 
 If `verbose` is `true`, the result will be an object like:
 
@@ -61,6 +62,7 @@ If `verbose` is `true`, the result will be an object like:
 ```
 
 Possible `reason` values are:
+
 * Not valid origin
 * Not valid prefix length
 * No ROA available for this prefix
@@ -68,7 +70,8 @@ Possible `reason` values are:
 
 The `covering` array is the list of ROAs covering the queried prefix.
 
-> IMPORTANT: In this case you are not using a VRP file, but an online API. Please, read the section below to understand how to load a VRP file and do more frequent validations.
+> IMPORTANT: In this case you are not using a VRP file, but an online API. Please, read the section below to understand
+> how to load a VRP file and do more frequent validations.
 
 ## Multiple validations
 
@@ -87,14 +90,18 @@ rpki.preCache()
 
 ```
 
-The `preCache` method downloads a complete VRP list, this may take some seconds. Do your validations inside the `.then` if you want to be sure all validations are happening in cache.
-If you instead do validations outside the `.then`, these will be executed online up to when the cache is ready. When the cache is ready, all validations will happen based on the cache.
+The `preCache` method downloads a complete VRP list, this may take some seconds. Do your validations inside the `.then`
+if you want to be sure all validations are happening in cache.
+If you instead do validations outside the `.then`, these will be executed online up to when the cache is ready. When the
+cache is ready, all validations will happen based on the cache.
 
-The `.preCache()` method can take an optional parameter indicating after how many minutes the cache will be automatically refreshed (see [below](#rpki-auto-refresh-limits) for more info). E.g., `prki.preCache(60)` to refresh the cache every hour.
+The `.preCache()` method can take an optional parameter indicating after how many minutes the cache will be
+automatically refreshed (see [below](#rpki-auto-refresh-limits) for more info). E.g., `prki.preCache(60)` to refresh the
+cache every hour.
 
 
-> IMPORTANT: `preCache` uses a good amount of memory (at the moment ~40Mb, but this will grow in the future) to store the cache. This may be less suitable for running in a browser.
-
+> IMPORTANT: `preCache` uses a good amount of memory (at the moment ~40Mb, but this will grow in the future) to store
+> the cache. This may be less suitable for running in a browser.
 
 ## Options
 
@@ -102,7 +109,6 @@ It is possible to specify options while creating the validator. In the following
 
 ```js
 const options = {
-    httpsAgent, // an http(s) agent, e.g., to use a proxy https://www.npmjs.com/package/https-proxy-agent
     connector //one of "rpkiclient", "ntt", "cloudflare", "ripe", "external", "api" (default: "rpkiclient")
 };
 
@@ -112,7 +118,7 @@ const rpki = new RpkiValidator(options);
 Example, to change the VRP provider to NTT:
 
 ```js
-const rpki = new RpkiValidator({ connector: "ntt" });
+const rpki = new RpkiValidator({connector: "ntt"});
 ```
 
 The VRP provider can also be changed at runtime
@@ -121,9 +127,10 @@ The VRP provider can also be changed at runtime
 rpki.setConnector("ripe");
 ```
 
-
 ### RPKI auto-refresh limits
+
 Each connector has limits on how much time can be specified for the auto-refresh option:
+
 * rpkiclient, 5 min
 * ntt, 15 min
 * ripe, 10 min
@@ -131,12 +138,12 @@ Each connector has limits on how much time can be specified for the auto-refresh
 * external, not available (based on when new data is applied)
 * api, 5 min
 
-
 ## External VRPs
+
 You can load your VRPs in the following way:
 
 ```javascript
-const rpki = new rpkiValidator({ connector: "external" });
+const rpki = new rpkiValidator({connector: "external"});
 
 rpki.setVRPs([{
     prefix: "123.4.5.0/24",
@@ -160,12 +167,12 @@ rpki.preCache()
     })
 ```
 
-
 ## VRPs on custom API
+
 Also, you can load your VRPs by providing a URL of an API.
 
 ```javascript
-const rpki = new rpkiValidator({ connector: "api", url: "https://my-api.api.com/vrps/" });
+const rpki = new rpkiValidator({connector: "api", url: "https://my-api.api.com/vrps/"});
 
 rpki.preCache()
     .then(() => {
@@ -178,20 +185,22 @@ rpki.preCache()
     })
 ```
 
-
 The API must produce a JSON output like:
 
 ```json
 {
-  "roas": [{
-    "prefix": "123.4.5.0/24",
-    "maxLength": 24,
-    "asn": 1234
-  }, {
-    "prefix": "321.4.5.0/22",
-    "maxLength": 22,
-    "asn": 9876
-  }]
+    "roas": [
+        {
+            "prefix": "123.4.5.0/24",
+            "maxLength": 24,
+            "asn": 1234
+        },
+        {
+            "prefix": "321.4.5.0/22",
+            "maxLength": 22,
+            "asn": 9876
+        }
+    ]
 }
 
 ```

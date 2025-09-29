@@ -30,8 +30,7 @@ class RpkiValidator {
             timeout: 30000,
             advancedStatsRefreshRateMinutes: 120,
             connector: providers[0],
-            httpsAgent: null,
-            axios: null,
+            axios: realAxios,
             clientId: "rpki-validator_js",
             defaultRpkiApi
         };
@@ -39,23 +38,7 @@ class RpkiValidator {
         this.#longestPrefixMatch = new LongestPrefixMatch();
         this.#options = Object.assign({}, defaults, options);
 
-        if (!this.#options.axios) {
-
-            const defaultPayload = {
-                timeout: this.#options.timeout,
-                headers: {
-                    "User-Agent": defaults.clientId,
-                    "Accept-Encoding": "gzip"
-                }
-            };
-            if (this.#options.httpsAgent) {
-                defaultPayload.httpsAgent = options.httpsAgent;
-            }
-
-            this.#options.axios = (payload) => realAxios({...payload, ...defaultPayload});
-        }
-
-        this.#axios = this.#options.axios;
+        this.#axios = this.#options?.axios;
 
 
         this.#queue = {};
