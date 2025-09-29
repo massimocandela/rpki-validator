@@ -15,57 +15,62 @@ export default class RpkiClientConnector extends Connector {
 
     getAdvancedStats = () => {
         if (!this.setAdvancedStatsTimer) {
-            this.setAdvancedStatsTimer = setInterval(this._setAdvancedStats, this.advancedStatsRefreshRateMinutes * 60 * 1000);
+            this.setAdvancedStatsTimer = setInterval(() => {
+                this._advancedStatsPromise = this._setAdvancedStats();
+            }, this.advancedStatsRefreshRateMinutes * 60 * 1000);
             this._advancedStatsPromise = this._setAdvancedStats();
         }
 
-        if (this.index) {
-            return Promise.resolve(this.index);
-        } else {
-            return this._advancedStatsPromise
-                .then(() => this.index);
-        }
+        return this._advancedStatsPromise;
+    };
+
+
+    fetchAndParseGz = (url) => {
+        const headers = {
+            "User-Agent": this.clientId,
+            ...(this.dumpModified ? { "If-Modified-Since": this.dumpModified.toUTCString() } : {})
+        };
+
+        return fetch(url, { headers })
+            .then(res => {
+                this.dumpModified = new Date(res.headers.get("last-modified"));
+                const stream = res.body
+                    .pipeThrough(new DecompressionStream("gzip"))
+                    .pipeThrough(new TextDecoderStream());
+                const reader = stream.getReader();
+
+                this.index = new MetaIndex();
+                let buffer = "";
+
+                const process = (result) => {
+                    if (result.done) {
+                        buffer.split("\n").forEach(l => {
+                            if (l.trim().length > 1) try { this.index.add(JSON.parse(l)); } catch {}
+                        });
+                        return this.index;
+                    }
+
+                    buffer += result.value;
+                    const parts = buffer.split("\n");
+                    buffer = parts.pop();
+                    parts.forEach(l => {
+                        if (l.trim().length > 1) try { this.index.add(JSON.parse(l)); } catch {}
+                    });
+
+                    return reader.read().then(process);
+                };
+
+                return reader.read().then(process);
+            });
     };
 
     _setAdvancedStats = () => {
         const url = brembo.build(this.host, {
-            path: ["dump.json"],
-            params: {
-                client: this.clientId
-            }
+            path: ["dump.json.gz"]
         });
 
-        const headers = {};
-        if (this.dumpModified) {
-            headers["If-Modified-Since"] = this.dumpModified.toUTCString();
-        }
-
-        return this.axios({
-            method: "get",
-            url,
-            maxContentLength: Infinity,
-            maxBodyLength: Infinity
-        })
-            .then((data) => {
-                if (data && data.data) {
-                    if (this.options.verbose) {
-                        console.log("Loading new roa data");
-                    }
-                    this.dumpModified = new Date(data.headers["last-modified"]);
-                    this.index = new MetaIndex();
-                    const items = data.data.split("\n");
-
-                    for (let item of items) {
-                        try {
-                            const trimmedItem = item.trim();
-                            if (trimmedItem.length > 1) {
-                                this.index.add(JSON.parse(trimmedItem));
-                            }
-                        } catch (e) {
-                        }
-                    }
-                }
-            });
+        return this.fetchAndParseGz(url)
+            .then(() => this.index);
     };
 
     _applyRpkiClientMetadata = (metadata = {}) => {
@@ -84,16 +89,15 @@ export default class RpkiClientConnector extends Connector {
             }
         });
 
-        const headers = {};
-        if (this.metadata?.lastModified) {
-            headers["If-Modified-Since"] = new Date(this.metadata.lastModified).toUTCString();
-        }
-
         return this.axios({
             method: "get",
             url,
-            headers,
-            responseType: "json"
+            responseType: "json",
+            headers: {
+                "User-Agent": this.clientId,
+                "Accept-Encoding": "gzip",
+                ...this.metadata?.lastModified ? {"If-Modified-Since": new Date(this.metadata.lastModified).toUTCString()} : {}
+            }
         })
             .then(data => {
                 if (data && data.data && data.data.roas) {
