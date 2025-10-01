@@ -26,41 +26,58 @@ export default class PacketVisConnector extends RpkiClientConnector {
                 const readline = require("readline");
                 const file = ".cache/dump.json";
 
-                if (fs.existsSync(file)) {
-                    const stats = fs.statSync(file);
-
-                    if (this.cacheModified.dump < stats.mtime) { // Newer than last time
-                        console.log("refreshing advanced stats", new Date());
-                        this.index = new MetaIndex();
-
-                        const rl = readline.createInterface({
-                            input: fs.createReadStream(file),
-                            crlfDelay: Infinity
-                        });
-
-                        rl.on("line", (line) => {
-                            try {
-                                const trimmed = line.trim();
-                                if (trimmed.length > 1) {
-                                    this.index.add(JSON.parse(trimmed));
-                                }
-                            } catch (e) {
-                                // ignore parse errors
-                            }
-                        });
-
-                        rl.on("close", () => {
-                            this.cacheModified.dump = stats.mtime;
-                            resolve(this.index);
-                        });
-
-                        rl.on("error", reject);
-                    }
-                } else {
-                    reject(`RPKI cache missing ${file}`);
+                if (!fs.existsSync(file)) {
+                    return reject(`RPKI cache missing ${file}`);
                 }
-            } catch (error) {
-                reject(error);
+
+                const stats = fs.statSync(file);
+
+                if (this.cacheModified.dump >= stats.mtime) {
+                    return resolve(); // Already up-to-date
+                }
+
+                this.index = new MetaIndex();
+
+                const stream = fs.createReadStream(file);
+                const rl = readline.createInterface({
+                    input: stream,
+                    crlfDelay: Infinity
+                });
+
+                const timeout = setTimeout(() => {
+                    rl.close();
+                    stream.destroy();
+                    reject(new Error("Timeout while reading dump.json"));
+                }, 300000);
+
+                rl.on("line", (line) => {
+                    try {
+                        const trimmed = line.trim();
+                        if (trimmed.length > 1) {
+                            this.index.add(JSON.parse(trimmed));
+                        }
+                    } catch {
+                        // ignore parse errors
+                    }
+                });
+
+                rl.on("close", () => {
+                    clearTimeout(timeout);
+                    this.cacheModified.dump = stats.mtime;
+                    resolve();
+                });
+
+                rl.on("error", (err) => {
+                    clearTimeout(timeout);
+                    reject(err);
+                });
+
+                stream.on("error", (err) => {
+                    clearTimeout(timeout);
+                    reject(err);
+                });
+            } catch (err) {
+                reject(err);
             }
         });
     };

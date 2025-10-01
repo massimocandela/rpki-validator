@@ -14,14 +14,17 @@ export default class RpkiClientConnector extends Connector {
     };
 
     getAdvancedStats = () => {
-        if (!this.setAdvancedStatsTimer) {
-            this.setAdvancedStatsTimer = setInterval(() => {
+        if (!this._advancedStatsPromise) {
+            setInterval(() => {
                 this._advancedStatsPromise = this._setAdvancedStats();
             }, this.advancedStatsRefreshRateMinutes * 60 * 1000);
+
             this._advancedStatsPromise = this._setAdvancedStats();
         }
 
-        return this._advancedStatsPromise;
+        return this._advancedStatsPromise
+            .catch(console.log)
+            .then(() => this.index);
     };
 
 
@@ -82,8 +85,7 @@ export default class RpkiClientConnector extends Connector {
             path: ["dump.json.gz"]
         });
 
-        return this.fetchAndParseGz(url)
-            .then(() => this.index);
+        return this.fetchAndParseGz(url);
     };
 
     _applyRpkiClientMetadata = (metadata = {}) => {
