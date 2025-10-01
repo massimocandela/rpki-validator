@@ -33,38 +33,47 @@ export default class RpkiClientConnector extends Connector {
 
         return fetch(url, {headers})
             .then(res => {
-                this.dumpModified = new Date(res.headers.get("last-modified"));
-                const stream = res.body
-                    .pipeThrough(new DecompressionStream("gzip"))
-                    .pipeThrough(new TextDecoderStream());
-                const reader = stream.getReader();
+                const newLastModified = new Date(res.headers.get("last-modified"));
 
-                this.index = new MetaIndex();
-                let buffer = "";
+                if (this.dumpModified && newLastModified.toUTCString() === this.dumpModified.toUTCString()) {
 
-                const process = (result) => {
-                    if (result.done) {
-                        buffer.split("\n").forEach(l => {
+                    return Promise.resolve();
+                } else {
+
+                    this.dumpModified = newLastModified;
+                    const stream = res.body
+                        .pipeThrough(new DecompressionStream("gzip"))
+                        .pipeThrough(new TextDecoderStream());
+                    const reader = stream.getReader();
+
+                    this.index = new MetaIndex();
+                    let buffer = "";
+
+                    const process = (result) => {
+                        if (result.done) {
+                            buffer.split("\n").forEach(l => {
+                                if (l.trim().length > 1) {
+                                    try { this.index.add(JSON.parse(l)); } catch {}
+                                }
+                            });
+
+                            return this.index;
+                        }
+
+                        buffer += result.value;
+                        const parts = buffer.split("\n");
+                        buffer = parts.pop();
+                        parts.forEach(l => {
                             if (l.trim().length > 1) {
                                 try { this.index.add(JSON.parse(l)); } catch {}
                             }
                         });
-                        return this.index;
-                    }
 
-                    buffer += result.value;
-                    const parts = buffer.split("\n");
-                    buffer = parts.pop();
-                    parts.forEach(l => {
-                        if (l.trim().length > 1) {
-                            try { this.index.add(JSON.parse(l)); } catch {}
-                        }
-                    });
+                        return reader.read().then(process);
+                    };
 
                     return reader.read().then(process);
-                };
-
-                return reader.read().then(process);
+                }
             });
     };
 
