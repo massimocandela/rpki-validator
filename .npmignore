@@ -10,3 +10,4 @@ tests/
 src/
 ~/
 .npm/
+.cache/
