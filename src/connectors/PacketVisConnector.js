@@ -30,6 +30,7 @@ export default class PacketVisConnector extends RpkiClientConnector {
                     const stats = fs.statSync(file);
 
                     if (this.cacheModified.dump < stats.mtime) { // Newer than last time
+                        console.log("refreshing advanced stats", new Date());
                         this.index = new MetaIndex();
 
                         const rl = readline.createInterface({
