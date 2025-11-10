@@ -219,6 +219,8 @@ class RpkiValidator {
     };
 
     setVRPs = (vrps) => {
+        this.preCached = true;
+
         return this.#connector.setVRPs(vrps);
     };
 
