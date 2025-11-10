@@ -9,6 +9,8 @@ export default class ExternalConnector extends Connector {
     };
 
     setVRPs = (vrps) => {
+        this.preCached = true;
+
         vrps = (vrps || [])
             .map(item => {
                 const origin = item.asn.toString().replace("AS", "");
