@@ -2,18 +2,6 @@ function getVrpKey(vrp) {
     return `${vrp.prefix}-${vrp.asid ?? vrp.asn}-${vrp.maxlen ?? vrp.maxLength}`;
 }
 
-function makeUnique(arr) {
-    const uniq = {};
-
-    if (!!arr) {
-        for (let item of arr) {
-            uniq[item.id] = item;
-        }
-    }
-
-    return Object.values(uniq);
-}
-
 function getManifestKey(file) {
     return file.split("/").slice(-2).join("-");
 }
@@ -29,6 +17,54 @@ export default class MetaIndex {
 
 
     constructor() {}
+
+    _pushIndex = (index, key, id) => {
+        if (!key || !id) {
+            return;
+        }
+
+        if (!index[key]) {
+            index[key] = [id];
+        } else {
+            index[key].push(id);
+        }
+    };
+
+    _uniqueIds = (ids) => {
+        if (!ids || !ids.length) {
+            return [];
+        }
+
+        const seen = new Set();
+        const out = [];
+
+        for (let id of ids) {
+            if (id && !seen.has(id)) {
+                seen.add(id);
+                out.push(id);
+            }
+        }
+
+        return out;
+    };
+
+    _idsToItems = (ids) => {
+        const unique = this._uniqueIds(ids);
+
+        if (!unique.length) {
+            return [];
+        }
+
+        const out = [];
+        for (let id of unique) {
+            const item = this.ids[id];
+            if (item) {
+                out.push(item);
+            }
+        }
+
+        return out;
+    };
 
     destroy = () => {
         this.ids = {};
@@ -63,26 +99,15 @@ export default class MetaIndex {
 
         if (type === "manifest") {
             const manifestKey = getManifestKey(file);
-            this.manifests[manifestKey] = item;
+            this.manifests[manifestKey] = hash_id;
         } else {
-
-            this.type[type] = this.type[type] || [];
-            this.type[type].push(this.ids[hash_id]);
-
-            if (ski) {
-                this.ski[ski] = this.ski[ski] || [];
-                this.ski[ski].push(this.ids[hash_id]);
-            }
-
-            if (aki) {
-                this.aki[aki] = this.aki[aki] || [];
-                this.aki[aki].push(this.ids[hash_id]);
-            }
+            this._pushIndex(this.type, type, hash_id);
+            this._pushIndex(this.ski, ski, hash_id);
+            this._pushIndex(this.aki, aki, hash_id);
 
             for (let vrp of vrps) {
                 const key = getVrpKey(vrp);
-                this.vrps[key] = this.vrps[key] || [];
-                this.vrps[key].push(this.ids[hash_id]);
+                this._pushIndex(this.vrps, key, hash_id);
             }
         }
     };
@@ -92,11 +117,11 @@ export default class MetaIndex {
     };
 
     getByType = (type) => {
-        return this.type[type];
+        return this._idsToItems(this.type[type]);
     };
 
     getVRPs = (vrp) => {
-        return makeUnique(this.vrps[getVrpKey(vrp)]);
+        return this._idsToItems(this.vrps[getVrpKey(vrp)]);
     };
 
     getParents = (data) => {
@@ -104,13 +129,25 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return makeUnique(data.map(i => this._getSki(i.aki)?.filter(p => i.hash_id !== p.hash_id)).flat().filter(i => !!i));
+        const parentIds = [];
+
+        for (let item of data) {
+            const skiIds = this._getSki(item?.aki) || [];
+
+            for (let id of skiIds) {
+                if (id && id !== item.hash_id) {
+                    parentIds.push(id);
+                }
+            }
+        }
+
+        return this._idsToItems(parentIds);
     };
 
     getStructure = (vrp) => {
         const tree = [];
         let count = 100;
-        let item = makeUnique(this.vrps[getVrpKey(vrp)]);
+        let item = this.getVRPs(vrp);
 
         while (item.length && count > 0) {
             tree.push(item);
@@ -118,8 +155,15 @@ export default class MetaIndex {
             count--;
         }
 
+        return tree.flat().map(i => {
+            const manifestId = i.manifest ? this.manifests[i.manifest] : undefined;
+            const manifest = manifestId ? this.ids[manifestId] : undefined;
 
-        return tree.flat().map(i => ({...i, manifest: i.manifest ? this.manifests[i.manifest] : undefined}));
+            return {
+                ...i,
+                manifest
+            };
+        });
     };
 
     getFlattenStructure = (vrp) => {
@@ -147,7 +191,14 @@ export default class MetaIndex {
             data = [data];
         }
 
-        return makeUnique(data.map(i => this._getAki(i.ski)).flat());
+        const childIds = [];
+
+        for (let item of data) {
+            const akiIds = this._getAki(item?.ski) || [];
+            childIds.push(...akiIds);
+        }
+
+        return this._idsToItems(childIds);
     };
 
     _getSki = (ski) => {
