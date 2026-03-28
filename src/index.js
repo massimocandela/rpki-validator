@@ -410,6 +410,10 @@ class RpkiValidator {
                             const key = this.#getKey(result.prefix, result.asn);
                             const queueItem = this.#queue[key];
 
+                            if (!queueItem) {
+                                continue;
+                            }
+
                             if (result.valid === null) {
 
                                 output = this.#createOutput(null, null, queueItem.verbose, null);
