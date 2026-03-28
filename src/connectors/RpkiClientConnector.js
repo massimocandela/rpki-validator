@@ -7,6 +7,7 @@ export default class RpkiClientConnector extends Connector {
         super(options);
 
         this.index = null;
+        this._advancedStatsTimer = null;
         this.host = this.options.host ?? "https://console.rpki-client.org";
         this.dumpModified = null;
         this.minimumRefreshRateMinutes = 5;
@@ -15,7 +16,7 @@ export default class RpkiClientConnector extends Connector {
 
     getAdvancedStats = () => {
         if (!this._advancedStatsPromise) {
-            setInterval(() => {
+            this._advancedStatsTimer = setInterval(() => {
                 this._advancedStatsPromise = this._setAdvancedStats();
             }, this.advancedStatsRefreshRateMinutes * 60 * 1000);
 
@@ -147,5 +148,19 @@ export default class RpkiClientConnector extends Connector {
     getExpiringElements = (vrp, expires, now) => {
         return this.getAdvancedStats()
             .then(index => index.getExpiring(vrp, expires, now));
+    };
+
+    destroy = () => {
+        if (this._advancedStatsTimer) {
+            clearInterval(this._advancedStatsTimer);
+            this._advancedStatsTimer = null;
+        }
+
+        if (this.index?.destroy) {
+            this.index.destroy();
+        }
+
+        this.index = null;
+        this._advancedStatsPromise = null;
     };
 }

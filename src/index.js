@@ -23,6 +23,7 @@ class RpkiValidator {
     #options;
     #queue;
     #onlineValidatorStatus;
+    #statusResetTimer;
     #lastMetadata = {};
 
     constructor(options) {
@@ -42,6 +43,7 @@ class RpkiValidator {
 
 
         this.#queue = {};
+        this.#statusResetTimer = null;
         this.preCached = false;
         this.#lastMetadata = {};
         this.#connectors = {
@@ -90,7 +92,14 @@ class RpkiValidator {
                     resolve(this.#onlineValidatorStatus);
                 }, 2000);
 
-                setTimeout(() => {this.#onlineValidatorStatus = null;}, 60 * 60 * 1000);
+                if (this.#statusResetTimer) {
+                    clearTimeout(this.#statusResetTimer);
+                }
+
+                this.#statusResetTimer = setTimeout(() => {
+                    this.#onlineValidatorStatus = null;
+                    this.#statusResetTimer = null;
+                }, 60 * 60 * 1000);
 
                 this.#axios({
                     url,
@@ -119,8 +128,11 @@ class RpkiValidator {
             throw new Error("The specified connector is not valid");
         }
 
+        const previousConnector = this.#connector;
+
         this.#options.connector = name;
         this.empty();
+        previousConnector?.destroy?.();
         this.#connector = new this.#connectors[name](this.#options);
     };
 
@@ -181,6 +193,7 @@ class RpkiValidator {
             } else {
                 if (this.cacheTimer) {
                     clearInterval(this.cacheTimer);
+                    this.cacheTimer = null;
                 }
             }
         }
@@ -230,9 +243,39 @@ class RpkiValidator {
 
         if (this.cacheTimer) {
             clearInterval(this.cacheTimer);
+            this.cacheTimer = null;
         }
         this.#longestPrefixMatch.reset();
     };
+
+    dispose = () => {
+        if (this.#validationTimer) {
+            clearInterval(this.#validationTimer);
+            this.#validationTimer = null;
+        }
+
+        if (this.cacheTimer) {
+            clearInterval(this.cacheTimer);
+            this.cacheTimer = null;
+        }
+
+        if (this.#statusResetTimer) {
+            clearTimeout(this.#statusResetTimer);
+            this.#statusResetTimer = null;
+        }
+
+        for (let item of Object.values(this.#queue)) {
+            item.reject(new Error("Validator disposed."));
+            delete this.#queue[item.key];
+        }
+
+        this.#onlineValidatorStatus = null;
+        this.#connector?.destroy?.();
+        this.#connector = null;
+        this.preCached = false;
+    };
+
+    destroy = () => this.dispose();
 
     getVRPs = () => {
         return this.#connector.getVRPs();
@@ -324,7 +367,6 @@ class RpkiValidator {
         const items = Object.values(this.#queue);
 
         if (items.length) {
-
             const url = brembo.build(this.#options.defaultRpkiApi, {
                 path: ["validate"],
                 params: {
@@ -333,10 +375,13 @@ class RpkiValidator {
                 }
             });
 
-            return this.#axios({
+            let queueTimeout;
+
+            const request = this.#axios({
                 url,
                 responseType: "json",
                 method: "post",
+                timeout: this.#options.timeout,
                 data: items
                     .map(i => {
                         return {
@@ -344,7 +389,18 @@ class RpkiValidator {
                             asn: i.origin
                         };
                     })
-            })
+            });
+
+            const requestWithTimeout = (this.#options.timeout > 0) ? Promise.race([
+                request,
+                new Promise((resolve, reject) => {
+                    queueTimeout = setTimeout(() => {
+                        reject(new Error(`Validation request timed out after ${this.#options.timeout} ms.`));
+                    }, this.#options.timeout);
+                })
+            ]) : request;
+
+            return requestWithTimeout
                 .then(data => {
                     const results = data.data;
 
@@ -352,28 +408,29 @@ class RpkiValidator {
                         let output;
                         for (let result of results) {
                             const key = this.#getKey(result.prefix, result.asn);
+                            const queueItem = this.#queue[key];
 
                             if (result.valid === null) {
 
-                                output = this.#createOutput(null, null, this.#queue[key].verbose, null);
-                                this.#queue[key].resolve(output);
+                                output = this.#createOutput(null, null, queueItem.verbose, null);
+                                queueItem.resolve(output);
 
                             } else if (result.valid) {
 
                                 const covering = result.covering;
-                                output = this.#createOutput(true, true, this.#queue[key].verbose, covering);
-                                this.#queue[key].resolve(output);
+                                output = this.#createOutput(true, true, queueItem.verbose, covering);
+                                queueItem.resolve(output);
 
                             } else {
 
                                 const covering = result.covering;
 
-                                output = this.#checkCoveringROAs(this.#queue[key]["origin"],
-                                    this.#queue[key]["prefix"],
+                                output = this.#checkCoveringROAs(queueItem["origin"],
+                                    queueItem["prefix"],
                                     covering,
-                                    this.#queue[key].verbose
+                                    queueItem.verbose
                                 );
-                                this.#queue[key].resolve(output);
+                                queueItem.resolve(output);
                             }
                             delete this.#queue[key];
                         }
@@ -385,6 +442,11 @@ class RpkiValidator {
                             this.#queue[item.key].reject(error);
                             delete this.#queue[item.key];
                         }
+                    }
+                })
+                .finally(() => {
+                    if (queueTimeout) {
+                        clearTimeout(queueTimeout);
                     }
                 });
         }

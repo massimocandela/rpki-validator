@@ -27,6 +27,8 @@ export default class Connector {
         return Promise.reject("Advanced RPKI statistics are not enabled for this provider.");
     };
 
+    destroy = () => {};
+
     setVRPs = () => {
         throw new Error("You cannot set VRPs with this connector.");
     };
