@@ -38,7 +38,7 @@
         "chai": "^6.2.2",
         "dotenv-cli": "^11.0.0",
         "mocha": "^11.7.5",
-        "release-it": "^19.2.4"
+        "release-it": "^20.0.1"
     },
     "repository": {
         "type": "git",
