@@ -185,7 +185,9 @@ class RpkiValidator {
                 this.cacheTimer = setInterval(() => {
                     this.preChachePromise = this.#getValidatedPrefixes(true)
                         .catch(error => {
-                            console.log(error);
+                            if (error) {
+                                console.log(error);
+                            }
                             return false;
                         });
 
