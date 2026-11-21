@@ -15,7 +15,7 @@ export default class RIPEConnector extends Connector {
         return this.axios({
             method: "get",
             url,
-            timeout: 120000,
+            timeout: 180000,
             responseType: "json",
             headers: {
                 "User-Agent": this.clientId,
